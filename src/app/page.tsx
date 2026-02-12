@@ -15,7 +15,7 @@ export default async function HomePage() {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold">Users</h1>
           <Link
-            href="/users/new"
+            href="/users/registration"
             className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
           >
             Create New User

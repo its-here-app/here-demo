@@ -16,7 +16,7 @@ export default function NewUserPage() {
     setError("");
 
     try {
-      const response = await fetch("/api/users", {
+      const response = await fetch("/api/user", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
