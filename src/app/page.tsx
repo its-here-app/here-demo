@@ -1,10 +1,5 @@
-import { query } from "@/lib/db";
+import { getUsers } from "@/lib/services/users";
 import Link from "next/link";
-
-async function getUsers() {
-  const result = await query("SELECT * FROM users ORDER BY created_at DESC");
-  return result.rows;
-}
 
 export default async function HomePage() {
   const users = await getUsers();
