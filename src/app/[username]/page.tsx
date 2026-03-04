@@ -1,45 +1,9 @@
-// src/app/[username]/page.tsx
-import { createClient } from "@/lib/supabase/client";
 import { notFound } from "next/navigation";
 import ProfileHeader from "./ProfileHeader";
-
-interface UserProfile {
-  id: string;
-  email: string;
-  name: string;
-  username: string;
-  bio: string | null;
-  avatar_url: string | null;
-  created_at: string;
-}
-
-async function getUserByUsername(
-  username: string
-): Promise<UserProfile | null> {
-  const supabase = await createClient();
-
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("username", username)
-    .single();
-
-  if (error || !data) return null;
-  return data;
-}
-
-async function getUserPlaylists(userId: string) {
-  const supabase = await createClient();
-
-  const { data, error } = await supabase
-    .from("playlists")
-    .select("*")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false });
-
-  if (error) return [];
-  return data;
-}
+import { getUserByUsername } from "@/lib/services/users";
+import { getPlaylistsByUser } from "@/lib/services/playlists";
+import type { Playlist } from "@/types";
+import Link from "next/link";
 
 export default async function UserProfilePage({
   params,
@@ -53,7 +17,7 @@ export default async function UserProfilePage({
     notFound();
   }
 
-  const playlists = await getUserPlaylists(profile.id);
+  const playlists: Playlist[] = await getPlaylistsByUser(profile.id);
 
   return (
     <main className="flex min-h-screen flex-col items-center p-24">
@@ -71,17 +35,16 @@ export default async function UserProfilePage({
         ) : (
           <div className="grid gap-4">
             {playlists.map((playlist) => (
-              <div
+              <Link
                 key={playlist.id}
-                className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
+                href={`/playlists/${playlist.slug}`}
+                className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow block"
               >
                 <h3 className="text-lg font-semibold mb-2">{playlist.name}</h3>
                 {playlist.description && (
-                  <p className="text-gray-600 text-sm">
-                    {playlist.description}
-                  </p>
+                  <p className="text-gray-600 text-sm">{playlist.description}</p>
                 )}
-              </div>
+              </Link>
             ))}
           </div>
         )}

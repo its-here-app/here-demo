@@ -3,35 +3,27 @@
 import { useState } from "react";
 import { useAuth } from "../../lib/authContext";
 import { useRouter } from "next/navigation";
-import { createClient } from "../../lib/supabase/client";
+import { signOut } from "@/lib/services/users";
 import EditProfileModal from "../../components/EditProfileModal";
+import type { Profile } from "@/types";
 
 interface ProfileHeaderProps {
-  profile: {
-    id: string;
-    name: string;
-    username: string;
-    bio: string | null;
-    avatar_url: string | null;
-    created_at: string;
-  };
+  profile: Profile;
 }
 
 export default function ProfileHeader({ profile }: ProfileHeaderProps) {
   const { user } = useAuth();
   const router = useRouter();
-  const supabase = createClient();
   const isOwnProfile = user?.id === profile.id;
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   async function handleSignOut() {
-    await supabase.auth.signOut();
+    await signOut();
     router.push("/login");
   }
 
   function handleEditSuccess() {
-    // Refresh the page to show updated data
     router.refresh();
   }
 
@@ -54,7 +46,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
             {profile.avatar_url ? (
               <img
                 src={profile.avatar_url}
-                alt={profile.name}
+                alt={profile.full_name}
                 className="w-24 h-24 rounded-full object-cover"
               />
             ) : (
@@ -77,7 +69,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
           </div>
 
           <div className="flex-1">
-            <h1 className="text-2xl font-bold mb-1">{profile.name}</h1>
+            <h1 className="text-2xl font-bold mb-1">{profile.full_name}</h1>
             <p className="text-gray-600 mb-4">@{profile.username}</p>
 
             {profile.bio && <p className="text-gray-700 mb-4">{profile.bio}</p>}

@@ -1,40 +1,25 @@
 "use client";
 
 import { useState } from "react";
-
-interface Spot {
-  spot_id: string;
-  name: string;
-  address: string;
-  rating?: number;
-  types?: string[];
-}
+import { searchSpots } from "@/lib/services/playlists";
+import type { SearchResult } from "@/types";
 
 export default function SpotSearch() {
   const [query, setQuery] = useState("");
-  const [spots, setSpots] = useState<Spot[]>([]);
+  const [spots, setSpots] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault();
-
     if (!query.trim()) return;
 
     setLoading(true);
     setError("");
 
     try {
-      const response = await fetch(
-        `/api/spots/search?query=${encodeURIComponent(query)}`
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to search spots");
-      }
-
-      const data = await response.json();
-      setSpots(data.places);
+      const results = await searchSpots(query);
+      setSpots(results);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
       setSpots([]);

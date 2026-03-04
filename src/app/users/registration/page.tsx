@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { createUser } from "@/lib/services/users";
 
 export default function NewUserPage() {
   const router = useRouter();
@@ -16,20 +17,7 @@ export default function NewUserPage() {
     setError("");
 
     try {
-      const response = await fetch("/api/user", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name, username }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || "Failed to create user");
-      }
-
-      // Success! Redirect to home or show success message
+      await createUser({ name, username });
       alert("User created successfully!");
       setName("");
       setUserName("");
@@ -63,14 +51,11 @@ export default function NewUserPage() {
           </div>
 
           <div>
-            <label
-              htmlFor="username"
-              className="block text-sm font-medium mb-2"
-            >
+            <label htmlFor="username" className="block text-sm font-medium mb-2">
               Username
             </label>
             <input
-              type="username"
+              type="text"
               id="username"
               value={username}
               onChange={(e) => setUserName(e.target.value)}

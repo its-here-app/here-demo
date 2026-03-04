@@ -2,8 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "../lib/authContext";
-import { createClient } from "../lib/supabase/client";
 import Modal from "./Modal";
+import {
+  getProfile,
+  updateProfile,
+  uploadProfilePhoto,
+} from "@/lib/services/users";
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -17,7 +21,6 @@ export default function EditProfileModal({
   onSuccess,
 }: EditProfileModalProps) {
   const { user } = useAuth();
-  const supabase = createClient();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -30,7 +33,6 @@ export default function EditProfileModal({
   const [photoPreview, setPhotoPreview] = useState<string>("");
   const [currentPhotoUrl, setCurrentPhotoUrl] = useState<string>("");
 
-  // Load profile data when modal opens
   useEffect(() => {
     if (isOpen && user) {
       loadProfile();
@@ -39,25 +41,16 @@ export default function EditProfileModal({
 
   async function loadProfile() {
     if (!user) return;
-
     try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .single();
-
-      if (error) throw error;
-
-      if (data) {
-        setName(data.full_name || "");
-        setUsername(data.username || "");
-        setBio(data.bio || "");
-        setCurrentPhotoUrl(data.avatar_url || "");
-        setPhotoPreview(data.avatar_url || "");
+      const profile = await getProfile(user.id);
+      if (profile) {
+        setName(profile.full_name || "");
+        setUsername(profile.username || "");
+        setBio(profile.bio || "");
+        setCurrentPhotoUrl(profile.avatar_url || "");
+        setPhotoPreview(profile.avatar_url || "");
       }
-    } catch (err: any) {
-      console.error("Error loading profile:", err);
+    } catch {
       setError("Failed to load profile");
     } finally {
       setLoading(false);
@@ -69,9 +62,7 @@ export default function EditProfileModal({
     if (file) {
       setProfilePhoto(file);
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setPhotoPreview(reader.result as string);
-      };
+      reader.onloadend = () => setPhotoPreview(reader.result as string);
       reader.readAsDataURL(file);
     }
   }
@@ -86,52 +77,20 @@ export default function EditProfileModal({
     try {
       let photoUrl = currentPhotoUrl;
 
-      // Upload new photo if provided
       if (profilePhoto) {
-        // Delete old photo if exists
-        if (currentPhotoUrl) {
-          const oldFileName = currentPhotoUrl.split("/").pop();
-          if (oldFileName) {
-            await supabase.storage.from("profile-photos").remove([oldFileName]);
-          }
-        }
-
-        // Upload new photo
-        const fileExt = profilePhoto.name.split(".").pop();
-        const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from("profile-photos")
-          .upload(fileName, profilePhoto);
-
-        if (uploadError) throw uploadError;
-
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from("profile-photos").getPublicUrl(fileName);
-
-        photoUrl = publicUrl;
+        photoUrl = await uploadProfilePhoto(user.id, profilePhoto, currentPhotoUrl);
       }
 
-      // Update profile
-      const { error: updateError } = await supabase
-        .from("profiles")
-        .update({
-          full_name: name,
-          username,
-          bio,
-          avatar_url: photoUrl,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", user.id);
+      await updateProfile(user.id, {
+        full_name: name,
+        username,
+        bio,
+        avatar_url: photoUrl,
+      });
 
-      if (updateError) throw updateError;
-
-      // Success - refresh the page
       onSuccess();
       onClose();
     } catch (err: any) {
-      console.error("Error updating profile:", err);
       setError(err.message);
     } finally {
       setSaving(false);
