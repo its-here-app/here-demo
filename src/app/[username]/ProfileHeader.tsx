@@ -1,10 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../../lib/authContext";
 import { useRouter } from "next/navigation";
-import { signOut } from "@/lib/services/users";
+import {
+  signOut,
+  getRelationship,
+  followUser,
+  unfollowUser,
+  blockUser,
+  unblockUser,
+  getFollowerCount,
+  getFollowingCount,
+} from "@/lib/services/users";
 import EditProfileModal from "../../components/EditProfileModal";
+import FollowsModal from "../../components/FollowsModal";
 import type { Profile } from "@/types";
 
 interface ProfileHeaderProps {
@@ -17,6 +27,31 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
   const isOwnProfile = user?.id === profile.id;
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [followsModal, setFollowsModal] = useState<{
+    open: boolean;
+    tab: "followers" | "following";
+  }>({ open: false, tab: "followers" });
+  const [counts, setCounts] = useState<{
+    followers: number;
+    following: number;
+  } | null>(null);
+  const [relationship, setRelationship] = useState<{
+    following: boolean;
+    blocking: boolean;
+    blockedBy: boolean;
+  } | null>(null);
+
+  useEffect(() => {
+    Promise.all([
+      getFollowerCount(profile.id),
+      getFollowingCount(profile.id),
+    ]).then(([followers, following]) => setCounts({ followers, following }));
+  }, [profile.id]);
+
+  useEffect(() => {
+    if (!user || isOwnProfile) return;
+    getRelationship(user.id, profile.id).then(setRelationship);
+  }, [user, profile.id, isOwnProfile]);
 
   async function handleSignOut() {
     await signOut();
@@ -25,6 +60,34 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
 
   function handleEditSuccess() {
     router.refresh();
+  }
+
+  async function handleFollow() {
+    if (!user || !relationship) return;
+    if (relationship.following) {
+      await unfollowUser(user.id, profile.id);
+      setRelationship((r) => r && { ...r, following: false });
+      setCounts((c) => c && { ...c, followers: c.followers - 1 });
+    } else {
+      await followUser(user.id, profile.id);
+      setRelationship((r) => r && { ...r, following: true });
+      setCounts((c) => c && { ...c, followers: c.followers + 1 });
+    }
+  }
+
+  async function handleBlock() {
+    if (!user || !relationship) return;
+    if (relationship.blocking) {
+      await unblockUser(user.id, profile.id);
+      setRelationship((r) => r && { ...r, blocking: false });
+    } else {
+      const wasFollowing = relationship.following;
+      await blockUser(user.id, profile.id);
+      setRelationship((r) => r && { ...r, blocking: true, following: false });
+      if (wasFollowing) {
+        setCounts((c) => c && { ...c, followers: c.followers - 1 });
+      }
+    }
   }
 
   return (
@@ -74,6 +137,27 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
 
             {profile.bio && <p className="text-gray-700 mb-4">{profile.bio}</p>}
 
+            <div className="flex items-center gap-4 mb-4">
+              <button
+                onClick={() => setFollowsModal({ open: true, tab: "followers" })}
+                className="text-sm hover:underline"
+              >
+                <span className="font-semibold text-gray-900">
+                  {counts?.followers ?? "—"}
+                </span>{" "}
+                <span className="text-gray-500">followers</span>
+              </button>
+              <button
+                onClick={() => setFollowsModal({ open: true, tab: "following" })}
+                className="text-sm hover:underline"
+              >
+                <span className="font-semibold text-gray-900">
+                  {counts?.following ?? "—"}
+                </span>{" "}
+                <span className="text-gray-500">following</span>
+              </button>
+            </div>
+
             <div className="text-sm text-gray-500">
               <p>
                 Joined{" "}
@@ -92,6 +176,26 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
                 Edit Profile
               </button>
             )}
+
+            {!isOwnProfile && user && relationship && (
+              <div className="mt-6 flex gap-3">
+                {!relationship.blocking && (
+                  <button
+                    onClick={handleFollow}
+                    disabled={relationship.blockedBy}
+                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {relationship.following ? "Following" : "Follow"}
+                  </button>
+                )}
+                <button
+                  onClick={handleBlock}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                >
+                  {relationship.blocking ? "Unblock" : "Block"}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -100,6 +204,15 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
         onSuccess={handleEditSuccess}
+      />
+
+      <FollowsModal
+        isOpen={followsModal.open}
+        onClose={() => setFollowsModal((s) => ({ ...s, open: false }))}
+        profileId={profile.id}
+        profileName={profile.full_name}
+        initialTab={followsModal.tab}
+        currentUserId={user?.id}
       />
     </>
   );

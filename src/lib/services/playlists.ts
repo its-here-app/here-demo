@@ -29,6 +29,9 @@ export async function upsertSpot(spot: {
   google_place_id: string;
   name: string;
   address: string;
+  photo_url?: string | null;
+  rating?: number | null;
+  types?: string[] | null;
 }) {
   const supabase = createClient();
   const { data, error } = await supabase
@@ -91,6 +94,27 @@ export async function createPlaylist(params: {
     .single();
   if (error) throw error;
   return data;
+}
+
+export async function updatePlaylistDescription(
+  playlistId: string,
+  description: string
+) {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("playlists")
+    .update({ description })
+    .eq("id", playlistId);
+  if (error) throw error;
+}
+
+export async function updateSpotNotes(playlistSpotId: string, notes: string) {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("playlist_spots")
+    .update({ notes })
+    .eq("id", playlistSpotId);
+  if (error) throw error;
 }
 
 export async function deletePlaylist(playlistId: string) {

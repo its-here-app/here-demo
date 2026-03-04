@@ -1,0 +1,102 @@
+"use client";
+
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
+import { useAuth } from "./authContext";
+import { getSavedSpots, saveSpot, unsaveSpot } from "@/lib/services/saves";
+import type { Spot, DraftSpot } from "@/types";
+
+interface SavesContextType {
+  savedSpots: Spot[];
+  isSaved: (googlePlaceId: string) => boolean;
+  toggle: (spot: DraftSpot) => Promise<void>;
+  loading: boolean;
+  error: string | null;
+}
+
+const SavesContext = createContext<SavesContextType>({
+  savedSpots: [],
+  isSaved: () => false,
+  toggle: async () => {},
+  loading: true,
+  error: null,
+});
+
+export function SavesProvider({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
+  const [savedSpots, setSavedSpots] = useState<Spot[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user) {
+      setSavedSpots([]);
+      setLoading(false);
+      return;
+    }
+    getSavedSpots(user.id).then((spots) => {
+      setSavedSpots(spots);
+      setLoading(false);
+    });
+  }, [user]);
+
+  const isSaved = useCallback(
+    (googlePlaceId: string) =>
+      savedSpots.some((s) => s.google_place_id === googlePlaceId),
+    [savedSpots]
+  );
+
+  const toggle = useCallback(
+    async (draft: DraftSpot) => {
+      if (!user) return;
+      setError(null);
+      const existing = savedSpots.find(
+        (s) => s.google_place_id === draft.google_place_id
+      );
+
+      if (existing) {
+        setSavedSpots((prev) =>
+          prev.filter((s) => s.google_place_id !== draft.google_place_id)
+        );
+        try {
+          await unsaveSpot(user.id, existing.id);
+        } catch (e) {
+          console.error("unsaveSpot failed:", e);
+          setError(String(e));
+          setSavedSpots((prev) => [existing, ...prev]);
+        }
+      } else {
+        try {
+          const newSpot = await saveSpot(user.id, {
+            spot_id: draft.google_place_id,
+            name: draft.name,
+            address: draft.address,
+            photo_url: draft.photo_url,
+            rating: draft.rating,
+            types: draft.types,
+          });
+          setSavedSpots((prev) => [newSpot, ...prev]);
+        } catch (e) {
+          console.error("saveSpot failed:", e);
+          setError(String(e));
+        }
+      }
+    },
+    [user, savedSpots]
+  );
+
+  return (
+    <SavesContext.Provider value={{ savedSpots, isSaved, toggle, loading, error }}>
+      {children}
+    </SavesContext.Provider>
+  );
+}
+
+export function useSaves() {
+  return useContext(SavesContext);
+}

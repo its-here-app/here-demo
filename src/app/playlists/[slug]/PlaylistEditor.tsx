@@ -9,9 +9,13 @@ import {
   addSpotToPlaylist,
   removeSpotFromPlaylist,
   reorderPlaylistSpots,
+  updatePlaylistDescription,
+  updateSpotNotes,
   deletePlaylist,
 } from "@/lib/services/playlists";
 import type { PlaylistSpot, SearchResult } from "@/types";
+import SpotCard from "@/components/SpotCard";
+import BookmarkButton from "@/components/BookmarkButton";
 import {
   DndContext,
   closestCenter,
@@ -53,11 +57,15 @@ function SortableSpotCard({
   editMode,
   removingId,
   onRemove,
+  onNotesChange,
+  onNotesBlur,
 }: {
   ps: PlaylistSpot;
   editMode: boolean;
   removingId: string | null;
   onRemove: (id: string) => void;
+  onNotesChange: (id: string, notes: string) => void;
+  onNotesBlur: (id: string, notes: string) => void;
 }) {
   const {
     attributes,
@@ -79,33 +87,50 @@ function SortableSpotCard({
     <div
       ref={setNodeRef}
       style={style}
-      className="bg-white border border-gray-200 rounded-lg p-5 flex items-center gap-3"
+      className="bg-white border border-gray-200 rounded-lg p-5"
     >
-      {editMode && (
-        <button
-          {...attributes}
-          {...listeners}
-          className="flex-shrink-0 text-gray-300 hover:text-gray-500 cursor-grab active:cursor-grabbing"
-          aria-label="Drag to reorder"
-        >
-          <GripIcon />
-        </button>
-      )}
-      <div className="flex-1 min-w-0">
-        <h3 className="text-base font-semibold truncate">{ps.spots.name}</h3>
-        <p className="text-sm text-gray-500 truncate">{ps.spots.address}</p>
-        {ps.notes && (
-          <p className="text-sm text-gray-700 italic mt-1">{ps.notes}</p>
+      <div className="flex items-start gap-3">
+        {editMode && (
+          <button
+            {...attributes}
+            {...listeners}
+            className="flex-shrink-0 text-gray-300 hover:text-gray-500 cursor-grab active:cursor-grabbing mt-0.5"
+            aria-label="Drag to reorder"
+          >
+            <GripIcon />
+          </button>
         )}
+        <SpotCard
+          spot={ps.spots}
+          className="flex-1"
+          bookmark={<BookmarkButton spot={ps.spots} />}
+          action={
+            editMode ? (
+              <button
+                onClick={() => onRemove(ps.id)}
+                disabled={removingId === ps.id}
+                className="text-sm text-red-500 hover:text-red-700 disabled:opacity-40"
+              >
+                {removingId === ps.id ? "Removing…" : "Remove"}
+              </button>
+            ) : undefined
+          }
+        />
       </div>
-      {editMode && (
-        <button
-          onClick={() => onRemove(ps.id)}
-          disabled={removingId === ps.id}
-          className="flex-shrink-0 text-sm text-red-500 hover:text-red-700 disabled:opacity-40"
-        >
-          {removingId === ps.id ? "Removing…" : "Remove"}
-        </button>
+
+      {editMode ? (
+        <textarea
+          value={ps.notes ?? ""}
+          onChange={(e) => onNotesChange(ps.id, e.target.value)}
+          onBlur={(e) => onNotesBlur(ps.id, e.target.value)}
+          placeholder="Add a note…"
+          rows={2}
+          className="mt-3 w-full text-sm text-gray-600 border border-gray-200 rounded-lg px-3 py-2 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
+      ) : (
+        ps.notes && (
+          <p className="text-sm text-gray-700 italic mt-2">{ps.notes}</p>
+        )
       )}
     </div>
   );
@@ -115,6 +140,7 @@ export default function PlaylistEditor({ playlist, isOwner }: Props) {
   const router = useRouter();
 
   const [editMode, setEditMode] = useState(false);
+  const [description, setDescription] = useState<string>(playlist.description ?? "");
   const [spots, setSpots] = useState<PlaylistSpot[]>(
     [...playlist.playlist_spots].sort(
       (a: PlaylistSpot, b: PlaylistSpot) =>
@@ -176,6 +202,9 @@ export default function PlaylistEditor({ playlist, isOwner }: Props) {
         google_place_id: place.spot_id,
         name: place.name,
         address: place.address,
+        photo_url: place.photo_url,
+        rating: place.rating,
+        types: place.types,
       });
       const ps = await addSpotToPlaylist(playlist.id, spot.id, spots.length);
       setSpots([...spots, { ...ps, spots: spot }]);
@@ -184,6 +213,26 @@ export default function PlaylistEditor({ playlist, isOwner }: Props) {
       setError("Failed to add spot.");
     } finally {
       setAddingId(null);
+    }
+  }
+
+  async function handleDescriptionBlur(value: string) {
+    try {
+      await updatePlaylistDescription(playlist.id, value);
+    } catch {
+      setError("Failed to save description.");
+    }
+  }
+
+  function handleNotesChange(spotId: string, notes: string) {
+    setSpots(spots.map((s) => (s.id === spotId ? { ...s, notes } : s)));
+  }
+
+  async function handleNotesBlur(spotId: string, notes: string) {
+    try {
+      await updateSpotNotes(spotId, notes);
+    } catch {
+      setError("Failed to save notes.");
     }
   }
 
@@ -227,8 +276,19 @@ export default function PlaylistEditor({ playlist, isOwner }: Props) {
         <div className="flex items-start justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold mb-2">{playlist.name}</h1>
-            {playlist.description && (
-              <p className="text-gray-600 mb-4">{playlist.description}</p>
+            {editMode ? (
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                onBlur={(e) => handleDescriptionBlur(e.target.value)}
+                placeholder="Add a description…"
+                rows={2}
+                className="w-full text-sm text-gray-600 border border-gray-200 rounded-lg px-3 py-2 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4"
+              />
+            ) : (
+              description && (
+                <p className="text-gray-600 mb-4">{description}</p>
+              )
             )}
             <div className="flex items-center gap-4 text-sm text-gray-500">
               <p>
@@ -324,6 +384,8 @@ export default function PlaylistEditor({ playlist, isOwner }: Props) {
                 editMode={editMode}
                 removingId={removingId}
                 onRemove={handleRemoveSpot}
+                onNotesChange={handleNotesChange}
+                onNotesBlur={handleNotesBlur}
               />
             ))}
           </div>

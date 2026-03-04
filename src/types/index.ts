@@ -43,9 +43,13 @@ export interface SearchResult {
   spot_id: string;
   name: string;
   address: string;
-  rating?: number;
-  types?: string[];
+  photo_url?: string | null;
+  rating?: number | null;
+  types?: string[] | null;
 }
 
 // A Google Places result before it's been saved to the spots table
-export type DraftSpot = Pick<Spot, "google_place_id" | "name" | "address">;
+export type DraftSpot = Pick<
+  Spot,
+  "google_place_id" | "name" | "address" | "photo_url" | "rating" | "types"
+>;

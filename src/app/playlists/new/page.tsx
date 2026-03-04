@@ -76,6 +76,9 @@ export default function NewPlaylistPage() {
               google_place_id: place.spot_id,
               name: place.name,
               address: place.address,
+              photo_url: place.photo_url,
+              rating: place.rating,
+              types: place.types,
             });
           }
         } catch (err) {
@@ -122,6 +125,9 @@ export default function NewPlaylistPage() {
           google_place_id: spot.google_place_id,
           name: spot.name,
           address: spot.address,
+          photo_url: spot.photo_url,
+          rating: spot.rating,
+          types: spot.types,
         });
         await addSpotToPlaylist(playlist.id, upsertedSpot.id, i);
       }

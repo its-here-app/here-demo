@@ -22,15 +22,24 @@ export async function GET(request: NextRequest) {
       },
     });
 
+    const apiKey = process.env.GOOGLE_PLACES_API_KEY!;
+
     // Format the results
-    const places = response.data.results.map((place) => ({
-      spot_id: place.place_id,
-      name: place.name,
-      address: place.formatted_address,
-      rating: place.rating,
-      types: place.types,
-      photos: place.photos?.map((photo) => photo.photo_reference),
-    }));
+    const places = response.data.results.map((place) => {
+      const photoRef = place.photos?.[0]?.photo_reference;
+      const photo_url = photoRef
+        ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${photoRef}&key=${apiKey}`
+        : null;
+
+      return {
+        spot_id: place.place_id,
+        name: place.name,
+        address: place.formatted_address,
+        photo_url,
+        rating: place.rating ?? null,
+        types: place.types ?? null,
+      };
+    });
 
     return NextResponse.json({ places });
   } catch (error) {

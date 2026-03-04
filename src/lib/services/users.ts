@@ -102,3 +102,171 @@ export async function signOut() {
   const supabase = createClient();
   await supabase.auth.signOut();
 }
+
+export interface FollowUser extends Profile {
+  mutual: boolean;
+}
+
+export async function getFollowerCount(userId: string): Promise<number> {
+  const supabase = createClient();
+  const { count } = await supabase
+    .from("follows")
+    .select("*", { count: "exact", head: true })
+    .eq("following_id", userId);
+  return count ?? 0;
+}
+
+export async function getFollowingCount(userId: string): Promise<number> {
+  const supabase = createClient();
+  const { count } = await supabase
+    .from("follows")
+    .select("*", { count: "exact", head: true })
+    .eq("follower_id", userId);
+  return count ?? 0;
+}
+
+export async function getFollowers(
+  userId: string,
+  currentUserId?: string
+): Promise<FollowUser[]> {
+  const supabase = createClient();
+  const { data: followData, error } = await supabase
+    .from("follows")
+    .select("follower_id")
+    .eq("following_id", userId);
+  if (error || !followData || followData.length === 0) return [];
+
+  const ids = followData.map((r: { follower_id: string }) => r.follower_id);
+  const { data: profileData } = await supabase
+    .from("profiles")
+    .select("*")
+    .in("id", ids);
+  if (!profileData) return [];
+
+  if (!currentUserId) return profileData.map((p: Profile) => ({ ...p, mutual: false }));
+
+  const { data: following } = await supabase
+    .from("follows")
+    .select("following_id")
+    .eq("follower_id", currentUserId);
+  const followingIds = new Set((following ?? []).map((r: { following_id: string }) => r.following_id));
+
+  return profileData.map((p: Profile) => ({ ...p, mutual: followingIds.has(p.id) }));
+}
+
+export async function getFollowing(
+  userId: string,
+  currentUserId?: string
+): Promise<FollowUser[]> {
+  const supabase = createClient();
+  const { data: followData, error } = await supabase
+    .from("follows")
+    .select("following_id")
+    .eq("follower_id", userId);
+  if (error || !followData || followData.length === 0) return [];
+
+  const ids = followData.map((r: { following_id: string }) => r.following_id);
+  const { data: profileData } = await supabase
+    .from("profiles")
+    .select("*")
+    .in("id", ids);
+  if (!profileData) return [];
+
+  if (!currentUserId) return profileData.map((p: Profile) => ({ ...p, mutual: false }));
+
+  const { data: myFollowing } = await supabase
+    .from("follows")
+    .select("following_id")
+    .eq("follower_id", currentUserId);
+  const followingIds = new Set((myFollowing ?? []).map((r: { following_id: string }) => r.following_id));
+
+  return profileData.map((p: Profile) => ({ ...p, mutual: followingIds.has(p.id) }));
+}
+
+export async function getRelationship(
+  currentUserId: string,
+  targetUserId: string
+): Promise<{ following: boolean; blocking: boolean; blockedBy: boolean }> {
+  const supabase = createClient();
+  const [followingRes, blockingRes, blockedByRes] = await Promise.all([
+    supabase
+      .from("follows")
+      .select("id")
+      .eq("follower_id", currentUserId)
+      .eq("following_id", targetUserId)
+      .maybeSingle(),
+    supabase
+      .from("blocks")
+      .select("id")
+      .eq("blocker_id", currentUserId)
+      .eq("blocked_id", targetUserId)
+      .maybeSingle(),
+    supabase
+      .from("blocks")
+      .select("id")
+      .eq("blocker_id", targetUserId)
+      .eq("blocked_id", currentUserId)
+      .maybeSingle(),
+  ]);
+  return {
+    following: !!followingRes.data,
+    blocking: !!blockingRes.data,
+    blockedBy: !!blockedByRes.data,
+  };
+}
+
+export async function followUser(
+  followerId: string,
+  followingId: string
+): Promise<void> {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("follows")
+    .insert({ follower_id: followerId, following_id: followingId });
+  if (error) throw error;
+}
+
+export async function unfollowUser(
+  followerId: string,
+  followingId: string
+): Promise<void> {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("follows")
+    .delete()
+    .eq("follower_id", followerId)
+    .eq("following_id", followingId);
+  if (error) throw error;
+}
+
+export async function blockUser(
+  blockerId: string,
+  blockedId: string
+): Promise<void> {
+  const supabase = createClient();
+  const { error: insertError } = await supabase
+    .from("blocks")
+    .insert({ blocker_id: blockerId, blocked_id: blockedId });
+  if (insertError) throw insertError;
+
+  // Remove follows in both directions
+  await supabase
+    .from("follows")
+    .delete()
+    .or(
+      `and(follower_id.eq.${blockerId},following_id.eq.${blockedId}),and(follower_id.eq.${blockedId},following_id.eq.${blockerId})`
+    );
+}
+
+export async function unblockUser(
+  blockerId: string,
+  blockedId: string
+): Promise<void> {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("blocks")
+    .delete()
+    .eq("blocker_id", blockerId)
+    .eq("blocked_id", blockedId);
+  if (error) throw error;
+}

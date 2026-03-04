@@ -23,6 +23,7 @@ async function getPlaylist(slug: string) {
           google_place_id,
           name,
           address,
+          photo_url,
           rating,
           types
         )

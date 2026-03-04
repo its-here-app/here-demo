@@ -1,4 +1,6 @@
 import { AuthProvider } from "@/lib/authContext";
+import { SavesProvider } from "@/lib/savesContext";
+import Sidebar from "@/components/Sidebar";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -26,7 +28,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <SavesProvider>
+            <div className="flex min-h-screen">
+              <Sidebar />
+              <div className="flex-1">{children}</div>
+            </div>
+          </SavesProvider>
+        </AuthProvider>
       </body>
     </html>
   );
