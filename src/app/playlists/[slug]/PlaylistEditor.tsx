@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/authContext";
 import {
   searchSpots,
   upsertSpot,
@@ -137,6 +138,7 @@ function SortableSpotCard({
 }
 
 export default function PlaylistEditor({ playlist, isOwner }: Props) {
+  const { user } = useAuth();
   const router = useRouter();
 
   const [editMode, setEditMode] = useState(false);
@@ -206,7 +208,7 @@ export default function PlaylistEditor({ playlist, isOwner }: Props) {
         rating: place.rating,
         types: place.types,
       });
-      const ps = await addSpotToPlaylist(playlist.id, spot.id, spots.length);
+      const ps = await addSpotToPlaylist(playlist.id, spot.id, spots.length, user?.id ?? "");
       setSpots([...spots, { ...ps, spots: spot }]);
       setSearchResults(searchResults.filter((r) => r.spot_id !== place.spot_id));
     } catch {
@@ -253,7 +255,7 @@ export default function PlaylistEditor({ playlist, isOwner }: Props) {
     setDeleting(true);
     setError("");
     try {
-      await deletePlaylist(playlist.id);
+      await deletePlaylist(playlist.id, user?.id ?? "");
       router.push(`/${playlist.profiles.username}`);
     } catch {
       setError("Failed to delete playlist.");

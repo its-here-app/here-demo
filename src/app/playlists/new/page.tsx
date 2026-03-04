@@ -129,7 +129,7 @@ export default function NewPlaylistPage() {
           rating: spot.rating,
           types: spot.types,
         });
-        await addSpotToPlaylist(playlist.id, upsertedSpot.id, i);
+        await addSpotToPlaylist(playlist.id, upsertedSpot.id, i, user.id);
       }
 
       router.push(`/playlists/${playlist.slug}`);

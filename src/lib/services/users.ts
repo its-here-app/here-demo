@@ -1,4 +1,5 @@
 import { createClient } from "../supabase/client";
+import { track } from "../analytics";
 import type { Profile } from "@/types";
 
 export async function getUsers(): Promise<Profile[]> {
@@ -224,6 +225,7 @@ export async function followUser(
     .from("follows")
     .insert({ follower_id: followerId, following_id: followingId });
   if (error) throw error;
+  track(followerId, "user.followed", { target_user_id: followingId });
 }
 
 export async function unfollowUser(
@@ -237,6 +239,7 @@ export async function unfollowUser(
     .eq("follower_id", followerId)
     .eq("following_id", followingId);
   if (error) throw error;
+  track(followerId, "user.unfollowed", { target_user_id: followingId });
 }
 
 export async function blockUser(
@@ -256,6 +259,7 @@ export async function blockUser(
     .or(
       `and(follower_id.eq.${blockerId},following_id.eq.${blockedId}),and(follower_id.eq.${blockedId},following_id.eq.${blockerId})`
     );
+  track(blockerId, "user.blocked", { target_user_id: blockedId });
 }
 
 export async function unblockUser(
@@ -269,4 +273,5 @@ export async function unblockUser(
     .eq("blocker_id", blockerId)
     .eq("blocked_id", blockedId);
   if (error) throw error;
+  track(blockerId, "user.unblocked", { target_user_id: blockedId });
 }

@@ -1,5 +1,6 @@
 import { createClient } from "../supabase/client";
 import { upsertSpot } from "./playlists";
+import { track } from "../analytics";
 import type { Spot, SearchResult } from "@/types";
 
 export async function getSavedSpots(userId: string): Promise<Spot[]> {
@@ -32,6 +33,7 @@ export async function saveSpot(
     .insert({ user_id: userId, spot_id: spot.id });
   if (error) throw error;
 
+  track(userId, "spot.saved", { spot_id: spot.id, name: spot.name });
   return spot;
 }
 
@@ -46,4 +48,5 @@ export async function unsaveSpot(
     .eq("user_id", userId)
     .eq("spot_id", spotId);
   if (error) throw error;
+  track(userId, "spot.unsaved", { spot_id: spotId });
 }

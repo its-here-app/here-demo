@@ -1,4 +1,5 @@
 import { createClient } from "../supabase/client";
+import { track } from "../analytics";
 import type { Playlist, SearchResult } from "@/types";
 
 export async function searchSpots(
@@ -46,7 +47,8 @@ export async function upsertSpot(spot: {
 export async function addSpotToPlaylist(
   playlistId: string,
   spotId: string,
-  position: number
+  position: number,
+  userId: string
 ) {
   const supabase = createClient();
   const { data, error } = await supabase
@@ -55,6 +57,7 @@ export async function addSpotToPlaylist(
     .select("id, notes, position")
     .single();
   if (error) throw error;
+  track(userId, "spot.added_to_playlist", { playlist_id: playlistId, spot_id: spotId });
   return data;
 }
 
@@ -93,6 +96,11 @@ export async function createPlaylist(params: {
     .select()
     .single();
   if (error) throw error;
+  track(params.user_id, "playlist.created", {
+    playlist_id: data.id,
+    city: params.city,
+    is_public: params.is_public,
+  });
   return data;
 }
 
@@ -117,7 +125,7 @@ export async function updateSpotNotes(playlistSpotId: string, notes: string) {
   if (error) throw error;
 }
 
-export async function deletePlaylist(playlistId: string) {
+export async function deletePlaylist(playlistId: string, userId: string) {
   const supabase = createClient();
   // Remove spots first in case cascade isn't configured
   await supabase.from("playlist_spots").delete().eq("playlist_id", playlistId);
@@ -126,4 +134,5 @@ export async function deletePlaylist(playlistId: string) {
     .delete()
     .eq("id", playlistId);
   if (error) throw error;
+  track(userId, "playlist.deleted", { playlist_id: playlistId });
 }
