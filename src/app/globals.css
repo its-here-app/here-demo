@@ -1,26 +1,338 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ─── Fonts ────────────────────────────────────────────────────────────────── */
+
+/* PP Radio Grotesk */
+@font-face {
+  font-family: "PP Radio Grotesk";
+  src: url("/fonts/Radio/PPRadioGrotesk-Ultralight.woff") format("woff");
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "PP Radio Grotesk";
+  src: url("/fonts/Radio/PPRadioGrotesk-UltralightItalic.woff") format("woff");
+  font-weight: 200;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "PP Radio Grotesk";
+  src: url("/fonts/Radio/PPRadioGrotesk-Light.woff") format("woff");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "PP Radio Grotesk";
+  src: url("/fonts/Radio/PPRadioGrotesk-LightItalic.woff") format("woff");
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "PP Radio Grotesk";
+  src: url("/fonts/Radio/PPRadioGrotesk-Regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "PP Radio Grotesk";
+  src: url("/fonts/Radio/PPRadioGrotesk-RegularItalic.woff") format("woff");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "PP Radio Grotesk";
+  src: url("/fonts/Radio/PPRadioGrotesk-Bold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "PP Radio Grotesk";
+  src: url("/fonts/Radio/PPRadioGrotesk-BoldItalic.woff") format("woff");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "PP Radio Grotesk";
+  src: url("/fonts/Radio/PPRadioGrotesk-Black.woff") format("woff");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "PP Radio Grotesk";
+  src: url("/fonts/Radio/PPRadioGrotesk-BlackItalic.woff") format("woff");
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Crimson Text */
+@font-face {
+  font-family: "Crimson Text";
+  src: url("/fonts/Crimson/crimson-roman-webfont.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Crimson Text";
+  src: url("/fonts/Crimson/crimson-italic-webfont.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Crimson Text";
+  src: url("/fonts/Crimson/crimson-semibold-webfont.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Crimson Text";
+  src: url("/fonts/Crimson/crimson-semibolditalic-webfont.woff2")
+    format("woff2");
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Crimson Text";
+  src: url("/fonts/Crimson/crimson-bold-webfont.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Crimson Text";
+  src: url("/fonts/Crimson/crimson-bolditalic-webfont.woff2") format("woff2");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
 }
 
-@media (prefers-color-scheme: dark) {
+/* Golos Text */
+@font-face {
+  font-family: "Golos Text";
+  src: url("/fonts/Golos/GolosText-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Golos Text";
+  src: url("/fonts/Golos/GolosText-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Golos Text";
+  src: url("/fonts/Golos/GolosText-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Golos Text";
+  src: url("/fonts/Golos/GolosText-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Golos Text";
+  src: url("/fonts/Golos/GolosText-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Golos Text";
+  src: url("/fonts/Golos/GolosText-Black.woff2") format("woff2");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ─── Theme tokens ─────────────────────────────────────────────────────────── */
+
+@theme {
+  /* Colors — primary palette */
+  --color-cream: #fffbf7;
+  --color-neon: #daff70;
+  --color-ocean: #6395df;
+  --color-black: #000000;
+
+  /* Colors — extended palette */
+  --color-white: #ffffff;
+  --color-bubble: #1169ee;
+  --color-grey: #757575;
+
+  /* Fonts */
+  --font-radio: "PP Radio Grotesk", sans-serif;
+  --font-crimson: "Crimson Text", serif;
+  --font-golos: "Golos Text", sans-serif;
+
+  /* Border radius */
+  --radius-sm: 0.875rem; /* 14px */
+  --radius-md: 1.3125rem; /* 21px */
+  --radius-lg: 2.125rem; /* 34px */
+  --radius-xl: 2.5rem; /* 40px */
+  --radius-full: 9999px;
+
+  /* Page margin */
+  --space-page: 0.75rem; /* 12px */
+}
+
+@media (min-width: 1024px) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --space-page: 2rem; /* 32px */
   }
 }
 
+/* ─── Typography utilities ─────────────────────────────────────────────────── */
+
+/* Display — PP Radio Grotesk */
+@utility text-display-radio-1 {
+  font-family: var(--font-radio);
+  font-size: 4.375rem; /* 70px */
+  line-height: 4.5rem; /* 72px */
+  letter-spacing: -0.04em;
+  font-weight: 400;
+}
+@utility text-display-radio-2 {
+  font-family: var(--font-radio);
+  font-size: 2.125rem; /* 34px */
+  line-height: normal;
+  letter-spacing: -0.04em;
+  font-weight: 400;
+}
+
+/* Header — PP Radio Grotesk */
+@utility text-header-radio-1 {
+  font-family: var(--font-radio);
+  font-size: 1.5rem; /* 24px */
+  line-height: 1.875rem; /* 30px */
+  letter-spacing: -0.04em;
+  font-weight: 400;
+}
+@utility text-header-radio-2 {
+  font-family: var(--font-radio);
+  font-size: 1.25rem; /* 20px */
+  line-height: normal;
+  letter-spacing: -0.04em;
+  font-weight: 400;
+}
+
+/* Display — Crimson Text (italic) */
+@utility text-display-crimson-1 {
+  font-family: var(--font-crimson);
+  font-size: 3rem; /* 48px */
+  line-height: 3.125rem; /* 50px */
+  letter-spacing: -0.06em;
+  font-style: italic;
+  font-weight: 400;
+}
+@utility text-display-crimson-2 {
+  font-family: var(--font-crimson);
+  font-size: 2.125rem; /* 34px */
+  line-height: 2.375rem; /* 38px */
+  letter-spacing: -0.06em;
+  font-style: italic;
+  font-weight: 400;
+}
+@utility text-display-crimson-3 {
+  font-family: var(--font-crimson);
+  font-size: 1.25rem; /* 20px */
+  line-height: 1.25rem; /* 20px */
+  letter-spacing: -0.06em;
+  font-style: italic;
+  font-weight: 400;
+}
+@utility text-display-crimson-4 {
+  font-family: var(--font-crimson);
+  font-size: 1rem; /* 16px */
+  line-height: 1.25rem; /* 20px */
+  letter-spacing: -0.06em;
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* Display — Golos Text (semibold) */
+@utility text-display-golos-1 {
+  font-family: var(--font-golos);
+  font-size: 2.5rem; /* 40px */
+  line-height: 2.5rem; /* 40px */
+  letter-spacing: -0.06em;
+  font-weight: 600;
+}
+@utility text-display-golos-2 {
+  font-family: var(--font-golos);
+  font-size: 1.75rem; /* 28px */
+  line-height: 2rem; /* 32px */
+  letter-spacing: -0.06em;
+  font-weight: 600;
+}
+@utility text-display-golos-3 {
+  font-family: var(--font-golos);
+  font-size: 1.125rem; /* 18px */
+  line-height: 1.25rem; /* 20px */
+  letter-spacing: -0.04em;
+  font-weight: 600;
+}
+
+/* Header — Golos Text */
+@utility text-header-golos-2 {
+  font-family: var(--font-golos);
+  font-size: 1.125rem; /* 18px */
+  line-height: normal;
+  letter-spacing: -0.04em;
+  font-weight: 400;
+}
+
+/* Body — Golos Text */
+@utility text-body-md {
+  font-family: var(--font-golos);
+  font-size: 1rem; /* 16px */
+  line-height: 1.375rem; /* 22px */
+  letter-spacing: -0.03em;
+  font-weight: 400;
+}
+@utility text-body-sm-bold {
+  font-family: var(--font-golos);
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.25rem; /* 20px */
+  letter-spacing: -0.02em;
+  font-weight: 500;
+}
+@utility text-body-sm {
+  font-family: var(--font-golos);
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.25rem; /* 20px */
+  letter-spacing: -0.02em;
+  font-weight: 400;
+}
+@utility text-body-xs {
+  font-family: var(--font-golos);
+  font-size: 0.75rem; /* 12px */
+  line-height: 1rem; /* 16px */
+  letter-spacing: -0.02em;
+  font-weight: 400;
+}
+
+/* ─── Base ─────────────────────────────────────────────────────────────────── */
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-cream);
+  color: var(--color-black);
+  font-family: var(--font-golos);
 }

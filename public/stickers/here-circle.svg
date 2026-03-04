@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="202" height="202" viewBox="0 0 202 202">
+  <defs>
+    <path id="ring" d="M 101,101 m -88,0 a 88,88 0 1,1 176,0 a 88,88 0 1,1 -176,0"/>
+  </defs>
+  <text font-family="'Golos Text', Golos, sans-serif" font-size="23" fill="black" letter-spacing="1">
+    <textPath href="#ring">here* here* here* here* </textPath>
+  </text>
+</svg>

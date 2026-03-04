@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "../../lib/supabase/client";
+import { TopNavigation } from "../../components/ui/TopNavigation";
+import { Smiley, Arrow } from "../../components/ui/stickers";
+import { TextInput } from "../../components/ui/inputs";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -17,13 +20,10 @@ export default function LoginPage() {
   async function handleGoogleSignIn() {
     setLoading(true);
     setError("");
-
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
+        options: { redirectTo: `${window.location.origin}/auth/callback` },
       });
       if (error) throw error;
     } catch (err: any) {
@@ -94,121 +94,150 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <div className="w-full max-w-md">
-        <h1 className="text-3xl font-bold mb-2 text-center">
-          Sign In or Sign Up
-        </h1>
-        <p className="text-gray-600 mb-8 text-center">
-          {!showPassword
-            ? "Enter your email to get started"
-            : "Enter your password to continue"}
-        </p>
+    <main className="relative flex min-h-screen flex-col bg-black overflow-hidden lg:grid lg:grid-cols-[2fr_3fr] ">
+      {/* Left column */}
+      <div className="relative flex flex-col min-h-screen overflow-hidden ">
+        <TopNavigation
+          variant="logo-only"
+          theme="dark"
+          className="relative z-10"
+        />
 
-        {/* Google Sign In */}
-        <button
-          onClick={handleGoogleSignIn}
-          disabled={loading}
-          className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 mb-6 transition-colors"
-        >
-          <svg className="w-5 h-5" viewBox="0 0 24 24">
-            <path
-              fill="#4285F4"
-              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-            />
-            <path
-              fill="#34A853"
-              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-            />
-            <path
-              fill="#FBBC05"
-              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-            />
-            <path
-              fill="#EA4335"
-              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-            />
-          </svg>
-          <span className="font-medium">Continue with Google</span>
-        </button>
-
-        <div className="relative my-6">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300" />
+        {/* Body — content pushed to bottom */}
+        <div className="flex flex-1 flex-col justify-end gap-9 p-[var(--space-page)] pb-30 relative z-10">
+          {/* Stickers */}
+          <div className="absolute top-6 right-16 pointer-events-none">
+            <Smiley color="outline" size={127} />
           </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-gray-500">or</span>
+          <div className="absolute top-31 right-7 pointer-events-none">
+            <Arrow color="cream" size={84} className="rotate-45" />
+          </div>
+
+          {/* Title */}
+          <div className="flex flex-col gap-4">
+            <h1 className="text-display-radio-1 text-white text-balance">
+              Sign in <div>or sign up</div>
+            </h1>
+            <p className="text-body-sm text-white/80">
+              {showPassword
+                ? "Enter your password to continue"
+                : "It's time to discover new spots around you and share your favorites in your own city playlists!"}
+            </p>
+          </div>
+
+          {/* Auth options */}
+          <div className="flex flex-col gap-3">
+            {/* Google */}
+            <button
+              onClick={handleGoogleSignIn}
+              disabled={loading}
+              className="flex items-center justify-center gap-1.5 h-[50px] w-full rounded-[16px] bg-white/15 text-white text-body-sm transition-opacity hover:opacity-80 active:opacity-70 disabled:opacity-40"
+            >
+              <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
+                <path
+                  fill="#fff"
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                />
+                <path
+                  fill="#fff"
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                />
+                <path
+                  fill="#fff"
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                />
+                <path
+                  fill="#fff"
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                />
+              </svg>
+              Continue with Google
+            </button>
+
+            {/* Email form */}
+            <form
+              onSubmit={showPassword ? handleSubmit : handleEmailContinue}
+              className="flex flex-col gap-3"
+            >
+              <TextInput
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                disabled={showPassword}
+                placeholder="Your email"
+                state={showPassword ? "filled" : "default"}
+                rightSlot={
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-9 h-9 rounded-full bg-neon flex items-center justify-center transition-opacity hover:opacity-80 active:opacity-70 disabled:opacity-40"
+                    aria-label="Continue"
+                  >
+                    <svg
+                      width="17"
+                      height="16"
+                      viewBox="0 0 17 16"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        clipRule="evenodd"
+                        d="M15.0001 8.50012H0.00012207V7.50012H15.0001V8.50012Z"
+                        fill="black"
+                      />
+                      <path
+                        fillRule="evenodd"
+                        clipRule="evenodd"
+                        d="M10.2397 13.9123L15.8923 8.00486L15.201 7.28235L9.54831 13.1898L10.2397 13.9123Z"
+                        fill="black"
+                      />
+                      <path
+                        fillRule="evenodd"
+                        clipRule="evenodd"
+                        d="M10.2356 2.08734L15.8936 8.00039L15.2023 8.7229L9.54422 2.80985L10.2356 2.08734Z"
+                        fill="black"
+                      />
+                    </svg>
+                  </button>
+                }
+              />
+
+              {showPassword && (
+                <TextInput
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  autoFocus
+                  placeholder="Password"
+                  state="default"
+                />
+              )}
+            </form>
+
+            {showPassword && (
+              <button
+                type="button"
+                onClick={() => {
+                  setShowPassword(false);
+                  setPassword("");
+                  setError("");
+                }}
+                className="text-body-sm text-white/50 hover:text-white/80 transition-colors text-left"
+              >
+                ← Use a different email
+              </button>
+            )}
+
+            {error && <p className="text-body-sm text-red-400">{error}</p>}
           </div>
         </div>
-
-        {/* Email/Password Form */}
-        <form
-          onSubmit={showPassword ? handleSubmit : handleEmailContinue}
-          className="space-y-4"
-        >
-          <div>
-            <label className="block text-sm font-medium mb-2">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              disabled={showPassword}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50"
-              placeholder="you@example.com"
-            />
-          </div>
-
-          {showPassword && (
-            <div>
-              <label className="block text-sm font-medium mb-2">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                autoFocus
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="••••••••"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Minimum 6 characters. We'll sign you in or create an account.
-              </p>
-            </div>
-          )}
-
-          {error && (
-            <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm">
-              {error}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 disabled:opacity-50 font-medium"
-          >
-            {loading
-              ? "Loading..."
-              : showPassword
-              ? "Continue"
-              : "Continue with Email"}
-          </button>
-
-          {showPassword && (
-            <button
-              type="button"
-              onClick={() => {
-                setShowPassword(false);
-                setPassword("");
-                setError("");
-              }}
-              className="w-full text-sm text-gray-600 hover:text-gray-800"
-            >
-              ← Use a different email
-            </button>
-          )}
-        </form>
+      </div>
+      {/* Right column */}
+      <div className="py-2 pr-2">
+        <div className="bg-grey/20 h-full w-full rounded-sm"></div>
       </div>
     </main>
   );
