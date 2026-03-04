@@ -29,7 +29,6 @@ export function Label({ text, variant = "arrow", className }: LabelProps) {
         fontFamily="'Golos Text', Golos, sans-serif"
         fontSize="22"
         fill="black"
-        textTransform="uppercase"
       >
         {display.toUpperCase()}
       </text>
