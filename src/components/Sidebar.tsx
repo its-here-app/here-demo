@@ -34,7 +34,7 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="w-56 shrink-0 min-h-screen border-r border-gray-200 flex flex-col p-4">
+    <aside className="hidden lg:flex w-56 shrink-0 min-h-screen border-r border-gray-200 flex-col p-4">
       <nav className="flex-1 flex flex-col gap-1">
         <Link href={username ? `/${username}` : "/"} className={navClass(username ? `/${username}` : "/")}>
           Home

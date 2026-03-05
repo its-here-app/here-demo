@@ -332,7 +332,7 @@
 /* ─── Base ─────────────────────────────────────────────────────────────────── */
 
 body {
-  background-color: var(--color-cream);
+  background-color: #ffffff;
   color: var(--color-black);
   font-family: var(--font-golos);
 }

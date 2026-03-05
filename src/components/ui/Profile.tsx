@@ -7,6 +7,7 @@ export type ProfileType = "yours" | "others" | "friend";
 interface ProfileProps {
   type?: ProfileType;
   name: string;
+  username?: string;
   bio?: string;
   followerCount?: number;
   followingCount?: number;
@@ -15,6 +16,8 @@ interface ProfileProps {
   onEditProfile?: () => void;
   onFollow?: () => void;
   onInstagram?: () => void;
+  onFollowersClick?: () => void;
+  onFollowingClick?: () => void;
   decorations?: ReactNode;
   className?: string;
 }
@@ -22,6 +25,7 @@ interface ProfileProps {
 export function Profile({
   type = "yours",
   name,
+  username,
   bio,
   followerCount = 0,
   followingCount = 0,
@@ -30,6 +34,8 @@ export function Profile({
   onEditProfile,
   onFollow,
   onInstagram,
+  onFollowersClick,
+  onFollowingClick,
   decorations,
   className,
 }: ProfileProps) {
@@ -46,15 +52,24 @@ export function Profile({
 
       {/* Info */}
       <div className="flex flex-col items-center gap-4 w-full">
-        <p className="text-header-radio-1 text-black text-center">{name}</p>
+        <div className="flex flex-col items-center gap-1">
+          <p className="text-header-radio-1 text-black text-center">{name}</p>
+          {username && <p className="text-body-sm text-grey text-center">@{username}</p>}
+        </div>
 
         <div className="flex flex-col items-center gap-4 w-full">
           {bio && (
             <p className="text-body-sm text-black/60 text-center w-[220px] line-clamp-3">{bio}</p>
           )}
-          <p className="text-body-xs text-grey text-center">
-            {followerCount} followers • {followingCount} following
-          </p>
+          <div className="flex gap-3 justify-center">
+            <button onClick={onFollowersClick} className="text-body-xs text-grey hover:underline">
+              {followerCount} followers
+            </button>
+            <span className="text-body-xs text-grey">•</span>
+            <button onClick={onFollowingClick} className="text-body-xs text-grey hover:underline">
+              {followingCount} following
+            </button>
+          </div>
         </div>
       </div>
 

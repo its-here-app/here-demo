@@ -60,7 +60,7 @@ export const TextInput = forwardRef<
         </span>
       )}
       <div
-        className={`bg-black border ${borderByState[state]} flex gap-2.5 px-4 py-3 rounded-[16px] w-full ${
+        className={`group bg-black border ${borderByState[state]} focus-within:border-neon flex gap-2.5 px-4 py-3 rounded-[16px] w-full ${
           isTall ? "h-[86px] items-start" : "h-14 items-center"
         }`}
       >

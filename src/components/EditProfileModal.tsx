@@ -2,7 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "../lib/authContext";
-import Modal from "./Modal";
+import { FullLogo } from "./ui/Logo";
+import { Close } from "./ui/icons/Close";
+import { Camera } from "./ui/icons/Camera";
+import { Check } from "./ui/icons/Check";
+import { TextInput } from "./ui/inputs/TextInput";
+import { BottomPanel } from "./ui/BottomPanel";
 import {
   getProfile,
   updateProfile,
@@ -14,6 +19,8 @@ interface EditProfileModalProps {
   onClose: () => void;
   onSuccess: () => void;
 }
+
+
 
 export default function EditProfileModal({
   isOpen,
@@ -38,6 +45,7 @@ export default function EditProfileModal({
       loadProfile();
     }
   }, [isOpen, user]);
+
 
   async function loadProfile() {
     if (!user) return;
@@ -97,127 +105,132 @@ export default function EditProfileModal({
     }
   }
 
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Edit Profile">
-      {loading ? (
-        <div className="text-center py-8">
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Profile Photo */}
-          <div className="flex flex-col items-center">
-            <div className="relative">
-              <div className="w-24 h-24 rounded-full bg-gray-200 overflow-hidden mb-3">
-                {photoPreview ? (
-                  <img
-                    src={photoPreview}
-                    alt="Preview"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-400">
-                    <svg
-                      className="w-12 h-12"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      />
-                    </svg>
-                  </div>
-                )}
-              </div>
-              <label className="cursor-pointer text-sm text-blue-500 hover:text-blue-600">
-                Change photo
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handlePhotoChange}
-                  className="hidden"
-                />
-              </label>
-            </div>
-          </div>
+  // ─── Shared form body ──────────────────────────────────────────────────────
 
-          {/* Name */}
-          <div>
-            <label className="block text-sm font-medium mb-2">Name</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Your full name"
-            />
+  const formBody = (
+    <>
+      {/* Avatar */}
+      <div className="flex justify-center">
+        <label className="relative size-[98px] rounded-full cursor-pointer shrink-0">
+          <div className="size-full rounded-full overflow-hidden bg-white/10">
+            {photoPreview && (
+              <img src={photoPreview} alt="Profile" className="size-full object-cover" />
+            )}
           </div>
-
-          {/* Username */}
-          <div>
-            <label className="block text-sm font-medium mb-2">Username</label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) =>
-                setUsername(
-                  e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "")
-                )
-              }
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="username"
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Letters, numbers, and underscores only
-            </p>
+          <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center">
+            <Camera className="text-white size-9" />
           </div>
+          <input type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
+        </label>
+      </div>
 
-          {/* Bio */}
-          <div>
-            <label className="block text-sm font-medium mb-2">Bio</label>
-            <textarea
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              rows={3}
-              maxLength={150}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-              placeholder="Tell us about yourself..."
-            />
-            <p className="text-xs text-gray-500 mt-1 text-right">
-              {bio.length}/150
-            </p>
-          </div>
+      <TextInput
+        label="Name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        required
+        placeholder="Your full name"
+        state={name ? "filled" : "default"}
+      />
 
-          {error && (
-            <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm">
-              {error}
-            </div>
-          )}
+      <TextInput
+        label="Username"
+        value={username}
+        onChange={(e) =>
+          setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))
+        }
+        required
+        placeholder="username"
+        state={username ? "filled" : "default"}
+        rightSlot={username ? <Check focus className="text-white group-focus-within:text-neon" /> : undefined}
+      />
 
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={saving}
-              className="flex-1 bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50 font-medium"
-            >
-              {saving ? "Saving..." : "Save Changes"}
-            </button>
-          </div>
-        </form>
+      <TextInput
+        label="Bio (optional)"
+        size="tall"
+        value={bio}
+        onChange={(e) => setBio(e.target.value)}
+        maxLength={150}
+        placeholder="Tell us something about yourself..."
+        state={bio ? "filled" : "default"}
+      />
+
+      {/* Delete account */}
+      <div className="flex justify-center">
+        <button
+          type="button"
+          className="border border-white/15 rounded-lg h-10 px-[14px] text-body-xs text-[#ff383c]"
+        >
+          Delete account
+        </button>
+      </div>
+
+      {error && (
+        <p className="text-body-xs text-[#ff383c] text-center">{error}</p>
       )}
-    </Modal>
+    </>
+  );
+
+  return (
+    <>
+      {/* ── Mobile: bottom sheet ─────────────────────────────────────────── */}
+      <BottomPanel
+        isOpen={isOpen}
+        onClose={onClose}
+        title="Edit profile"
+        footer={
+          <button
+            type="submit"
+            form="edit-profile-form"
+            disabled={saving}
+            className="bg-white/15 rounded-lg h-10 w-full text-body-xs text-white disabled:opacity-50"
+          >
+            {saving ? "Saving..." : "Save"}
+          </button>
+        }
+      >
+        <form id="edit-profile-form" onSubmit={handleSubmit}>
+          {loading ? (
+            <p className="text-body-sm text-white/50 text-center py-8">Loading...</p>
+          ) : (
+            formBody
+          )}
+        </form>
+      </BottomPanel>
+
+      {/* ── Desktop: full-screen black overlay ──────────────────────────── */}
+      {isOpen && <form
+        onSubmit={handleSubmit}
+        className="hidden lg:flex flex-col h-full bg-black overflow-y-auto fixed inset-0 z-[60]"
+      >
+        {/* Top bar */}
+        <div className="flex items-center justify-between px-8 pt-8 shrink-0">
+          <FullLogo className="brightness-0 invert" />
+          <button type="button" onClick={onClose} className="text-white/60 hover:text-white transition-colors">
+            <Close />
+          </button>
+        </div>
+
+        {/* Centered content */}
+        <div className="flex-1 flex flex-col items-center justify-center gap-[60px] py-12">
+          <p className="text-body-sm text-[#fffbf7] text-center">Edit profile</p>
+
+          {loading ? (
+            <p className="text-body-sm text-white/50">Loading...</p>
+          ) : (
+            <>
+              <div className="flex flex-col gap-4 w-[366px]">{formBody}</div>
+              <button
+                type="submit"
+                disabled={saving}
+                className="bg-white/15 rounded-2xl h-[54px] px-5 text-body-sm text-white disabled:opacity-50"
+              >
+                {saving ? "Saving..." : "Save"}
+              </button>
+            </>
+          )}
+        </div>
+      </form>}
+    </>
   );
 }

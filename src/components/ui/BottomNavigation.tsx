@@ -1,4 +1,8 @@
 import type { ReactNode } from "react";
+import { Bookmark } from "./icons/Bookmark";
+import { Home } from "./icons/Home";
+import { Search } from "./icons/Search";
+import { Plus } from "./icons/Plus";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -9,6 +13,8 @@ interface BottomNavigationProps {
   activeTab?: BottomNavTab;
   /** Shows full tab bar (home, search, add, bookmark, avatar). When false, shows add + avatar only. */
   loggedIn?: boolean;
+  /** Shows simplified demo variant: bookmark + add + avatar */
+  demo?: boolean;
   /** Called when the + add button is pressed */
   onAdd?: () => void;
   /** Called when a tab icon is pressed */
@@ -20,77 +26,20 @@ interface BottomNavigationProps {
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
-function HomeIcon({ active }: { active: boolean }) {
-  return (
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
-      {active ? (
-        <path d="M2 9.5L11 2L20 9.5V20H14V13H8V20H2V9.5Z" fill="black" />
-      ) : (
-        <path
-          d="M2 9.5L11 2L20 9.5V20H14V13H8V20H2V9.5Z"
-          stroke="black"
-          strokeWidth="1.5"
-          strokeLinejoin="round"
-        />
-      )}
-    </svg>
-  );
-}
-
-function SearchIcon({ active }: { active: boolean }) {
-  return (
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
-      <circle
-        cx="9.5"
-        cy="9.5"
-        r="6"
-        stroke="black"
-        strokeWidth={active ? 2 : 1.5}
-        fill="none"
-      />
-      <path
-        d="M14 14L19 19"
-        stroke="black"
-        strokeWidth={active ? 2 : 1.5}
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-function BookmarkIcon({ active }: { active: boolean }) {
-  return (
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
-      {active ? (
-        <path d="M4 2H18V21L11 17L4 21V2Z" fill="black" />
-      ) : (
-        <path
-          d="M4 2H18V21L11 17L4 21V2Z"
-          stroke="black"
-          strokeWidth="1.5"
-          strokeLinejoin="round"
-        />
-      )}
-    </svg>
-  );
-}
-
-function PlusIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M12 5V19M5 12H19" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 function Avatar({ src, active }: { src?: string; active?: boolean }) {
   return (
     <div
-      className={`size-7 rounded-full overflow-hidden shrink-0 ${
-        active ? "ring-2 ring-black ring-offset-1" : ""
-      } bg-black/10`}
+      className={`relative size-7 rounded-full shrink-0 ${
+        active ? "outline outline-1 -outline-offset-1 outline-black" : ""
+      }`}
     >
-      {src && <img src={src} alt="Profile" className="size-full object-cover" />}
+      {src && (
+        <img
+          src={src}
+          alt="Profile"
+          className="absolute size-[22px] rounded-full object-cover top-[3px] left-1/2 -translate-x-1/2"
+        />
+      )}
     </div>
   );
 }
@@ -124,6 +73,7 @@ function NavButton({
 export function BottomNavigation({
   activeTab,
   loggedIn = true,
+  demo = false,
   onAdd,
   onTabChange,
   avatarUrl,
@@ -136,9 +86,31 @@ export function BottomNavigation({
       aria-label="Add"
       className="h-11 w-16 bg-black rounded-full flex items-center justify-center transition-opacity hover:opacity-80 active:opacity-70"
     >
-      <PlusIcon />
+      <Plus />
     </button>
   );
+
+  // Demo: bookmark + add + avatar
+  if (demo) {
+    return (
+      <div
+        className={`bg-white flex items-center justify-center gap-[72px] px-10 py-2 shadow-[0px_-4px_14px_0px_rgba(0,0,0,0.05)] ${className ?? ""}`}
+      >
+        <NavButton label="Saved" onClick={() => onTabChange?.("saved")}>
+          <Bookmark active={activeTab === "saved"} />
+        </NavButton>
+        {addButton}
+        <button
+          type="button"
+          onClick={() => onTabChange?.("profile")}
+          aria-label="Profile"
+          className="transition-opacity hover:opacity-70"
+        >
+          <Avatar src={avatarUrl} active={activeTab === "profile"} />
+        </button>
+      </div>
+    );
+  }
 
   // Minimal / logged-out: just add + avatar
   if (!loggedIn) {
@@ -162,7 +134,7 @@ export function BottomNavigation({
         onClick={() => onTabChange?.("home")}
         label="Home"
       >
-        <HomeIcon active={activeTab === "home"} />
+        <Home active={activeTab === "home"} />
       </NavButton>
 
       <NavButton
@@ -170,7 +142,7 @@ export function BottomNavigation({
         onClick={() => onTabChange?.("search")}
         label="Search"
       >
-        <SearchIcon active={activeTab === "search"} />
+        <Search active={activeTab === "search"} />
       </NavButton>
 
       {addButton}
@@ -180,7 +152,7 @@ export function BottomNavigation({
         onClick={() => onTabChange?.("saved")}
         label="Saved"
       >
-        <BookmarkIcon active={activeTab === "saved"} />
+        <Bookmark active={activeTab === "saved"} />
       </NavButton>
 
       <button
