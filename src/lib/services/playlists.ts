@@ -1,5 +1,6 @@
 import { createClient } from "../supabase/client";
 import { track } from "../analytics";
+import { getDefaultCover } from "../playlist-covers";
 import type { Playlist, SearchResult } from "@/types";
 
 export async function searchSpots(
@@ -92,7 +93,7 @@ export async function createPlaylist(params: {
   const supabase = createClient();
   const { data, error } = await supabase
     .from("playlists")
-    .insert(params)
+    .insert({ ...params, cover_photo_url: getDefaultCover(params.city) })
     .select()
     .single();
   if (error) throw error;
@@ -123,6 +124,44 @@ export async function updateSpotNotes(playlistSpotId: string, notes: string) {
     .update({ notes })
     .eq("id", playlistSpotId);
   if (error) throw error;
+}
+
+export async function uploadPlaylistCover(
+  playlistId: string,
+  userId: string,
+  file: File,
+  currentUrl?: string | null
+): Promise<string> {
+  const supabase = createClient();
+
+  // Remove old file from storage if it was a user upload (not a local default)
+  if (currentUrl && currentUrl.startsWith("http")) {
+    const storagePath = currentUrl.split("/playlist-covers/")[1];
+    if (storagePath) {
+      await supabase.storage.from("playlist-covers").remove([storagePath]);
+    }
+  }
+
+  const fileExt = file.name.split(".").pop();
+  // Path format: {userId}/{playlistId}-{timestamp}.{ext}
+  // Putting userId first lets the storage policy check ownership without a table lookup
+  const fileName = `${userId}/${playlistId}-${Date.now()}.${fileExt}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("playlist-covers")
+    .upload(fileName, file);
+  if (uploadError) throw uploadError;
+
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from("playlist-covers").getPublicUrl(fileName);
+
+  await supabase
+    .from("playlists")
+    .update({ cover_photo_url: publicUrl })
+    .eq("id", playlistId);
+
+  return publicUrl;
 }
 
 export async function deletePlaylist(playlistId: string, userId: string) {

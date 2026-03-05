@@ -5,18 +5,20 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
 import {
-  searchSpots,
   upsertSpot,
   addSpotToPlaylist,
   removeSpotFromPlaylist,
   reorderPlaylistSpots,
   updatePlaylistDescription,
   updateSpotNotes,
+  uploadPlaylistCover,
   deletePlaylist,
 } from "@/lib/services/playlists";
+import { getDefaultCover } from "@/lib/playlist-covers";
 import type { PlaylistSpot, SearchResult } from "@/types";
 import SpotCard from "@/components/SpotCard";
 import BookmarkButton from "@/components/BookmarkButton";
+import SpotSearchInput from "@/components/SpotSearchInput";
 import {
   DndContext,
   closestCenter,
@@ -142,6 +144,10 @@ export default function PlaylistEditor({ playlist, isOwner }: Props) {
   const router = useRouter();
 
   const [editMode, setEditMode] = useState(false);
+  const [coverUrl, setCoverUrl] = useState<string>(
+    playlist.cover_photo_url ?? getDefaultCover(playlist.city)
+  );
+  const [uploadingCover, setUploadingCover] = useState(false);
   const [description, setDescription] = useState<string>(playlist.description ?? "");
   const [spots, setSpots] = useState<PlaylistSpot[]>(
     [...playlist.playlist_spots].sort(
@@ -149,9 +155,6 @@ export default function PlaylistEditor({ playlist, isOwner }: Props) {
         (a.position ?? 0) - (b.position ?? 0)
     )
   );
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-  const [searching, setSearching] = useState(false);
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [addingId, setAddingId] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -181,21 +184,6 @@ export default function PlaylistEditor({ playlist, isOwner }: Props) {
     );
   }
 
-  async function handleSearch(e: React.FormEvent) {
-    e.preventDefault();
-    if (!searchQuery.trim()) return;
-    setSearching(true);
-    setError("");
-    try {
-      const results = await searchSpots(searchQuery, playlist.city);
-      setSearchResults(results.filter((p) => !existingPlaceIds.has(p.spot_id)));
-    } catch {
-      setError("Failed to search for spots.");
-    } finally {
-      setSearching(false);
-    }
-  }
-
   async function handleAddSpot(place: SearchResult) {
     setAddingId(place.spot_id);
     setError("");
@@ -210,7 +198,6 @@ export default function PlaylistEditor({ playlist, isOwner }: Props) {
       });
       const ps = await addSpotToPlaylist(playlist.id, spot.id, spots.length, user?.id ?? "");
       setSpots([...spots, { ...ps, spots: spot }]);
-      setSearchResults(searchResults.filter((r) => r.spot_id !== place.spot_id));
     } catch {
       setError("Failed to add spot.");
     } finally {
@@ -265,14 +252,49 @@ export default function PlaylistEditor({ playlist, isOwner }: Props) {
 
   function handleExitEdit() {
     setEditMode(false);
-    setSearchQuery("");
-    setSearchResults([]);
     setConfirmDelete(false);
     setError("");
   }
 
+  async function handleCoverUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingCover(true);
+    try {
+      const url = await uploadPlaylistCover(playlist.id, user?.id ?? "", file, coverUrl);
+      setCoverUrl(url);
+    } catch {
+      setError("Failed to upload cover photo.");
+    } finally {
+      setUploadingCover(false);
+    }
+  }
+
   return (
     <div className="w-full max-w-2xl">
+      {/* Cover photo */}
+      <div className="relative w-full h-52 rounded-xl overflow-hidden mb-6 bg-gray-100">
+        <img
+          src={coverUrl}
+          alt={playlist.name}
+          className="w-full h-full object-cover"
+        />
+        {editMode && (
+          <label className="absolute inset-0 flex items-center justify-center bg-black/40 cursor-pointer hover:bg-black/50 transition-colors">
+            <span className="text-white text-sm font-medium">
+              {uploadingCover ? "Uploading…" : "Change photo"}
+            </span>
+            <input
+              type="file"
+              accept="image/*"
+              className="sr-only"
+              onChange={handleCoverUpload}
+              disabled={uploadingCover}
+            />
+          </label>
+        )}
+      </div>
+
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-start justify-between gap-4">
@@ -396,47 +418,20 @@ export default function PlaylistEditor({ playlist, isOwner }: Props) {
 
       {/* Search — edit mode only */}
       {editMode && (
-        <div>
-          <form onSubmit={handleSearch} className="flex gap-2 mb-3">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={`Search spots in ${playlist.city}`}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
+        <SpotSearchInput
+          placeholder={`Search spots in ${playlist.city}`}
+          city={playlist.city}
+          excludePlaceIds={existingPlaceIds}
+          renderAction={(place) => (
             <button
-              type="submit"
-              disabled={searching}
-              className="px-4 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 disabled:opacity-50"
+              onClick={() => handleAddSpot(place)}
+              disabled={addingId === place.spot_id}
+              className="flex-shrink-0 text-sm text-blue-500 hover:text-blue-700 disabled:opacity-40"
             >
-              {searching ? "Searching…" : "Search"}
+              {addingId === place.spot_id ? "Adding…" : "Add"}
             </button>
-          </form>
-
-          {searchResults.length > 0 && (
-            <div className="space-y-2">
-              {searchResults.map((place) => (
-                <div
-                  key={place.spot_id}
-                  className="bg-gray-50 border border-gray-200 rounded-lg p-4 flex items-center justify-between gap-4"
-                >
-                  <div>
-                    <p className="font-medium text-sm">{place.name}</p>
-                    <p className="text-xs text-gray-500">{place.address}</p>
-                  </div>
-                  <button
-                    onClick={() => handleAddSpot(place)}
-                    disabled={addingId === place.spot_id}
-                    className="flex-shrink-0 text-sm text-blue-500 hover:text-blue-700 disabled:opacity-40"
-                  >
-                    {addingId === place.spot_id ? "Adding…" : "Add"}
-                  </button>
-                </div>
-              ))}
-            </div>
           )}
-        </div>
+        />
       )}
     </div>
   );

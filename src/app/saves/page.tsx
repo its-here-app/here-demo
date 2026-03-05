@@ -1,44 +1,23 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
 import { useSaves } from "@/lib/savesContext";
-import { searchSpots } from "@/lib/services/playlists";
 import SpotCard from "@/components/SpotCard";
 import BookmarkButton from "@/components/BookmarkButton";
-import type { SearchResult } from "@/types";
+import SpotSearchInput from "@/components/SpotSearchInput";
 
 export default function SavesPage() {
   const { user, loading: authLoading } = useAuth();
   const { savedSpots, loading: savesLoading } = useSaves();
   const router = useRouter();
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-  const [searching, setSearching] = useState(false);
-  const [error, setError] = useState("");
-
   useEffect(() => {
     if (!authLoading && !user) router.push("/login");
   }, [user, authLoading]);
 
   const savedPlaceIds = new Set(savedSpots.map((s) => s.google_place_id));
-
-  async function handleSearch(e: React.FormEvent) {
-    e.preventDefault();
-    if (!searchQuery.trim()) return;
-    setSearching(true);
-    setError("");
-    try {
-      const results = await searchSpots(searchQuery);
-      setSearchResults(results.filter((r) => !savedPlaceIds.has(r.spot_id)));
-    } catch {
-      setError("Failed to search spots.");
-    } finally {
-      setSearching(false);
-    }
-  }
 
   if (authLoading || savesLoading) {
     return (
@@ -54,68 +33,24 @@ export default function SavesPage() {
         <h1 className="text-3xl font-bold mb-8">Saved Spots</h1>
 
         {/* Search */}
-        <form onSubmit={handleSearch} className="flex gap-2 mb-10">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+        <div className="mb-10">
+          <SpotSearchInput
             placeholder="Search for a spot to save…"
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            excludePlaceIds={savedPlaceIds}
+            renderAction={(r) => (
+              <BookmarkButton
+                spot={{
+                  google_place_id: r.spot_id,
+                  name: r.name,
+                  address: r.address,
+                  photo_url: r.photo_url,
+                  rating: r.rating,
+                  types: r.types,
+                }}
+              />
+            )}
           />
-          <button
-            type="submit"
-            disabled={searching}
-            className="px-4 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 disabled:opacity-50"
-          >
-            {searching ? "Searching…" : "Search"}
-          </button>
-        </form>
-
-        {error && (
-          <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm mb-6">
-            {error}
-          </div>
-        )}
-
-        {/* Search results */}
-        {searchResults.length > 0 && (
-          <div className="mb-10">
-            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
-              Results
-            </h2>
-            <div className="space-y-3">
-              {searchResults.map((place) => (
-                <div
-                  key={place.spot_id}
-                  className="bg-white border border-gray-200 rounded-lg p-5"
-                >
-                  <SpotCard
-                    className="flex-1"
-                    spot={{
-                      name: place.name,
-                      address: place.address,
-                      photo_url: place.photo_url,
-                      rating: place.rating,
-                      types: place.types,
-                    }}
-                    bookmark={
-                      <BookmarkButton
-                        spot={{
-                          google_place_id: place.spot_id,
-                          name: place.name,
-                          address: place.address,
-                          photo_url: place.photo_url,
-                          rating: place.rating,
-                          types: place.types,
-                        }}
-                      />
-                    }
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        </div>
 
         {/* Saved spots */}
         <div>
