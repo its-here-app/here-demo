@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { Close } from "./icons/Close";
+import { FullLogo } from "./Logo";
 
 interface BottomPanelProps {
   isOpen: boolean;
@@ -11,6 +12,8 @@ interface BottomPanelProps {
   subtitle?: string;
   /** Optional footer area (e.g. a save/confirm button) */
   footer?: ReactNode;
+  /** When set to "full-page", renders a full-screen overlay on desktop */
+  desktopVariant?: "full-page";
   children: ReactNode;
 }
 
@@ -20,6 +23,7 @@ export function BottomPanel({
   title,
   subtitle,
   footer,
+  desktopVariant,
   children,
 }: BottomPanelProps) {
   const [isVisible, setIsVisible] = useState(false);
@@ -28,7 +32,15 @@ export function BottomPanel({
   useEffect(() => {
     if (isOpen) {
       setIsVisible(true);
-      requestAnimationFrame(() => requestAnimationFrame(() => setIsAnimating(true)));
+      setIsAnimating(false);
+      let raf2: number;
+      const raf1 = requestAnimationFrame(() => {
+        raf2 = requestAnimationFrame(() => setIsAnimating(true));
+      });
+      return () => {
+        cancelAnimationFrame(raf1);
+        cancelAnimationFrame(raf2);
+      };
     } else {
       setIsAnimating(false);
       const t = setTimeout(() => setIsVisible(false), 300);
@@ -53,7 +65,33 @@ export function BottomPanel({
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] lg:hidden flex flex-col justify-end">
+    <>
+      {/* Desktop: full-page overlay */}
+      {desktopVariant === "full-page" && (
+        <div className={`fixed inset-0 z-[60] bg-black hidden lg:flex flex-col transition-opacity duration-300 ${isAnimating ? "opacity-100" : "opacity-0"}`}>
+          {/* Top bar */}
+          <div className="flex items-center justify-between px-8 pt-8 shrink-0">
+            <FullLogo color="white" />
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close"
+              className="text-white/60 hover:text-white transition-colors cursor-pointer"
+            >
+              <Close />
+            </button>
+          </div>
+
+          {/* Centered content */}
+          <div className="flex-1 flex flex-col items-center justify-center gap-[60px] py-12">
+            <p className="text-body-sm text-white text-center">{title}</p>
+            <div className="flex flex-col gap-4 w-[366px]">{children}</div>
+          </div>
+        </div>
+      )}
+
+      {/* Mobile: bottom sheet */}
+      <div className="fixed inset-0 z-[60] lg:hidden flex flex-col justify-end">
       {/* Scrim */}
       <div
         className={`absolute inset-0 bg-black/40 transition-opacity duration-300 ${isAnimating ? "opacity-100" : "opacity-0"}`}
@@ -89,5 +127,6 @@ export function BottomPanel({
         )}
       </div>
     </div>
+    </>
   );
 }

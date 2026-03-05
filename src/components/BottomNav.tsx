@@ -44,6 +44,7 @@ export default function BottomNav() {
         activeTab={activeTab}
         avatarUrl={profile?.avatar_url ?? undefined}
         onTabChange={handleTabChange}
+        onAdd={() => router.push("/playlists/new")}
       />
     </div>
   );

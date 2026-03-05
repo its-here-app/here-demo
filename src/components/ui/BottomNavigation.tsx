@@ -3,6 +3,7 @@ import { Bookmark } from "./icons/Bookmark";
 import { Home } from "./icons/Home";
 import { Search } from "./icons/Search";
 import { Plus } from "./icons/Plus";
+import { IconButton } from "./IconButton";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -80,14 +81,12 @@ export function BottomNavigation({
   className,
 }: BottomNavigationProps) {
   const addButton = (
-    <button
-      type="button"
+    <IconButton
+      variant="hero"
+      icon={<Plus className="size-6" />}
+      label="Add"
       onClick={onAdd}
-      aria-label="Add"
-      className="h-11 w-16 bg-black rounded-full flex items-center justify-center transition-opacity hover:opacity-80 active:opacity-70"
-    >
-      <Plus />
-    </button>
+    />
   );
 
   // Demo: bookmark + add + avatar
@@ -134,7 +133,7 @@ export function BottomNavigation({
         onClick={() => onTabChange?.("home")}
         label="Home"
       >
-        <Home active={activeTab === "home"} />
+        <Home focus={activeTab === "home"} />
       </NavButton>
 
       <NavButton

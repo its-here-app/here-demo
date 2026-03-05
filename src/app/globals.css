@@ -176,6 +176,7 @@
   --color-white: #ffffff;
   --color-bubble: #1169ee;
   --color-grey: #757575;
+  --color-red: #f80000;
 
   /* Fonts */
   --font-radio: "PP Radio Grotesk", sans-serif;
@@ -335,4 +336,11 @@ body {
   background-color: #ffffff;
   color: var(--color-black);
   font-family: var(--font-golos);
+}
+
+button,
+a,
+label,
+[role="button"] {
+  cursor: pointer;
 }

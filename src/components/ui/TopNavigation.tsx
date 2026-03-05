@@ -104,7 +104,7 @@ export function TopNavigation({
     <div
       className={`flex items-center justify-between px-[var(--space-page)] pt-6  lg:pt-[var(--space-page)] ${className ?? ""}`}
     >
-      <FullLogo className={`logoClass lg:w-[5rem]`} />
+      <FullLogo color={isDark ? "white" : "black"} className="w-20" />
 
       {variant === "logo-location" && (
         <button

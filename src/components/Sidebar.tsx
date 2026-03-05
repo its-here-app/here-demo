@@ -4,17 +4,24 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
-import { signOut, getUserUsername } from "@/lib/services/users";
+import { signOut, getUserUsername, getProfile } from "@/lib/services/users";
+import { FullLogo } from "./ui/Logo";
+import { Add } from "./ui/icons/Add";
+import { Bookmark } from "./ui/icons/Bookmark";
+import { Logout } from "./ui/icons/Logout";
+import { Avatar } from "./ui/Avatar";
 
 export default function Sidebar() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const [username, setUsername] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string>("");
 
   useEffect(() => {
     if (!user) return;
     getUserUsername(user.id).then(setUsername);
+    getProfile(user.id).then((p) => setAvatarUrl(p?.avatar_url || ""));
   }, [user]);
 
   if (loading || !user) return null;
@@ -24,34 +31,59 @@ export default function Sidebar() {
     router.push("/login");
   }
 
-  function navClass(href: string) {
-    const active = pathname === href;
-    return `block px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-      active
-        ? "bg-gray-100 text-gray-900"
-        : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
-    }`;
-  }
+  const profileHref = username ? `/${username}` : "/";
 
   return (
-    <aside className="hidden lg:flex w-56 shrink-0 min-h-screen border-r border-gray-200 flex-col p-4">
-      <nav className="flex-1 flex flex-col gap-1">
-        <Link href={username ? `/${username}` : "/"} className={navClass(username ? `/${username}` : "/")}>
-          Home
+    <aside className="hidden lg:flex flex-col w-[270px] shrink-0 min-h-screen bg-white relative">
+      {/* Logo */}
+      <div className="px-8 pt-8">
+        <FullLogo className="w-20" />
+      </div>
+
+      {/* Nav */}
+      <nav className="flex flex-col gap-8 mt-[80px] px-6">
+        <Link href="/saves" className="flex items-center gap-5">
+          <Bookmark
+            active={pathname === "/saves"}
+            className="size-8 shrink-0 text-black"
+          />
+          <span className="text-[18px] leading-normal font-radio text-black">
+            Saves
+          </span>
         </Link>
-        <Link href="/saves" className={navClass("/saves")}>
-          Saves
+
+        <Link href={profileHref} className="flex items-center gap-5">
+          <span className="size-8 shrink-0 flex items-center justify-center">
+            <Avatar
+              src={avatarUrl}
+              alt="Profile"
+              focus={pathname === profileHref}
+            />
+          </span>
+          <span className="text-[18px] leading-normal font-radio text-black">
+            Profile
+          </span>
         </Link>
-        <Link href="/playlists/new" className={navClass("/playlists/new")}>
-          + New playlist
+
+        <div className="border-t border-black/10 w-full" />
+
+        <Link href="/playlists/new" className="flex items-center gap-5">
+          <Add focus={pathname === "/playlists/new"} className="size-8 shrink-0" />
+          <span className="text-[18px] leading-normal font-radio text-black">
+            Start a new playlist
+          </span>
         </Link>
       </nav>
 
+      {/* Log out */}
       <button
         onClick={handleSignOut}
-        className="w-full text-left px-3 py-2 text-sm text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
+        className="absolute bottom-7 left-6 flex items-center gap-5 cursor-pointer"
       >
-        Log out
+        <Logout className="size-8 shrink-0 text-grey" />
+        <span className="text-[18px] leading-normal font-radio text-grey">
+          Log out
+        </span>
       </button>
     </aside>
   );

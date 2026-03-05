@@ -43,58 +43,79 @@ export function Profile({
   const isFriend = type === "friend";
 
   return (
-    <div className={`flex flex-col gap-4 items-center pb-4 pt-2 px-3 w-full ${className ?? ""}`}>
-      {/* Avatar */}
-      <div className="relative">
-        <Avatar size="xl" src={avatarSrc} username={name} />
-        {decorations}
-      </div>
-
-      {/* Info */}
-      <div className="flex flex-col items-center gap-4 w-full">
-        <div className="flex flex-col items-center gap-1">
-          <p className="text-header-radio-1 text-black text-center">{name}</p>
-          {username && <p className="text-body-sm text-grey text-center">@{username}</p>}
+    <div className={`flex flex-col items-center w-full ${className ?? ""}`}>
+      {/* Avatar + Info row */}
+      <div className="flex flex-col gap-4 items-center py-4  w-full lg:flex-row lg:gap-[60px] lg:items-center lg:py-0 lg:px-0 lg:w-full max-w-sm lg:max-w-145">
+        {/* Avatar */}
+        <div className="relative shrink-0">
+          <Avatar size="xl" lgSize="2xl" src={avatarSrc} username={name} />
+          {decorations}
         </div>
 
-        <div className="flex flex-col items-center gap-4 w-full">
-          {bio && (
-            <p className="text-body-sm text-black/60 text-center w-[220px] line-clamp-3">{bio}</p>
-          )}
-          <div className="flex gap-3 justify-center">
-            <button onClick={onFollowersClick} className="text-body-xs text-grey hover:underline">
-              {followerCount} followers
-            </button>
-            <span className="text-body-xs text-grey">•</span>
-            <button onClick={onFollowingClick} className="text-body-xs text-grey hover:underline">
-              {followingCount} following
-            </button>
+        {/* Info + Buttons */}
+        <div className="flex flex-col items-center w-full lg:items-start">
+          <div className="flex flex-col items-center lg:items-start lg:gap-1">
+            <p className="text-header-radio-1 text-black text-center lg:text-left lg:text-[2.25rem]">
+              {name}
+            </p>
+            {username && (
+              <p className="text-body-sm text-[0.75rem] text-grey text-center lg:text-left hidden lg:block">
+                @{username}
+              </p>
+            )}
+          </div>
+
+          <div className="flex flex-col items-center gap-4 w-full lg:items-start lg:gap-3 lg:mt-3">
+            {bio && (
+              <p className="text-body-sm text-black/60 text-center w-[220px] line-clamp-3 lg:text-left lg:w-full">
+                {bio}
+              </p>
+            )}
+            <div className="flex gap-2 justify-center lg:justify-start">
+              <button
+                onClick={onFollowersClick}
+                className="text-body-xs text-grey hover:underline"
+              >
+                {followerCount} followers
+              </button>
+              <span className="text-body-xs text-grey">•</span>
+              <button
+                onClick={onFollowingClick}
+                className="text-body-xs text-grey hover:underline"
+              >
+                {followingCount} following
+              </button>
+            </div>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex gap-2 w-full mt-4 lg:mt-5">
+            {type === "yours" && (
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={onEditProfile}
+              >
+                Edit profile
+              </Button>
+            )}
+            {isOthers && (
+              <Button variant="outline" className="flex-1" onClick={onFollow}>
+                Follow
+              </Button>
+            )}
+            {isFriend && (
+              <Button variant="filled" className="flex-1" onClick={onFollow}>
+                Following
+              </Button>
+            )}
+            {(isOthers || isFriend) && instagramHandle && (
+              <Button variant="tonal" onClick={onInstagram}>
+                Instagram
+              </Button>
+            )}
           </div>
         </div>
-      </div>
-
-      {/* Buttons */}
-      <div className="flex gap-2 w-full">
-        {type === "yours" && (
-          <Button variant="outline" className="flex-1" onClick={onEditProfile}>
-            Edit profile
-          </Button>
-        )}
-        {isOthers && (
-          <Button variant="filled" className="flex-1" onClick={onFollow}>
-            Follow
-          </Button>
-        )}
-        {isFriend && (
-          <Button variant="filled" className="flex-1" onClick={onFollow}>
-            Following
-          </Button>
-        )}
-        {(isOthers || isFriend) && instagramHandle && (
-          <Button variant="tonal" onClick={onInstagram}>
-            Instagram
-          </Button>
-        )}
       </div>
     </div>
   );

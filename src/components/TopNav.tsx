@@ -1,22 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
-import { getProfile } from "@/lib/services/users";
 import { TopNavigation } from "@/components/ui/TopNavigation";
 import { Overflow } from "@/components/ui/icons/Overflow";
-import type { Profile } from "@/types";
 
 export default function TopNav() {
   const { user, loading } = useAuth();
   const pathname = usePathname();
-  const [profile, setProfile] = useState<Profile | null>(null);
-
-  useEffect(() => {
-    if (!user) return;
-    getProfile(user.id).then(setProfile);
-  }, [user]);
 
   // Hide on auth pages
   if (
@@ -29,13 +20,16 @@ export default function TopNav() {
 
   if (loading || !user) return null;
 
-  const username = profile?.username ?? null;
-  const isProfile = username !== null && pathname.startsWith(`/${username}`);
+  const knownRoutes = ["/login", "/create-account", "/users", "/saves", "/playlists"];
+  const isProfilePage =
+    /^\/[^/]+$/.test(pathname) &&
+    !knownRoutes.some((r) => pathname.startsWith(r));
+  const profileUsername = isProfilePage ? pathname.slice(1) : null;
 
   return (
     <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white">
-      {isProfile ? (
-        <TopNavigation variant="profile" title={`@${username}`} rightAction={<Overflow orientation="horizontal" />} />
+      {isProfilePage ? (
+        <TopNavigation variant="profile" title={`@${profileUsername}`} rightAction={<Overflow orientation="horizontal" />} />
       ) : (
         <TopNavigation variant="logo-location" />
       )}

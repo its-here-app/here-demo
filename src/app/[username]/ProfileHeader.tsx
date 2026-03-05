@@ -89,8 +89,8 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
   const profileType = isOwnProfile
     ? "yours"
     : relationship?.following
-    ? "friend"
-    : "others";
+      ? "friend"
+      : "others";
 
   return (
     <>
@@ -104,8 +104,12 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
         followingCount={counts?.following ?? 0}
         onEditProfile={() => setIsEditModalOpen(true)}
         onFollow={handleFollow}
-        onFollowersClick={() => setFollowsModal({ open: true, tab: "followers" })}
-        onFollowingClick={() => setFollowsModal({ open: true, tab: "following" })}
+        onFollowersClick={() =>
+          setFollowsModal({ open: true, tab: "followers" })
+        }
+        onFollowingClick={() =>
+          setFollowsModal({ open: true, tab: "following" })
+        }
       />
 
       {!isOwnProfile && user && relationship && (

@@ -2,12 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "../lib/authContext";
-import { FullLogo } from "./ui/Logo";
-import { Close } from "./ui/icons/Close";
 import { Camera } from "./ui/icons/Camera";
 import { Check } from "./ui/icons/Check";
 import { TextInput } from "./ui/inputs/TextInput";
 import { BottomPanel } from "./ui/BottomPanel";
+import { Button } from "./ui/Button";
 import {
   getProfile,
   updateProfile,
@@ -19,8 +18,6 @@ interface EditProfileModalProps {
   onClose: () => void;
   onSuccess: () => void;
 }
-
-
 
 export default function EditProfileModal({
   isOpen,
@@ -45,7 +42,6 @@ export default function EditProfileModal({
       loadProfile();
     }
   }, [isOpen, user]);
-
 
   async function loadProfile() {
     if (!user) return;
@@ -86,7 +82,11 @@ export default function EditProfileModal({
       let photoUrl = currentPhotoUrl;
 
       if (profilePhoto) {
-        photoUrl = await uploadProfilePhoto(user.id, profilePhoto, currentPhotoUrl);
+        photoUrl = await uploadProfilePhoto(
+          user.id,
+          profilePhoto,
+          currentPhotoUrl,
+        );
       }
 
       await updateProfile(user.id, {
@@ -105,22 +105,29 @@ export default function EditProfileModal({
     }
   }
 
-  // ─── Shared form body ──────────────────────────────────────────────────────
-
   const formBody = (
     <>
       {/* Avatar */}
-      <div className="flex justify-center">
+      <div className="flex justify-center mb-4">
         <label className="relative size-[98px] rounded-full cursor-pointer shrink-0">
           <div className="size-full rounded-full overflow-hidden bg-white/10">
             {photoPreview && (
-              <img src={photoPreview} alt="Profile" className="size-full object-cover" />
+              <img
+                src={photoPreview}
+                alt="Profile"
+                className="size-full object-cover"
+              />
             )}
           </div>
           <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center">
             <Camera className="text-white size-9" />
           </div>
-          <input type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handlePhotoChange}
+            className="hidden"
+          />
         </label>
       </div>
 
@@ -142,7 +149,11 @@ export default function EditProfileModal({
         required
         placeholder="username"
         state={username ? "filled" : "default"}
-        rightSlot={username ? <Check focus className="text-white group-focus-within:text-neon" /> : undefined}
+        rightSlot={
+          username ? (
+            <Check focus className="text-white group-focus-within:text-neon" />
+          ) : undefined
+        }
       />
 
       <TextInput
@@ -157,80 +168,69 @@ export default function EditProfileModal({
 
       {/* Delete account */}
       <div className="flex justify-center">
-        <button
+        <Button
           type="button"
-          className="border border-white/15 rounded-lg h-10 px-[14px] text-body-xs text-[#ff383c]"
+          variant="outline"
+          size="md"
+          darkTheme
+          className="!text-red"
         >
           Delete account
-        </button>
+        </Button>
+      </div>
+
+      {/* Desktop save button */}
+      <div className="hidden lg:flex justify-center pt-[calc(60px-1rem)]">
+        <Button
+          type="submit"
+          variant="tonal"
+          size="lg"
+          darkTheme
+          disabled={saving}
+        >
+          {saving ? "Saving..." : "Save"}
+        </Button>
       </div>
 
       {error && (
-        <p className="text-body-xs text-[#ff383c] text-center">{error}</p>
+        <p className="text-body-xs text-red text-center">{error}</p>
       )}
     </>
   );
 
   return (
-    <>
-      {/* ── Mobile: bottom sheet ─────────────────────────────────────────── */}
-      <BottomPanel
-        isOpen={isOpen}
-        onClose={onClose}
-        title="Edit profile"
-        footer={
-          <button
-            type="submit"
-            form="edit-profile-form"
-            disabled={saving}
-            className="bg-white/15 rounded-lg h-10 w-full text-body-xs text-white disabled:opacity-50"
-          >
-            {saving ? "Saving..." : "Save"}
-          </button>
-        }
-      >
-        <form id="edit-profile-form" onSubmit={handleSubmit}>
-          {loading ? (
-            <p className="text-body-sm text-white/50 text-center py-8">Loading...</p>
-          ) : (
-            formBody
-          )}
-        </form>
-      </BottomPanel>
-
-      {/* ── Desktop: full-screen black overlay ──────────────────────────── */}
-      {isOpen && <form
+    <BottomPanel
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Edit profile"
+      desktopVariant="full-page"
+      footer={
+        <Button
+          type="submit"
+          form="edit-profile-form"
+          variant="tonal"
+          size="md"
+          darkTheme
+          disabled={saving}
+          className="w-full"
+        >
+          {saving ? "Saving..." : "Save"}
+        </Button>
+      }
+    >
+      <form
+        id="edit-profile-form"
         onSubmit={handleSubmit}
-        className="hidden lg:flex flex-col h-full bg-black overflow-y-auto fixed inset-0 z-[60]"
+        className="flex flex-col gap-4"
       >
-        {/* Top bar */}
-        <div className="flex items-center justify-between px-8 pt-8 shrink-0">
-          <FullLogo className="brightness-0 invert" />
-          <button type="button" onClick={onClose} className="text-white/60 hover:text-white transition-colors">
-            <Close />
-          </button>
-        </div>
-
-        {/* Centered content */}
-        <div className="flex-1 flex flex-col items-center justify-center gap-[60px] py-12">
-          <p className="text-body-sm text-[#fffbf7] text-center">Edit profile</p>
-
-          {loading ? (
-            <p className="text-body-sm text-white/50">Loading...</p>
-          ) : (
-            <>
-              <div className="flex flex-col gap-4 w-[366px]">{formBody}</div>
-              <button
-                type="submit"
-                disabled={saving}
-                className="bg-white/15 rounded-2xl h-[54px] px-5 text-body-sm text-white disabled:opacity-50"
-              >
-                {saving ? "Saving..." : "Save"}
-              </button>
-            </>
-          )}
-        </div>
-      </form>}
-    </>
+        {loading ? (
+          <p className="text-body-sm text-white/50 text-center py-8">
+            Loading...
+          </p>
+        ) : (
+          formBody
+        )}
+      </form>
+    </BottomPanel>
   );
 }
