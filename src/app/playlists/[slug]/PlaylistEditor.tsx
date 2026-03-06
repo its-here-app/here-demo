@@ -19,6 +19,7 @@ import type { PlaylistSpot, SearchResult } from "@/types";
 import SpotCard from "@/components/SpotCard";
 import BookmarkButton from "@/components/BookmarkButton";
 import SpotSearchInput from "@/components/SpotSearchInput";
+import PlaylistBookmarkButton from "@/components/PlaylistBookmarkButton";
 import {
   DndContext,
   closestCenter,
@@ -330,6 +331,10 @@ export default function PlaylistEditor({ playlist, isOwner }: Props) {
               <p>{playlist.is_public ? "Public" : "Private"}</p>
             </div>
           </div>
+
+          {!isOwner && (
+            <PlaylistBookmarkButton playlistId={playlist.id} />
+          )}
 
           {isOwner && (
             <div className="flex items-center gap-2 flex-shrink-0">

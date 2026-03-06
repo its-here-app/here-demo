@@ -1,7 +1,9 @@
-// Default cover used when a playlist is first created.
-// Drop your stock image at public/images/playlist-default.jpg
-// TODO: expand CITY_COVERS with arrays of images per city and rotate through them.
-const DEFAULT_COVER = "/images/playlist-default.jpg";
+const gcs = (path: string) =>
+  `https://storage.googleapis.com/${process.env.NEXT_PUBLIC_GCS_BUCKET_NAME}/${path}`;
+
+const DEFAULT_COVER = gcs(
+  "Juliettewang_portland-oregon_desserts-and-cafes_cover.jpg", // tmp
+);
 
 const CITY_COVERS: Record<string, string[]> = {
   // "new york": ["/images/covers/new-york-1.jpg"],
