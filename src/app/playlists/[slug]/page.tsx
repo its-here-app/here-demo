@@ -56,6 +56,10 @@ export default async function PlaylistPage({
 
   const isOwner = user?.id === playlist.user_id;
 
+  if (!playlist.is_public && !isOwner) {
+    notFound();
+  }
+
   return (
     <main className="flex min-h-screen flex-col items-center p-24">
       <PlaylistEditor playlist={playlist} isOwner={isOwner} />

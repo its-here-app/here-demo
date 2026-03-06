@@ -16,13 +16,18 @@ export async function searchSpots(
   return data.places ?? [];
 }
 
-export async function getPlaylistsByUser(userId: string): Promise<Playlist[]> {
+export async function getPlaylistsByUser(
+  userId: string,
+  onlyPublic = false
+): Promise<Playlist[]> {
   const supabase = createClient();
-  const { data, error } = await supabase
+  let query = supabase
     .from("playlists")
     .select("*")
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
+  if (onlyPublic) query = query.eq("is_public", true);
+  const { data, error } = await query;
   if (error) return [];
   return data;
 }

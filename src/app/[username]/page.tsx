@@ -29,7 +29,7 @@ export default async function UserProfilePage({
   }
 
   const isOwnProfile = user?.id === profile.id;
-  const playlists: Playlist[] = await getPlaylistsByUser(profile.id);
+  const playlists: Playlist[] = await getPlaylistsByUser(profile.id, !isOwnProfile);
 
   return (
     <main className="flex min-h-screen flex-col items-center">
