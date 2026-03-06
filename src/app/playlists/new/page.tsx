@@ -5,11 +5,12 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
 import { getUserUsername } from "@/lib/services/users";
 import {
-  searchSpots,
+  resolveSpot,
   upsertSpot,
   addSpotToPlaylist,
   createPlaylist,
 } from "@/lib/services/playlists";
+import Modal from "@/components/Modal";
 import type { DraftSpot } from "@/types";
 
 export default function NewPlaylistPage() {
@@ -24,6 +25,8 @@ export default function NewPlaylistPage() {
   const [error, setError] = useState("");
 
   const [foundSpots, setFoundSpots] = useState<DraftSpot[]>([]);
+  const [unfoundSpots, setUnfoundSpots] = useState<string[]>([]);
+  const [showUnfoundModal, setShowUnfoundModal] = useState(false);
   const [isPublic, setIsPublic] = useState(false);
   const [saving, setSaving] = useState(false);
   const [username, setUsername] = useState("");
@@ -66,28 +69,37 @@ export default function NewPlaylistPage() {
       }
 
       const foundSpotsTemp: DraftSpot[] = [];
+      const unfoundTemp: string[] = [];
 
       for (const spot of spots) {
         try {
-          const results = await searchSpots(spot, city);
-          if (results.length > 0) {
-            const place = results[0];
+          const match = await resolveSpot(spot, city);
+          if (match) {
             foundSpotsTemp.push({
-              google_place_id: place.spot_id,
-              name: place.name,
-              address: place.address,
-              photo_url: place.photo_url,
-              rating: place.rating,
-              types: place.types,
+              google_place_id: match.spot_id,
+              name: match.name,
+              address: match.address,
+              photo_url: match.photo_url,
+              rating: match.rating,
+              types: match.types,
             });
+          } else {
+            unfoundTemp.push(spot);
           }
         } catch (err) {
           console.error(`Error finding spot: ${spot}`, err);
+          unfoundTemp.push(spot);
         }
       }
 
       setFoundSpots(foundSpotsTemp);
-      setStep("review");
+      setUnfoundSpots(unfoundTemp);
+
+      if (unfoundTemp.length > 0) {
+        setShowUnfoundModal(true);
+      } else {
+        setStep("review");
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -211,6 +223,42 @@ export default function NewPlaylistPage() {
             </button>
           </form>
         </div>
+
+        <Modal
+          isOpen={showUnfoundModal}
+          onClose={() => {
+            setShowUnfoundModal(false);
+            setStep("review");
+          }}
+          title="Some spots weren't found"
+        >
+          <p className="text-sm text-gray-600 mb-4">
+            We couldn&apos;t find the following{" "}
+            {unfoundSpots.length === 1 ? "spot" : "spots"} on Google Maps.
+            You can add {unfoundSpots.length === 1 ? "it" : "them"} manually
+            from the search bar on the next page.
+          </p>
+          <ul className="space-y-2 mb-6">
+            {unfoundSpots.map((name) => (
+              <li
+                key={name}
+                className="flex items-center gap-2 text-sm text-gray-800 bg-gray-50 rounded-lg px-3 py-2"
+              >
+                <span className="text-gray-400">•</span>
+                {name}
+              </li>
+            ))}
+          </ul>
+          <button
+            onClick={() => {
+              setShowUnfoundModal(false);
+              setStep("review");
+            }}
+            className="w-full bg-blue-500 text-white py-2.5 rounded-lg hover:bg-blue-600 font-medium text-sm"
+          >
+            Continue to review
+          </button>
+        </Modal>
       </main>
     );
   }

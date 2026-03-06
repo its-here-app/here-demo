@@ -16,6 +16,39 @@ export async function searchSpots(
   return data.places ?? [];
 }
 
+function normalize(s: string) {
+  return s.toLowerCase().replace(/[^a-z0-9\s]/g, "").trim();
+}
+
+function isGoodMatch(query: string, name: string, address: string, city: string): boolean {
+  const queryWords = normalize(query).split(/\s+/).filter((w) => w.length > 2);
+  const nameWords = normalize(name).split(/\s+/).filter((w) => w.length > 2);
+  const addressNorm = normalize(address);
+
+  const hasNameOverlap =
+    queryWords.length === 0 ||
+    queryWords.some((qw) =>
+      nameWords.some((nw) => nw === qw || nw.startsWith(qw) || qw.startsWith(nw))
+    );
+
+  const cityWords = normalize(city).split(/\s+/).filter((w) => w.length > 1);
+  const hasCityMatch =
+    cityWords.length === 0 ||
+    cityWords.every((cw) => addressNorm.includes(cw));
+
+  return hasNameOverlap && hasCityMatch;
+}
+
+// Resolves a single spot name to a verified Google Places result.
+// Returns null if no confident match is found — use for batch import flows.
+export async function resolveSpot(
+  name: string,
+  city: string
+): Promise<SearchResult | null> {
+  const results = await searchSpots(name, city);
+  return results.find((r) => isGoodMatch(name, r.name, r.address, city)) ?? null;
+}
+
 export async function getPlaylistsByUser(
   userId: string,
   onlyPublic = false
