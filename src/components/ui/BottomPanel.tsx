@@ -110,7 +110,7 @@ export function BottomPanel({
         <div className={`fixed inset-0 z-[60] hidden lg:flex flex-col items-center justify-center transition-opacity duration-300 ${fadeIn}`}>
           <div className={`absolute inset-0 ${scrim === "black" ? "bg-black" : "bg-black/40"}`} onClick={onClose} />
           {logo && <div className="absolute top-8 left-8"><FullLogo color="white" /></div>}
-          <div className="relative bg-black rounded-[2rem] p-6 flex flex-col gap-5" style={{ width: desktopWidth ?? "24.375rem" }}>
+          <div className="relative bg-black rounded-[2rem] p-6 flex flex-col gap-5 overflow-x-hidden" style={{ width: desktopWidth ?? "24.375rem" }}>
             <div className="flex items-start justify-between gap-2">
               <div className="size-6 shrink-0" />
               <p className="text-body-sm-bold text-white text-center flex-1">{title}</p>
@@ -125,7 +125,7 @@ export function BottomPanel({
       <div className="fixed inset-0 z-[60] lg:hidden flex flex-col justify-end">
         <div className={`absolute inset-0 bg-black/40 transition-opacity duration-300 ${fadeIn}`} onClick={onClose} />
         <div
-          className={`relative bg-black rounded-t-[1.5rem] flex flex-col gap-5 px-6 pt-6 pb-9 transition-transform duration-300 ${isAnimating ? "translate-y-0" : "translate-y-full"}`}
+          className={`relative bg-black rounded-t-[1.5rem] flex flex-col gap-5 px-6 pt-6 pb-9 overflow-x-hidden transition-transform duration-300 ${isAnimating ? "translate-y-0" : "translate-y-full"}`}
           style={panelHeight ? { height: panelHeight } : undefined}
         >
           <div className="flex items-start justify-between gap-2">

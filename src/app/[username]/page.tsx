@@ -53,7 +53,7 @@ export default async function UserProfilePage({
                   size="lg"
                   city={playlist.name}
                   playlistName={playlist.description ?? undefined}
-                  className="w-full bg-black rounded-[.75rem]"
+                  className="w-full bg-black/80 rounded-[.75rem]"
                 />
               </Link>
             ))}

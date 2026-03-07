@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "../lib/authContext";
 import { Camera } from "./ui/icons/Camera";
 import { Check } from "./ui/icons/Check";
@@ -28,6 +29,7 @@ export default function EditProfileModal({
   onSuccess,
 }: EditProfileModalProps) {
   const { user } = useAuth();
+  const router = useRouter();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -121,8 +123,12 @@ export default function EditProfileModal({
         avatar_url: photoUrl,
       });
 
-      onSuccess();
-      onClose();
+      if (username !== initialUsername) {
+        router.push(`/${username}`);
+      } else {
+        onSuccess();
+        onClose();
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
