@@ -178,6 +178,9 @@
   --color-grey: #757575;
   --color-red: #f80000;
 
+  /* Colors — neutral palette */
+  --color-grey-100: #f0f0f0;
+
   /* Colors — semantic */
   --color-primary: var(--color-black);
   --color-secondary: rgb(0 0 0 / 0.6);

@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { Children, isValidElement, type ReactNode } from "react";
 
 interface TabProps {
   title: string;
@@ -15,10 +15,10 @@ export function Tab({ title, icon, active = false, onClick }: TabProps) {
       role="tab"
       aria-selected={active}
       onClick={onClick}
-      className={`flex-1 flex flex-col items-center mb-[-1px] gap-0.5 py-2 border-b cursor-pointer transition-colors ${
+      className={`flex-1 flex flex-col items-center gap-0.5 py-2 cursor-pointer transition-colors ${
         active
-          ? "border-white text-white"
-          : "border-transparent text-white/40 hover:text-white/70"
+          ? "text-white"
+          : "text-white/40 hover:text-white/70"
       }`}
     >
       {icon && (
@@ -35,12 +35,27 @@ interface TabsProps {
 }
 
 export function Tabs({ children, className }: TabsProps) {
+  const tabs = Children.toArray(children);
+  const count = tabs.length;
+  const activeIndex = tabs.findIndex(
+    (tab) => isValidElement(tab) && (tab.props as TabProps).active
+  );
+
   return (
     <div
       role="tablist"
-      className={`flex w-full border-b border-white/20 ${className ?? ""}`}
+      className={`relative flex w-full border-b border-white/20 ${className ?? ""}`}
     >
       {children}
+      {activeIndex >= 0 && count > 0 && (
+        <div
+          className="absolute bottom-[-1px] h-[1px] bg-white transition-transform duration-300 ease-in-out"
+          style={{
+            width: `${100 / count}%`,
+            transform: `translateX(${activeIndex * 100}%)`,
+          }}
+        />
+      )}
     </div>
   );
 }

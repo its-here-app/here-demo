@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import PlaylistEditor from "./PlaylistEditor";
 
 async function getPlaylist(slug: string) {
@@ -37,6 +38,21 @@ async function getPlaylist(slug: string) {
   return data;
 }
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const playlist = await getPlaylist(slug);
+  if (!playlist) return {};
+
+  const username = playlist.profiles?.username;
+  return {
+    title: `${playlist.city} — ${playlist.description} @${username} • Here*`,
+  };
+}
+
 export default async function PlaylistPage({
   params,
 }: {
@@ -45,10 +61,12 @@ export default async function PlaylistPage({
   const { slug } = await params;
   const supabase = await createClient();
 
-  const [playlist, { data: { user } }] = await Promise.all([
-    getPlaylist(slug),
-    supabase.auth.getUser(),
-  ]);
+  const [
+    playlist,
+    {
+      data: { user },
+    },
+  ] = await Promise.all([getPlaylist(slug), supabase.auth.getUser()]);
 
   if (!playlist) {
     notFound();

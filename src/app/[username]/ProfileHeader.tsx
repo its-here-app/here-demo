@@ -11,14 +11,16 @@ import {
   unblockUser,
   getFollowerCount,
   getFollowingCount,
+  signOut,
 } from "@/lib/services/users";
 import { Profile } from "../../components/ui/Profile";
-import { Button } from "../../components/ui/Button";
 import { IconButton } from "../../components/ui/IconButton";
 import { ArrowLeft } from "../../components/ui/icons/ArrowLeft";
 import { Overflow } from "../../components/ui/icons/Overflow";
 import EditProfileModal from "../../components/EditProfileModal";
 import FollowsModal from "../../components/FollowsModal";
+import { Sheet } from "../../components/ui/Sheet";
+import type { SheetItem } from "../../components/ui/Sheet";
 import type { Profile as ProfileData } from "@/types";
 
 interface ProfileHeaderProps {
@@ -31,6 +33,8 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
   const isOwnProfile = user?.id === profile.id;
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [canShare, setCanShare] = useState(false);
   const [followsModal, setFollowsModal] = useState<{
     open: boolean;
     tab: "followers" | "following";
@@ -44,6 +48,25 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
     blocking: boolean;
     blockedBy: boolean;
   } | null>(null);
+
+  useEffect(() => {
+    setCanShare(!!navigator.share);
+  }, []);
+
+  useEffect(() => {
+    document.dispatchEvent(
+      new CustomEvent("profile-mounted", { detail: { isOwnProfile } })
+    );
+    return () => {
+      document.dispatchEvent(new CustomEvent("profile-unmounted"));
+    };
+  }, [isOwnProfile]);
+
+  useEffect(() => {
+    function handler() { setIsSheetOpen(true); }
+    document.addEventListener("profile-overflow", handler);
+    return () => document.removeEventListener("profile-overflow", handler);
+  }, []);
 
   useEffect(() => {
     Promise.all([
@@ -89,6 +112,40 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
     }
   }
 
+  function shareProfile() {
+    navigator.share({
+      title: profile.full_name,
+      url: `${window.location.origin}/${profile.username}`,
+    });
+  }
+
+  function copyProfileUrl() {
+    navigator.clipboard.writeText(`${window.location.origin}/${profile.username}`);
+  }
+
+  async function handleSignOut() {
+    await signOut();
+    router.push("/signin");
+  }
+
+  const shareItem: SheetItem = { label: "Share profile", onClick: shareProfile };
+  const logOutItem: SheetItem = { label: "Log out", onClick: handleSignOut, variant: "danger" };
+
+  const sheetItems: SheetItem[] = isOwnProfile
+    ? [
+        ...(canShare ? [shareItem] : []),
+        { label: "Copy profile URL", onClick: copyProfileUrl },
+        logOutItem,
+      ]
+    : [
+        ...(canShare ? [shareItem] : []),
+        { label: "Copy profile URL", onClick: copyProfileUrl },
+        relationship?.blocking
+          ? { label: `Unblock @${profile.username}`, onClick: handleBlock }
+          : { label: `Block @${profile.username}`, onClick: handleBlock, variant: "danger" },
+        logOutItem,
+      ];
+
   const profileType = isOwnProfile
     ? "yours"
     : relationship?.following
@@ -101,7 +158,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
         {!isOwnProfile && (
           <IconButton variant="secondary" icon={<ArrowLeft />} label="Back" onClick={() => router.back()} />
         )}
-        <IconButton variant="secondary" icon={<Overflow />} label="More options" className="ml-auto" />
+        <IconButton variant="secondary" icon={<Overflow />} label="More options" className="ml-auto" onClick={() => setIsSheetOpen(true)} />
       </div>
 
       <Profile
@@ -122,14 +179,6 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
         }
       />
 
-      {!isOwnProfile && user && relationship && (
-        <div className="flex justify-center mt-2">
-          <Button variant="outline" onClick={handleBlock}>
-            {relationship.blocking ? "Unblock" : "Block"}
-          </Button>
-        </div>
-      )}
-
       <EditProfileModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
@@ -145,6 +194,13 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
         currentUserId={user?.id}
         followerCount={counts?.followers}
         followingCount={counts?.following}
+      />
+
+      <Sheet
+        isOpen={isSheetOpen}
+        onClose={() => setIsSheetOpen(false)}
+        title="Options"
+        items={sheetItems}
       />
     </>
   );

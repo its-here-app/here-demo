@@ -3,6 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Close } from "./icons/Close";
 import { FullLogo } from "./Logo";
+import { Scrim } from "./Scrim";
 
 interface BottomPanelProps {
   isOpen: boolean;
@@ -16,6 +17,8 @@ interface BottomPanelProps {
   desktopVariant?: "full-page" | "floating";
   /** Custom width for the floating desktop variant (default: 24.375rem / 390px) */
   desktopWidth?: string;
+  /** Optional min-height for the floating desktop variant */
+  desktopMinHeight?: string;
   /** Scrim color for the floating desktop variant — default is black/40, "black" is fully opaque */
   scrim?: "black";
   /** Show the FullLogo in the top-left corner of the floating desktop overlay */
@@ -37,6 +40,7 @@ export function BottomPanel({
   footer,
   desktopVariant,
   desktopWidth,
+  desktopMinHeight,
   scrim,
   logo = false,
   centerTitle = false,
@@ -108,9 +112,9 @@ export function BottomPanel({
       {/* Desktop: floating card */}
       {desktopVariant === "floating" && (
         <div className={`fixed inset-0 z-[60] hidden lg:flex flex-col items-center justify-center transition-opacity duration-300 ${fadeIn}`}>
-          <div className={`absolute inset-0 ${scrim === "black" ? "bg-black" : "bg-black/40"}`} onClick={onClose} />
+          <Scrim visible={isAnimating} onClick={onClose} variant={scrim === "black" ? "dark" : "default"} />
           {logo && <div className="absolute top-8 left-8"><FullLogo color="white" /></div>}
-          <div className="relative bg-black rounded-[2rem] p-6 flex flex-col gap-5 overflow-x-hidden" style={{ width: desktopWidth ?? "24.375rem" }}>
+          <div className="relative bg-black rounded-[2rem] p-6 flex flex-col gap-5 overflow-x-hidden" style={{ width: desktopWidth ?? "24.375rem", minHeight: desktopMinHeight }}>
             <div className="flex items-start justify-between gap-2">
               <div className="size-6 shrink-0" />
               <p className="text-body-sm-bold text-white text-center flex-1">{title}</p>
@@ -123,7 +127,7 @@ export function BottomPanel({
 
       {/* Mobile: bottom sheet */}
       <div className="fixed inset-0 z-[60] lg:hidden flex flex-col justify-end">
-        <div className={`absolute inset-0 bg-black/40 transition-opacity duration-300 ${fadeIn}`} onClick={onClose} />
+        <Scrim visible={isAnimating} onClick={onClose} />
         <div
           className={`relative bg-black rounded-t-[1.5rem] flex flex-col gap-5 px-6 pt-6 pb-9 overflow-x-hidden transition-transform duration-300 ${isAnimating ? "translate-y-0" : "translate-y-full"}`}
           style={panelHeight ? { height: panelHeight } : undefined}

@@ -122,6 +122,7 @@ export default function FollowsModal({
       panelHeight="30rem"
       desktopVariant="floating"
       desktopWidth="43rem"
+      desktopMinHeight="440px"
     >
       {/* Tabs */}
       <Tabs className="">
@@ -143,7 +144,7 @@ export default function FollowsModal({
 
       {/* Sliding user lists */}
       <div
-        className={`flex w-[210%] transition-transform duration-300 ease-in-out ${
+        className={`flex w-[210%] transition-transform duration-400 ease-in-out ${
           tab === "following" ? "translate-x-0" : "-translate-x-1/2"
         }`}
       >
