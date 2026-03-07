@@ -24,11 +24,11 @@ export default function Sidebar() {
     getProfile(user.id).then((p) => setAvatarUrl(p?.avatar_url || ""));
   }, [user]);
 
-  if (loading || !user) return null;
+  if (loading || !user || pathname.startsWith("/signin")) return null;
 
   async function handleSignOut() {
     await signOut();
-    router.push("/login");
+    router.push("/signin");
   }
 
   const profileHref = username ? `/${username}` : "/";

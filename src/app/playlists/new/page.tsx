@@ -39,7 +39,7 @@ export default function NewPlaylistPage() {
   }, [user]);
 
   if (!authLoading && !user) {
-    router.push("/login");
+    router.push("/signin");
     return null;
   }
 

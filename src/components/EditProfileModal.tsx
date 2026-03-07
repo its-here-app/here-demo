@@ -9,9 +9,12 @@ import { BottomPanel } from "./ui/BottomPanel";
 import { Button } from "./ui/Button";
 import {
   getProfile,
+  getUserByUsername,
   updateProfile,
   uploadProfilePhoto,
 } from "@/lib/services/users";
+
+type UsernameStatus = "idle" | "checking" | "valid" | "taken";
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -32,6 +35,8 @@ export default function EditProfileModal({
 
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
+  const [initialUsername, setInitialUsername] = useState("");
+  const [usernameStatus, setUsernameStatus] = useState<UsernameStatus>("idle");
   const [bio, setBio] = useState("");
   const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string>("");
@@ -43,13 +48,33 @@ export default function EditProfileModal({
     }
   }, [isOpen, user]);
 
+  useEffect(() => {
+    if (username.length < 3) {
+      setUsernameStatus("idle");
+      return;
+    }
+    if (username === initialUsername) {
+      setUsernameStatus("valid");
+      return;
+    }
+    setUsernameStatus("checking");
+    const timer = setTimeout(async () => {
+      const existing = await getUserByUsername(username);
+      setUsernameStatus(existing ? "taken" : "valid");
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [username]);
+
   async function loadProfile() {
     if (!user) return;
     try {
       const profile = await getProfile(user.id);
       if (profile) {
         setName(profile.full_name || "");
-        setUsername(profile.username || "");
+        const loadedUsername = profile.username || "";
+        setUsername(loadedUsername);
+        setInitialUsername(loadedUsername);
+        setUsernameStatus(loadedUsername.length >= 3 ? "valid" : "idle");
         setBio(profile.bio || "");
         setCurrentPhotoUrl(profile.avatar_url || "");
         setPhotoPreview(profile.avatar_url || "");
@@ -148,13 +173,17 @@ export default function EditProfileModal({
         }
         required
         placeholder="username"
-        state={username ? "filled" : "default"}
+        state={usernameStatus === "valid" ? "filled" : "default"}
         rightSlot={
-          username ? (
-            <Check focus className="text-white group-focus-within:text-neon" />
+          usernameStatus === "valid" ? (
+            <Check focus className="text-neon" />
           ) : undefined
         }
       />
+
+      {usernameStatus === "taken" && (
+        <p className="text-body-xs text-danger">Username is taken</p>
+      )}
 
       <TextInput
         label="Bio (optional)"

@@ -11,7 +11,7 @@ export default function TopNav() {
 
   // Hide on auth pages
   if (
-    pathname.startsWith("/login") ||
+    pathname.startsWith("/signin") ||
     pathname.startsWith("/create-account") ||
     pathname.startsWith("/users/registration")
   ) {
@@ -20,7 +20,7 @@ export default function TopNav() {
 
   if (loading || !user) return null;
 
-  const knownRoutes = ["/login", "/create-account", "/users", "/saves", "/playlists"];
+  const knownRoutes = ["/signin", "/create-account", "/users", "/saves", "/playlists"];
   const isProfilePage =
     /^\/[^/]+$/.test(pathname) &&
     !knownRoutes.some((r) => pathname.startsWith(r));

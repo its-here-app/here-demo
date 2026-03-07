@@ -23,7 +23,7 @@ export default function SavesPage() {
   const [playlistsLoading, setPlaylistsLoading] = useState(false);
 
   useEffect(() => {
-    if (!authLoading && !user) router.push("/login");
+    if (!authLoading && !user) router.push("/signin");
   }, [user, authLoading]);
 
   useEffect(() => {

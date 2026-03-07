@@ -195,14 +195,8 @@
   --radius-xl: 2.5rem; /* 40px */
   --radius-full: 9999px;
 
-  /* Page margin */
-  --space-page: 0.75rem; /* 12px */
-}
-
-@media (min-width: 1024px) {
-  :root {
-    --space-page: 2rem; /* 32px */
-  }
+  /* Page margin — 12px → 32px */
+  --space-page: clamp(0.75rem, 3vw, 2rem);
 }
 
 /* ─── Typography utilities ─────────────────────────────────────────────────── */
@@ -225,7 +219,7 @@
 @utility text-display-radio-2 {
   font-family: var(--font-radio);
   font-size: 2.125rem; /* 34px */
-  line-height: normal;
+  line-height: 2.5625rem; /* 41px */
   letter-spacing: -0.04em;
   font-weight: 400;
 }

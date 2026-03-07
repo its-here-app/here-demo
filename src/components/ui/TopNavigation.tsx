@@ -56,7 +56,6 @@ export function TopNavigation({
   className,
 }: TopNavigationProps) {
   const isDark = theme === "dark";
-  const logoClass = isDark ? "brightness-0 invert" : "";
   const textColor = isDark ? "text-white" : "text-black";
 
   // Child — back left, title centered, optional right action
@@ -104,7 +103,7 @@ export function TopNavigation({
     <div
       className={`flex items-center justify-between px-[var(--space-page)] pt-6  lg:pt-[var(--space-page)] ${className ?? ""}`}
     >
-      <FullLogo color={isDark ? "white" : "black"} className="w-20" />
+      <FullLogo color={isDark ? "white" : "black"} className="h-5 w-auto lg:h-auto lg:w-20 transition-[height,width] duration-200 ease-in-out" />
 
       {variant === "logo-location" && (
         <button

@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
               user.user_metadata?.full_name || user.user_metadata?.name || null,
           });
 
-          return NextResponse.redirect(new URL("/create-account", request.url));
+          return NextResponse.redirect(new URL("/signin", request.url));
         }
 
         return NextResponse.redirect(
@@ -64,5 +64,5 @@ export async function GET(request: NextRequest) {
   }
 
   console.log("Fallback redirect to login");
-  return NextResponse.redirect(new URL("/login", request.url));
+  return NextResponse.redirect(new URL("/signin", request.url));
 }

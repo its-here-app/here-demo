@@ -52,7 +52,7 @@ export function Button({
   const isOverlay = variant === "overlay";
   return (
     <button
-      className={`inline-flex items-center justify-center cursor-pointer transition-opacity hover:opacity-80 active:opacity-70 disabled:opacity-40 disabled:cursor-not-allowed ${
+      className={`inline-flex items-center justify-center cursor-pointer transition-opacity hover:opacity-80 active:opacity-70 disabled:opacity-40 disabled:!cursor-not-allowed ${
         isOverlay ? variantClasses(variant, darkTheme) : `${sizeClasses[size]} ${variantClasses(variant, darkTheme)}`
       } ${className ?? ""}`}
       {...rest}
