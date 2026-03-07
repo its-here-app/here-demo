@@ -34,20 +34,20 @@ export default function Sidebar() {
   const profileHref = username ? `/${username}` : "/";
 
   return (
-    <aside className="hidden lg:flex flex-col w-[270px] shrink-0 min-h-screen bg-white relative">
+    <aside className="hidden lg:flex flex-col w-[16.875rem] shrink-0 min-h-screen bg-white relative">
       {/* Logo */}
       <div className="px-8 pt-8">
         <FullLogo className="w-20" />
       </div>
 
       {/* Nav */}
-      <nav className="flex flex-col gap-8 mt-[80px] px-6">
+      <nav className="flex flex-col gap-8 mt-[5rem] px-6">
         <Link href="/saves" className="flex items-center gap-5">
           <Bookmark
             active={pathname === "/saves"}
             className="size-8 shrink-0 text-black"
           />
-          <span className="text-[18px] leading-normal font-radio text-black">
+          <span className="text-header-radio-3 text-black">
             Saves
           </span>
         </Link>
@@ -60,7 +60,7 @@ export default function Sidebar() {
               focus={pathname === profileHref}
             />
           </span>
-          <span className="text-[18px] leading-normal font-radio text-black">
+          <span className="text-header-radio-3 text-black">
             Profile
           </span>
         </Link>
@@ -69,7 +69,7 @@ export default function Sidebar() {
 
         <Link href="/playlists/new" className="flex items-center gap-5">
           <Add focus={pathname === "/playlists/new"} className="size-8 shrink-0" />
-          <span className="text-[18px] leading-normal font-radio text-black">
+          <span className="text-header-radio-3 text-black">
             Start a new playlist
           </span>
         </Link>
@@ -81,7 +81,7 @@ export default function Sidebar() {
         className="absolute bottom-7 left-6 flex items-center gap-5 cursor-pointer"
       >
         <Logout className="size-8 shrink-0 text-grey" />
-        <span className="text-[18px] leading-normal font-radio text-grey">
+        <span className="text-header-radio-3 text-grey">
           Log out
         </span>
       </button>

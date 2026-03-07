@@ -55,13 +55,13 @@ export const TextInput = forwardRef<
   return (
     <div className={`flex flex-col gap-2 w-full ${className ?? ""}`}>
       {label && (
-        <span className="text-[12px] leading-4 tracking-[-0.24px] text-[#757575] font-['Golos_Text',sans-serif]">
+        <span className="text-body-xs text-grey">
           {label}
         </span>
       )}
       <div
-        className={`group bg-black border ${borderByState[state]} focus-within:border-neon flex gap-2.5 px-4 py-3 rounded-[16px] w-full ${
-          isTall ? "h-[86px] items-start" : "h-14 items-center"
+        className={`group bg-black border ${borderByState[state]} focus-within:border-neon flex gap-2.5 px-4 py-3 rounded-[1rem] w-full ${
+          isTall ? "h-[5.375rem] items-start" : "h-14 items-center"
         }`}
       >
         {isTall ? (

@@ -65,7 +65,7 @@ export function TopNavigation({
       <div
         className={`relative flex items-center justify-between px-[var(--space-page)] h-14 pb-2 pt-3 ${className ?? ""}`}
       >
-        <div className="w-[67px] shrink-0">{leftAction}</div>
+        <div className="w-[4.1875rem] shrink-0">{leftAction}</div>
         {title && (
           <p
             className={`text-body-sm-bold absolute left-1/2 -translate-x-1/2 ${textColor}`}
@@ -73,7 +73,7 @@ export function TopNavigation({
             {title}
           </p>
         )}
-        <div className="w-[67px] shrink-0 flex justify-end">{rightAction}</div>
+        <div className="w-[4.1875rem] shrink-0 flex justify-end">{rightAction}</div>
       </div>
     );
   }
@@ -87,7 +87,7 @@ export function TopNavigation({
         <div className="size-6 shrink-0 flex items-center">{leftAction}</div>
         {title && (
           <p
-            className={`text-body-xs absolute left-1/2 -translate-x-1/2 ${textColor} opacity-60`}
+            className="text-body-xs absolute left-1/2 -translate-x-1/2 text-secondary"
           >
             {title}
           </p>

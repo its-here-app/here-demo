@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Modal from "./Modal";
+import { BottomPanel } from "./ui/BottomPanel";
+import { Tab, Tabs } from "./ui/Tabs";
 import { getFollowers, getFollowing } from "@/lib/services/users";
 import type { FollowUser } from "@/lib/services/users";
 
@@ -13,6 +14,8 @@ interface FollowsModalProps {
   profileName: string;
   initialTab: "followers" | "following";
   currentUserId?: string;
+  followerCount?: number;
+  followingCount?: number;
 }
 
 export default function FollowsModal({
@@ -22,6 +25,8 @@ export default function FollowsModal({
   profileName,
   initialTab,
   currentUserId,
+  followerCount,
+  followingCount,
 }: FollowsModalProps) {
   const [tab, setTab] = useState<"followers" | "following">(initialTab);
   const [followers, setFollowers] = useState<FollowUser[] | null>(null);
@@ -29,7 +34,6 @@ export default function FollowsModal({
 
   useEffect(() => {
     setTab(initialTab);
-    // Reset lists so they reload fresh each time the modal opens
     setFollowers(null);
     setFollowing(null);
   }, [isOpen, initialTab]);
@@ -46,46 +50,53 @@ export default function FollowsModal({
   const list = tab === "followers" ? followers : following;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={profileName}>
+    <BottomPanel
+      isOpen={isOpen}
+      onClose={onClose}
+      title={`@${profileName}`}
+      centerTitle
+      boldTitle
+      panelHeight="30rem"
+      desktopVariant="floating"
+      desktopWidth="43rem"
+    >
       {/* Tabs */}
-      <div className="flex border-b mb-4 -mt-2">
-        <button
-          onClick={() => setTab("followers")}
-          className={`flex-1 py-2 text-sm font-medium border-b-2 transition-colors ${
-            tab === "followers"
-              ? "border-blue-500 text-blue-600"
-              : "border-transparent text-gray-500 hover:text-gray-700"
-          }`}
-        >
-          Followers
-        </button>
-        <button
+      <Tabs className="">
+        <Tab
+          title={
+            followingCount != null ? `${followingCount} Following` : "Following"
+          }
+          active={tab === "following"}
           onClick={() => setTab("following")}
-          className={`flex-1 py-2 text-sm font-medium border-b-2 transition-colors ${
-            tab === "following"
-              ? "border-blue-500 text-blue-600"
-              : "border-transparent text-gray-500 hover:text-gray-700"
-          }`}
-        >
-          Following
-        </button>
-      </div>
+        />
+        <Tab
+          title={
+            followerCount != null ? `${followerCount} Followers` : "Followers"
+          }
+          active={tab === "followers"}
+          onClick={() => setTab("followers")}
+        />
+      </Tabs>
 
       {/* User list */}
       {list === null ? (
-        <p className="text-center text-gray-400 py-8 text-sm">Loading...</p>
+        <p className="text-center text-white/40 py-8 text-body-xs">
+          Loading...
+        </p>
       ) : list.length === 0 ? (
-        <p className="text-center text-gray-400 py-8 text-sm">
-          {tab === "followers" ? "No followers yet." : "Not following anyone yet."}
+        <p className="text-center text-white/40 py-8 text-body-xs">
+          {tab === "followers"
+            ? "No followers yet."
+            : "Not following anyone yet."}
         </p>
       ) : (
-        <ul className="space-y-4">
+        <ul className="-mt-2">
           {list.map((u) => (
             <li key={u.id}>
               <Link
                 href={`/${u.username}`}
                 onClick={onClose}
-                className="flex items-center gap-3 hover:bg-gray-50 rounded-lg p-2 -mx-2 transition-colors"
+                className="flex items-center gap-2 hover:bg-white/10 rounded-lg p-2 -mx-2 transition-colors"
               >
                 {u.avatar_url ? (
                   <img
@@ -94,9 +105,9 @@ export default function FollowsModal({
                     className="w-10 h-10 rounded-full object-cover flex-shrink-0"
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
                     <svg
-                      className="w-5 h-5 text-gray-400"
+                      className="w-5 h-5 text-white/40"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -112,22 +123,24 @@ export default function FollowsModal({
                 )}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium text-gray-900 truncate">
+                    <p className="text-body-xs text-white truncate">
                       {u.full_name}
                     </p>
                     {u.mutual && (
-                      <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full flex-shrink-0">
+                      <span className="text-body-xs text-grey flex-shrink-0">
                         Mutual
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-500 truncate">@{u.username}</p>
+                  <p className="text-body-xs text-grey truncate">
+                    @{u.username}
+                  </p>
                 </div>
               </Link>
             </li>
           ))}
         </ul>
       )}
-    </Modal>
+    </BottomPanel>
   );
 }

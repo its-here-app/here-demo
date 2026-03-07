@@ -14,6 +14,9 @@ import {
 } from "@/lib/services/users";
 import { Profile } from "../../components/ui/Profile";
 import { Button } from "../../components/ui/Button";
+import { IconButton } from "../../components/ui/IconButton";
+import { ArrowLeft } from "../../components/ui/icons/ArrowLeft";
+import { Overflow } from "../../components/ui/icons/Overflow";
 import EditProfileModal from "../../components/EditProfileModal";
 import FollowsModal from "../../components/FollowsModal";
 import type { Profile as ProfileData } from "@/types";
@@ -94,6 +97,13 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
 
   return (
     <>
+      <div className="hidden lg:flex items-center -mx-[var(--space-page)] -mt-[var(--space-page)] px-[var(--space-page)] pt-[var(--space-page)]">
+        {!isOwnProfile && (
+          <IconButton variant="secondary" icon={<ArrowLeft />} label="Back" onClick={() => router.back()} />
+        )}
+        <IconButton variant="secondary" icon={<Overflow />} label="More options" className="ml-auto" />
+      </div>
+
       <Profile
         type={profileType}
         name={profile.full_name}
@@ -130,9 +140,11 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
         isOpen={followsModal.open}
         onClose={() => setFollowsModal((s) => ({ ...s, open: false }))}
         profileId={profile.id}
-        profileName={profile.full_name}
+        profileName={profile.username}
         initialTab={followsModal.tab}
         currentUserId={user?.id}
+        followerCount={counts?.followers}
+        followingCount={counts?.following}
       />
     </>
   );

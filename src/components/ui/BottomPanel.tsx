@@ -12,8 +12,20 @@ interface BottomPanelProps {
   subtitle?: string;
   /** Optional footer area (e.g. a save/confirm button) */
   footer?: ReactNode;
-  /** When set to "full-page", renders a full-screen overlay on desktop */
-  desktopVariant?: "full-page";
+  /** Controls the desktop rendering: "full-page" = full-screen overlay, "floating" = centered card */
+  desktopVariant?: "full-page" | "floating";
+  /** Custom width for the floating desktop variant (default: 24.375rem / 390px) */
+  desktopWidth?: string;
+  /** Scrim color for the floating desktop variant — default is black/40, "black" is fully opaque */
+  scrim?: "black";
+  /** Show the FullLogo in the top-left corner of the floating desktop overlay */
+  logo?: boolean;
+  /** Centers the title in the header */
+  centerTitle?: boolean;
+  /** Renders the title in bold */
+  boldTitle?: boolean;
+  /** Optional fixed height for the mobile panel (e.g. "30rem") */
+  panelHeight?: string;
   children: ReactNode;
 }
 
@@ -24,6 +36,12 @@ export function BottomPanel({
   subtitle,
   footer,
   desktopVariant,
+  desktopWidth,
+  scrim,
+  logo = false,
+  centerTitle = false,
+  boldTitle = false,
+  panelHeight,
   children,
 }: BottomPanelProps) {
   const [isVisible, setIsVisible] = useState(false);
@@ -64,69 +82,64 @@ export function BottomPanel({
 
   if (!isVisible) return null;
 
+  const fadeIn = isAnimating ? "opacity-100" : "opacity-0";
+  const closeBtn = (
+    <button type="button" onClick={onClose} aria-label="Close" className="text-white shrink-0 cursor-pointer">
+      <Close focus />
+    </button>
+  );
+
   return (
     <>
       {/* Desktop: full-page overlay */}
       {desktopVariant === "full-page" && (
-        <div className={`fixed inset-0 z-[60] bg-black hidden lg:flex flex-col transition-opacity duration-300 ${isAnimating ? "opacity-100" : "opacity-0"}`}>
-          {/* Top bar */}
+        <div className={`fixed inset-0 z-[60] bg-black hidden lg:flex flex-col transition-opacity duration-300 ${fadeIn}`}>
           <div className="flex items-center justify-between px-8 pt-8 shrink-0">
             <FullLogo color="white" />
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Close"
-              className="text-white/60 hover:text-white transition-colors cursor-pointer"
-            >
-              <Close />
-            </button>
+            {closeBtn}
           </div>
+          <div className="flex-1 flex flex-col items-center justify-center gap-[3.75rem] py-12">
+            <p className={`${boldTitle ? "text-body-sm-bold" : "text-body-sm"} text-white text-center`}>{title}</p>
+            <div className="flex flex-col gap-4 w-[22.875rem]">{children}</div>
+          </div>
+        </div>
+      )}
 
-          {/* Centered content */}
-          <div className="flex-1 flex flex-col items-center justify-center gap-[60px] py-12">
-            <p className="text-body-sm text-white text-center">{title}</p>
-            <div className="flex flex-col gap-4 w-[366px]">{children}</div>
+      {/* Desktop: floating card */}
+      {desktopVariant === "floating" && (
+        <div className={`fixed inset-0 z-[60] hidden lg:flex flex-col items-center justify-center transition-opacity duration-300 ${fadeIn}`}>
+          <div className={`absolute inset-0 ${scrim === "black" ? "bg-black" : "bg-black/40"}`} onClick={onClose} />
+          {logo && <div className="absolute top-8 left-8"><FullLogo color="white" /></div>}
+          <div className="relative bg-black rounded-[2rem] p-6 flex flex-col gap-5" style={{ width: desktopWidth ?? "24.375rem" }}>
+            <div className="flex items-start justify-between gap-2">
+              <div className="size-6 shrink-0" />
+              <p className="text-body-sm-bold text-white text-center flex-1">{title}</p>
+              {closeBtn}
+            </div>
+            {children}
           </div>
         </div>
       )}
 
       {/* Mobile: bottom sheet */}
       <div className="fixed inset-0 z-[60] lg:hidden flex flex-col justify-end">
-      {/* Scrim */}
-      <div
-        className={`absolute inset-0 bg-black/40 transition-opacity duration-300 ${isAnimating ? "opacity-100" : "opacity-0"}`}
-        onClick={onClose}
-      />
-
-      {/* Panel */}
-      <div
-        className={`relative bg-black rounded-t-[24px] flex flex-col gap-5 px-6 pt-6 pb-9 transition-transform duration-300 ${isAnimating ? "translate-y-0" : "translate-y-full"}`}
-      >
-        {/* Header */}
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex flex-col">
-            <p className="text-body-sm-bold text-white">{title}</p>
-            {subtitle && <p className="text-body-xs text-grey">{subtitle}</p>}
+        <div className={`absolute inset-0 bg-black/40 transition-opacity duration-300 ${fadeIn}`} onClick={onClose} />
+        <div
+          className={`relative bg-black rounded-t-[1.5rem] flex flex-col gap-5 px-6 pt-6 pb-9 transition-transform duration-300 ${isAnimating ? "translate-y-0" : "translate-y-full"}`}
+          style={panelHeight ? { height: panelHeight } : undefined}
+        >
+          <div className="flex items-start justify-between gap-2">
+            {centerTitle && <div className="size-6 shrink-0" />}
+            <div className={`flex flex-col ${centerTitle ? "flex-1 items-center" : ""}`}>
+              <p className={`${boldTitle ? "text-body-sm-bold" : "text-body-sm"} text-white`}>{title}</p>
+              {subtitle && <p className="text-body-xs text-grey">{subtitle}</p>}
+            </div>
+            {closeBtn}
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close"
-            className="text-white/60 hover:text-white transition-colors shrink-0"
-          >
-            <Close />
-          </button>
+          <div className="flex flex-col gap-4">{children}</div>
+          {footer && <div className="pt-3">{footer}</div>}
         </div>
-
-        {/* Body */}
-        <div className="flex flex-col gap-4">{children}</div>
-
-        {/* Footer */}
-        {footer && (
-          <div className="pt-3">{footer}</div>
-        )}
       </div>
-    </div>
     </>
   );
 }

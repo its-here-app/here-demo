@@ -45,7 +45,7 @@ export function Profile({
   return (
     <div className={`flex flex-col items-center w-full ${className ?? ""}`}>
       {/* Avatar + Info row */}
-      <div className="flex flex-col gap-4 items-center py-4  w-full lg:flex-row lg:gap-[60px] lg:items-center lg:py-0 lg:px-0 lg:w-full max-w-sm lg:max-w-145">
+      <div className="flex flex-col gap-4 items-center py-4  w-full lg:flex-row lg:gap-[3.75rem] lg:items-center lg:py-0 lg:px-0 lg:w-full max-w-sm lg:max-w-145">
         {/* Avatar */}
         <div className="relative shrink-0">
           <Avatar size="xl" lgSize="2xl" src={avatarSrc} username={name} />
@@ -55,11 +55,11 @@ export function Profile({
         {/* Info + Buttons */}
         <div className="flex flex-col items-center w-full lg:items-start">
           <div className="flex flex-col items-center lg:items-start lg:gap-1">
-            <p className="text-header-radio-1 text-black text-center lg:text-left lg:text-[2.25rem]">
+            <p className="text-header-radio-1 text-primary text-center lg:text-left lg:text-display-radio-3">
               {name}
             </p>
             {username && (
-              <p className="text-body-sm text-[0.75rem] text-grey text-center lg:text-left hidden lg:block">
+              <p className="text-body-xs text-grey text-center lg:text-left hidden lg:block">
                 @{username}
               </p>
             )}
@@ -67,7 +67,7 @@ export function Profile({
 
           <div className="flex flex-col items-center gap-4 w-full lg:items-start lg:gap-3 lg:mt-3">
             {bio && (
-              <p className="text-body-sm text-black/60 text-center w-[220px] line-clamp-3 lg:text-left lg:w-full">
+              <p className="text-body-sm text-secondary text-center w-[13.75rem] line-clamp-3 lg:text-left lg:w-full">
                 {bio}
               </p>
             )}

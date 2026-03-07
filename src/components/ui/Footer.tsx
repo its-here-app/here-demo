@@ -46,9 +46,9 @@ export function Footer({
     // ── Default footer ──────────────────────────────────────────────────────
     return (
       <footer
-        className={`bg-black rounded-tl-[36px] rounded-tr-[36px] w-full h-[141px] relative ${className ?? ""}`}
+        className={`bg-black rounded-tl-[2.25rem] rounded-tr-[2.25rem] w-full h-[8.8125rem] relative ${className ?? ""}`}
       >
-        <div className="absolute bottom-[73px] left-8">
+        <div className="absolute bottom-[4.5rem] left-8">
           <LogoWordmark />
         </div>
         <p className="absolute bottom-10 right-8 text-body-sm text-grey whitespace-nowrap">
@@ -61,11 +61,11 @@ export function Footer({
   // ── Logged-out footer ─────────────────────────────────────────────────────
   return (
     <footer
-      className={`bg-black rounded-tl-[36px] rounded-tr-[36px] w-full relative overflow-hidden ${className ?? ""}`}
+      className={`bg-black rounded-tl-[2.25rem] rounded-tr-[2.25rem] w-full relative overflow-hidden ${className ?? ""}`}
     >
       {/* Email signup */}
       <div className="px-8 pt-14 pb-10 flex flex-col gap-5">
-        <p className="text-header-radio-1 text-cream w-[314px]">
+        <p className="text-header-radio-1 text-cream w-[19.625rem]">
           Keep up with our new{"\n"}features and exclusives
         </p>
         <form
@@ -74,7 +74,7 @@ export function Footer({
             const input = e.currentTarget.querySelector("input");
             if (input?.value) onEmailSubmit?.(input.value);
           }}
-          className="relative border border-neon rounded-[16px] h-[52px] flex items-center px-4"
+          className="relative border border-neon rounded-[1rem] h-[3.25rem] flex items-center px-4"
         >
           <input
             type="email"
@@ -86,8 +86,20 @@ export function Footer({
             className="shrink-0 size-8 rounded-full bg-neon flex items-center justify-center"
             aria-label="Subscribe"
           >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M3 8H13M13 8L9 4M13 8L9 12"
+                stroke="black"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </button>
         </form>
@@ -108,12 +120,19 @@ export function Footer({
               </Link>
             ))}
           </nav>
-          <p className="text-body-sm text-grey">© Here* 2024. All rights reserved</p>
+          <p className="text-body-sm text-grey">
+            © Here* 2024. All rights reserved
+          </p>
         </div>
 
         {/* Logo icon — ocean circle */}
         <div className="size-[70px] rounded-full bg-ocean flex items-center justify-center shrink-0 -rotate-[14deg]">
-          <img src="/logo.svg" alt="" className="size-[40px] object-contain" aria-hidden="true" />
+          <img
+            src="/logo.svg"
+            alt=""
+            className="size-[40px] object-contain"
+            aria-hidden="true"
+          />
         </div>
       </div>
     </footer>

@@ -13,9 +13,9 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: "h-8 px-3 py-2 gap-1 rounded-[8px] text-body-xs",
-  md: "h-9 px-[14px] py-[10px] gap-1 rounded-[8px] text-body-xs",
-  lg: "h-[50px] px-5 py-[18px] gap-1.5 rounded-[16px] text-body-sm",
+  sm: "h-8 px-3 py-2 gap-1 rounded-[0.5rem] text-body-xs",
+  md: "h-9 px-[0.875rem] py-[0.625rem] gap-1 rounded-[0.5rem] text-body-xs",
+  lg: "h-[3.125rem] px-5 py-[1.125rem] gap-1.5 rounded-[1rem] text-body-sm",
 };
 
 function variantClasses(variant: ButtonVariant, darkTheme: boolean): string {

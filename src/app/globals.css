@@ -178,6 +178,11 @@
   --color-grey: #757575;
   --color-red: #f80000;
 
+  /* Colors — semantic */
+  --color-primary: var(--color-black);
+  --color-secondary: rgb(0 0 0 / 0.6);
+  --color-danger: var(--color-red);
+
   /* Fonts */
   --font-radio: "PP Radio Grotesk", sans-serif;
   --font-crimson: "Crimson Text", serif;
@@ -203,6 +208,13 @@
 /* ─── Typography utilities ─────────────────────────────────────────────────── */
 
 /* Display — PP Radio Grotesk */
+@utility text-display-radio-3 {
+  font-family: var(--font-radio);
+  font-size: 2.25rem; /* 36px */
+  line-height: normal;
+  letter-spacing: -0.04em;
+  font-weight: 400;
+}
 @utility text-display-radio-1 {
   font-family: var(--font-radio);
   font-size: 4.375rem; /* 70px */
@@ -229,6 +241,13 @@
 @utility text-header-radio-2 {
   font-family: var(--font-radio);
   font-size: 1.25rem; /* 20px */
+  line-height: normal;
+  letter-spacing: -0.04em;
+  font-weight: 400;
+}
+@utility text-header-radio-3 {
+  font-family: var(--font-radio);
+  font-size: 1.125rem; /* 18px */
   line-height: normal;
   letter-spacing: -0.04em;
   font-weight: 400;

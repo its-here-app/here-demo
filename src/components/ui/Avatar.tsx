@@ -15,16 +15,16 @@ const sizeClasses: Record<AvatarSize, string> = {
   sm: "size-5",         // 20px
   md: "size-7",         // 28px
   lg: "size-10",        // 40px
-  xl: "size-[98px]",    // 98px
-  "2xl": "size-[191px]", // 191px
+  xl: "size-[6.125rem]",    // 98px
+  "2xl": "size-[11.9375rem]", // 191px
 };
 
 const lgSizeClasses: Record<AvatarSize, string> = {
   sm: "lg:size-5",
   md: "lg:size-7",
   lg: "lg:size-10",
-  xl: "lg:size-[98px]",
-  "2xl": "lg:size-[191px]",
+  xl: "lg:size-[6.125rem]",
+  "2xl": "lg:size-[11.9375rem]",
 };
 
 export function Avatar({

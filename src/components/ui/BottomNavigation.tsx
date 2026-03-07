@@ -93,7 +93,7 @@ export function BottomNavigation({
   if (demo) {
     return (
       <div
-        className={`bg-white flex items-center justify-center gap-[72px] px-10 py-2 shadow-[0px_-4px_14px_0px_rgba(0,0,0,0.05)] ${className ?? ""}`}
+        className={`bg-white flex items-center justify-center gap-[4.5rem] px-10 py-2 shadow-[0px_-4px_14px_0px_rgba(0,0,0,0.05)] ${className ?? ""}`}
       >
         <NavButton label="Saved" onClick={() => onTabChange?.("saved")}>
           <Bookmark active={activeTab === "saved"} />
@@ -115,7 +115,7 @@ export function BottomNavigation({
   if (!loggedIn) {
     return (
       <div
-        className={`bg-white flex items-center justify-center gap-[72px] px-10 py-2 shadow-[0px_-4px_14px_0px_rgba(0,0,0,0.05)] ${className ?? ""}`}
+        className={`bg-white flex items-center justify-center gap-[4.5rem] px-10 py-2 shadow-[0px_-4px_14px_0px_rgba(0,0,0,0.05)] ${className ?? ""}`}
       >
         {addButton}
         <Avatar src={avatarUrl} />

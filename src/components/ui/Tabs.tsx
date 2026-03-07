@@ -15,11 +15,15 @@ export function Tab({ title, icon, active = false, onClick }: TabProps) {
       role="tab"
       aria-selected={active}
       onClick={onClick}
-      className={`flex-1 flex flex-col items-center gap-0.5 min-h-[40px] px-3 py-2 border-b cursor-pointer transition-colors ${
-        active ? "border-black text-black" : "border-transparent text-grey"
+      className={`flex-1 flex flex-col items-center mb-[-1px] gap-0.5 py-2 border-b cursor-pointer transition-colors ${
+        active
+          ? "border-white text-white"
+          : "border-transparent text-white/40 hover:text-white/70"
       }`}
     >
-      {icon && <span className="size-6 flex items-center justify-center">{icon}</span>}
+      {icon && (
+        <span className="size-6 flex items-center justify-center">{icon}</span>
+      )}
       <span className="text-body-xs">{title}</span>
     </button>
   );
@@ -34,7 +38,7 @@ export function Tabs({ children, className }: TabsProps) {
   return (
     <div
       role="tablist"
-      className={`flex items-center w-full overflow-x-auto ${className ?? ""}`}
+      className={`flex w-full border-b border-white/20 ${className ?? ""}`}
     >
       {children}
     </div>

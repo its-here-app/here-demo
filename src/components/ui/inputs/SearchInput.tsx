@@ -45,19 +45,19 @@ export function SearchInput({
       <button
         type="button"
         onClick={onFocus}
-        className={`bg-black/5 flex gap-2.5 items-center px-3 py-2.5 rounded-[12px] w-full cursor-pointer text-left ${className ?? ""}`}
+        className={`bg-black/5 flex gap-2.5 items-center px-3 py-2.5 rounded-[0.75rem] w-full cursor-pointer text-left ${className ?? ""}`}
       >
-        <span className="shrink-0 text-[#757575]">
+        <span className="shrink-0 text-grey">
           {leftIcon ?? <SearchIcon />}
         </span>
-        <span className="text-body-sm text-[#757575]">{placeholder}</span>
+        <span className="text-body-sm text-grey">{placeholder}</span>
       </button>
     );
   }
 
   return (
     <div
-      className={`border border-black/10 flex gap-2 items-center px-3 py-2.5 rounded-[12px] w-full ${className ?? ""}`}
+      className={`border border-black/10 flex gap-2 items-center px-3 py-2.5 rounded-[0.75rem] w-full ${className ?? ""}`}
     >
       <span className="shrink-0 text-black">
         {leftIcon ?? <SearchIcon />}
@@ -68,12 +68,12 @@ export function SearchInput({
         value={value}
         onChange={(e) => onChange?.(e.target.value)}
         placeholder={placeholder}
-        className="flex-1 min-w-0 bg-transparent text-body-sm text-black placeholder:text-[#757575] outline-none"
+        className="flex-1 min-w-0 bg-transparent text-body-sm text-black placeholder:text-grey outline-none"
       />
       <button
         type="button"
         onClick={onClear}
-        className="shrink-0 text-[#757575] hover:text-black transition-colors"
+        className="shrink-0 text-grey hover:text-black transition-colors"
         aria-label="Clear search"
       >
         <CloseIcon />

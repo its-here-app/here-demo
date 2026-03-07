@@ -35,8 +35,8 @@ export function IconButton({
   const shapeClasses = isHero
     ? "h-11 w-16 px-5 py-2.5 rounded-full"
     : size === "lg"
-    ? "size-[54px] rounded-[30px]"
-    : "size-9 rounded-[30px]";
+    ? "size-[3.375rem] rounded-[1.875rem]"
+    : "size-9 rounded-[1.875rem]";
 
   return (
     <button

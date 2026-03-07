@@ -109,7 +109,7 @@ export default function EditProfileModal({
     <>
       {/* Avatar */}
       <div className="flex justify-center mb-4">
-        <label className="relative size-[98px] rounded-full cursor-pointer shrink-0">
+        <label className="relative size-[6.125rem] rounded-full cursor-pointer shrink-0">
           <div className="size-full rounded-full overflow-hidden bg-white/10">
             {photoPreview && (
               <img
@@ -173,14 +173,14 @@ export default function EditProfileModal({
           variant="outline"
           size="md"
           darkTheme
-          className="!text-red"
+          className="!text-danger"
         >
           Delete account
         </Button>
       </div>
 
       {/* Desktop save button */}
-      <div className="hidden lg:flex justify-center pt-[calc(60px-1rem)]">
+      <div className="hidden lg:flex justify-center pt-[calc(3.75rem-1rem)]">
         <Button
           type="submit"
           variant="tonal"
@@ -193,7 +193,7 @@ export default function EditProfileModal({
       </div>
 
       {error && (
-        <p className="text-body-xs text-red text-center">{error}</p>
+        <p className="text-body-xs text-danger text-center">{error}</p>
       )}
     </>
   );

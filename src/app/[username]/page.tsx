@@ -6,9 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { Playlist } from "@/types";
 import Link from "next/link";
 import { Button } from "../../components/ui/Button";
-import { IconButton } from "../../components/ui/IconButton";
-import { ArrowLeft } from "../../components/ui/icons/ArrowLeft";
-import { Overflow } from "../../components/ui/icons/Overflow";
+import { Card } from "../../components/ui/Card";
 
 export default async function UserProfilePage({
   params,
@@ -29,40 +27,35 @@ export default async function UserProfilePage({
   }
 
   const isOwnProfile = user?.id === profile.id;
-  const playlists: Playlist[] = await getPlaylistsByUser(profile.id, !isOwnProfile);
+  const playlists: Playlist[] = await getPlaylistsByUser(
+    profile.id,
+    !isOwnProfile,
+  );
 
   return (
     <main className="flex min-h-screen flex-col items-center">
-      <div className="hidden lg:flex justify-between w-full px-[var(--space-page)] pt-[var(--space-page)]">
-        <IconButton variant="secondary" icon={<ArrowLeft />} label="Back" />
-        <IconButton
-          variant="secondary"
-          icon={<Overflow />}
-          label="More options"
-        />
-      </div>
-
       <div className="w-full p-[var(--space-page)]">
         <ProfileHeader profile={profile} />
 
         {playlists.length === 0 ? (
           <div className="hidden bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
-            <p className="text-gray-600">No public playlists yet</p>
+            <p className="text-secondary">No public playlists yet</p>
           </div>
         ) : (
-          <div className="grid gap-4">
+          <div className="grid gap-20 sm:grid-cols-2 xl:grid-cols-3 mt-4 lg:mt-16">
             {playlists.map((playlist) => (
               <Link
                 key={playlist.id}
                 href={`/playlists/${playlist.slug}`}
-                className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow block"
+                className="block"
               >
-                <h3 className="text-lg font-semibold mb-2">{playlist.name}</h3>
-                {playlist.description && (
-                  <p className="text-gray-600 text-sm">
-                    {playlist.description}
-                  </p>
-                )}
+                <Card
+                  size="lg"
+                  image={playlist.image_url}
+                  city={playlist.name}
+                  playlistName={playlist.description}
+                  className="w-full bg-black rounded-[.75rem]"
+                />
               </Link>
             ))}
           </div>
@@ -73,7 +66,7 @@ export default async function UserProfilePage({
             {isOwnProfile && (
               <h1 className="text-display-radio-2 mb-[.5rem]">Get started</h1>
             )}
-            <p className="text-body-sm text-black/60 max-w-70 mb-6">
+            <p className="text-body-sm text-secondary max-w-70 mb-6">
               {isOwnProfile
                 ? "You don’t have any lists yet. Create your first to organize your favorite places and share them with friends"
                 : "No public lists found"}
