@@ -60,7 +60,7 @@ export function Sheet({ isOpen, onClose, title, items }: SheetProps) {
     <div className="fixed inset-0 z-[60] flex flex-col justify-end">
       <Scrim visible={isAnimating} onClick={onClose} />
       <div
-        className={`relative flex flex-col gap-2 p-3 w-full max-w-[24rem] mx-auto transition-transform duration-300 ${
+        className={`relative flex flex-col gap-2 p-3 w-full sm:max-w-sm mx-auto transition-transform duration-300 ${
           isAnimating ? "translate-y-0" : "translate-y-full"
         }`}
       >
@@ -80,7 +80,7 @@ export function Sheet({ isOpen, onClose, title, items }: SheetProps) {
                 item.onClick();
                 onClose();
               }}
-              className={`flex h-[46px] items-center justify-center px-3 cursor-pointer text-body-xs transition-colors hover:bg-black/[0.03] ${
+              className={`flex h-[46px] items-center justify-center px-3 cursor-pointer text-body-xs ${
                 item.variant === "danger" ? "text-danger" : "text-primary"
               } ${i < items.length - 1 ? "border-b border-black/5" : ""}`}
             >
@@ -90,7 +90,12 @@ export function Sheet({ isOpen, onClose, title, items }: SheetProps) {
         </div>
 
         {/* Cancel */}
-        <Button variant="tonal" size="lg" onClick={onClose} className="w-full !bg-grey-100">
+        <Button
+          variant="tonal"
+          size="lg"
+          onClick={onClose}
+          className="w-full !bg-grey-100 hover:opacity-100"
+        >
           Cancel
         </Button>
       </div>

@@ -13,6 +13,7 @@ import {
   getFollowingCount,
   signOut,
 } from "@/lib/services/users";
+import { NavBar } from "../../components/ui/NavBar";
 import { Profile } from "../../components/ui/Profile";
 import { IconButton } from "../../components/ui/IconButton";
 import { ArrowLeft } from "../../components/ui/icons/ArrowLeft";
@@ -55,7 +56,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
 
   useEffect(() => {
     document.dispatchEvent(
-      new CustomEvent("profile-mounted", { detail: { isOwnProfile } })
+      new CustomEvent("profile-mounted", { detail: { isOwnProfile } }),
     );
     return () => {
       document.dispatchEvent(new CustomEvent("profile-unmounted"));
@@ -63,7 +64,9 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
   }, [isOwnProfile]);
 
   useEffect(() => {
-    function handler() { setIsSheetOpen(true); }
+    function handler() {
+      setIsSheetOpen(true);
+    }
     document.addEventListener("profile-overflow", handler);
     return () => document.removeEventListener("profile-overflow", handler);
   }, []);
@@ -120,7 +123,9 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
   }
 
   function copyProfileUrl() {
-    navigator.clipboard.writeText(`${window.location.origin}/${profile.username}`);
+    navigator.clipboard.writeText(
+      `${window.location.origin}/${profile.username}`,
+    );
   }
 
   async function handleSignOut() {
@@ -128,8 +133,15 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
     router.push("/signin");
   }
 
-  const shareItem: SheetItem = { label: "Share profile", onClick: shareProfile };
-  const logOutItem: SheetItem = { label: "Log out", onClick: handleSignOut, variant: "danger" };
+  const shareItem: SheetItem = {
+    label: "Share profile",
+    onClick: shareProfile,
+  };
+  const logOutItem: SheetItem = {
+    label: "Log out",
+    onClick: handleSignOut,
+    variant: "danger",
+  };
 
   const sheetItems: SheetItem[] = isOwnProfile
     ? [
@@ -142,7 +154,11 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
         { label: "Copy profile URL", onClick: copyProfileUrl },
         relationship?.blocking
           ? { label: `Unblock @${profile.username}`, onClick: handleBlock }
-          : { label: `Block @${profile.username}`, onClick: handleBlock, variant: "danger" },
+          : {
+              label: `Block @${profile.username}`,
+              onClick: handleBlock,
+              variant: "danger",
+            },
         logOutItem,
       ];
 
@@ -154,12 +170,27 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
 
   return (
     <>
-      <div className="hidden lg:flex items-center -mx-[var(--space-page)] -mt-[var(--space-page)] px-[var(--space-page)] pt-[var(--space-page)]">
-        {!isOwnProfile && (
-          <IconButton variant="secondary" icon={<ArrowLeft />} label="Back" onClick={() => router.back()} />
-        )}
-        <IconButton variant="secondary" icon={<Overflow />} label="More options" className="ml-auto" onClick={() => setIsSheetOpen(true)} />
-      </div>
+      <NavBar
+        className="hidden lg:flex -mx-[var(--space-page-sm)] -mt-[var(--space-page)] pt-[var(--space-page)]"
+        left={
+          !isOwnProfile ? (
+            <IconButton
+              variant="secondary"
+              icon={<ArrowLeft />}
+              label="Back"
+              onClick={() => router.back()}
+            />
+          ) : undefined
+        }
+        right={
+          <IconButton
+            variant="secondary"
+            icon={<Overflow />}
+            label="More options"
+            onClick={() => setIsSheetOpen(true)}
+          />
+        }
+      />
 
       <Profile
         type={profileType}

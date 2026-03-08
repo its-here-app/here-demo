@@ -144,7 +144,7 @@ export default function NewPlaylistPage() {
         await addSpotToPlaylist(playlist.id, upsertedSpot.id, i, user.id);
       }
 
-      router.push(`/playlists/${playlist.slug}`);
+      router.push(`/playlists/${playlist.slug}?from=new`);
     } catch (err: any) {
       console.error("Error creating playlist:", err);
       setError(err.message);
@@ -234,9 +234,9 @@ export default function NewPlaylistPage() {
         >
           <p className="text-sm text-gray-600 mb-4">
             We couldn&apos;t find the following{" "}
-            {unfoundSpots.length === 1 ? "spot" : "spots"} on Google Maps.
-            You can add {unfoundSpots.length === 1 ? "it" : "them"} manually
-            from the search bar on the next page.
+            {unfoundSpots.length === 1 ? "spot" : "spots"} on Google Maps. You
+            can add {unfoundSpots.length === 1 ? "it" : "them"} manually from
+            the search bar on the next page.
           </p>
           <ul className="space-y-2 mb-6">
             {unfoundSpots.map((name) => (

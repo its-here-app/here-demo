@@ -2,7 +2,8 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
-import { TopNavigation } from "@/components/ui/TopNavigation";
+import { NavBar } from "@/components/ui/NavBar";
+import { IconButton } from "@/components/ui/IconButton";
 import { Overflow } from "@/components/ui/icons/Overflow";
 import { ArrowLeft } from "@/components/ui/icons/ArrowLeft";
 import { useEffect, useState } from "react";
@@ -26,11 +27,12 @@ export default function TopNav() {
     };
   }, []);
 
-  // Hide on auth pages
+  // Hide on auth and playlist pages
   if (
     pathname.startsWith("/signin") ||
     pathname.startsWith("/create-account") ||
-    pathname.startsWith("/users/registration")
+    pathname.startsWith("/users/registration") ||
+    pathname.startsWith("/playlists")
   ) {
     return null;
   }
@@ -46,28 +48,32 @@ export default function TopNav() {
   return (
     <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white">
       {isProfilePage ? (
-        <TopNavigation
-          variant="profile"
-          title={`@${profileUsername}`}
-          leftAction={
+        <NavBar
+          className="h-14 pb-2 pt-3"
+          left={
             showBack ? (
-              <button aria-label="Back" onClick={() => router.back()} className="cursor-pointer">
-                <ArrowLeft />
-              </button>
-            ) : null
+              <IconButton
+                variant="secondary"
+                icon={<ArrowLeft />}
+                label="Back"
+                onClick={() => router.back()}
+              />
+            ) : undefined
           }
-          rightAction={
-            <button
-              aria-label="More options"
+          center={
+            <p className="text-body-xs text-secondary">@{profileUsername}</p>
+          }
+          right={
+            <IconButton
+              variant="secondary"
+              icon={<Overflow orientation="horizontal" />}
+              label="More options"
               onClick={() => document.dispatchEvent(new CustomEvent("profile-overflow"))}
-              className="cursor-pointer"
-            >
-              <Overflow orientation="horizontal" />
-            </button>
+            />
           }
         />
       ) : (
-        <TopNavigation variant="logo-location" />
+        <NavBar variant="logo-location" />
       )}
     </div>
   );

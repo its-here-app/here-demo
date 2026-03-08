@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
@@ -16,6 +16,12 @@ import {
 } from "@/lib/services/playlists";
 import { getDefaultCover } from "@/lib/playlist-covers";
 import type { PlaylistSpot, SearchResult } from "@/types";
+import { PlaylistCard } from "@/components/ui/PlaylistCard";
+import { IconButton } from "@/components/ui/IconButton";
+import { Close } from "@/components/ui/icons/Close";
+import { Overflow } from "@/components/ui/icons/Overflow";
+import { Sheet } from "@/components/ui/Sheet";
+import type { SheetItem } from "@/components/ui/Sheet";
 import SpotCard from "@/components/SpotCard";
 import BookmarkButton from "@/components/BookmarkButton";
 import SpotSearchInput from "@/components/SpotSearchInput";
@@ -41,6 +47,20 @@ import { CSS } from "@dnd-kit/utilities";
 interface Props {
   playlist: any;
   isOwner: boolean;
+  fromNew?: boolean;
+}
+
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days}d ago`;
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months}mo ago`;
+  return `${Math.floor(months / 12)}y ago`;
 }
 
 function GripIcon() {
@@ -140,33 +160,41 @@ function SortableSpotCard({
   );
 }
 
-export default function PlaylistEditor({ playlist, isOwner }: Props) {
+export default function PlaylistEditor({ playlist, isOwner, fromNew }: Props) {
   const { user } = useAuth();
   const router = useRouter();
 
   const [editMode, setEditMode] = useState(false);
   const [coverUrl, setCoverUrl] = useState<string>(
-    playlist.cover_photo_url ?? getDefaultCover(playlist.city)
+    playlist.cover_photo_url ?? getDefaultCover(playlist.city),
   );
   const [uploadingCover, setUploadingCover] = useState(false);
-  const [description, setDescription] = useState<string>(playlist.description ?? "");
+  const [description, setDescription] = useState<string>(
+    playlist.description ?? "",
+  );
   const [spots, setSpots] = useState<PlaylistSpot[]>(
     [...playlist.playlist_spots].sort(
       (a: PlaylistSpot, b: PlaylistSpot) =>
-        (a.position ?? 0) - (b.position ?? 0)
-    )
+        (a.position ?? 0) - (b.position ?? 0),
+    ),
   );
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [addingId, setAddingId] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState("");
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [canShare, setCanShare] = useState(false);
+
+  useEffect(() => {
+    setCanShare(!!navigator.share);
+  }, []);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   const existingPlaceIds = new Set(spots.map((s) => s.spots.google_place_id));
@@ -181,7 +209,7 @@ export default function PlaylistEditor({ playlist, isOwner }: Props) {
     setSpots(reordered);
 
     await reorderPlaylistSpots(
-      reordered.map((s, i) => ({ id: s.id, position: i }))
+      reordered.map((s, i) => ({ id: s.id, position: i })),
     );
   }
 
@@ -197,7 +225,12 @@ export default function PlaylistEditor({ playlist, isOwner }: Props) {
         rating: place.rating,
         types: place.types,
       });
-      const ps = await addSpotToPlaylist(playlist.id, spot.id, spots.length, user?.id ?? "");
+      const ps = await addSpotToPlaylist(
+        playlist.id,
+        spot.id,
+        spots.length,
+        user?.id ?? "",
+      );
       setSpots([...spots, { ...ps, spots: spot }]);
     } catch {
       setError("Failed to add spot.");
@@ -239,6 +272,13 @@ export default function PlaylistEditor({ playlist, isOwner }: Props) {
     }
   }
 
+  function handleShare() {
+    navigator.share({
+      title: playlist.name,
+      url: `${window.location.origin}/playlists/${playlist.slug}`,
+    });
+  }
+
   async function handleDeletePlaylist() {
     setDeleting(true);
     setError("");
@@ -262,7 +302,12 @@ export default function PlaylistEditor({ playlist, isOwner }: Props) {
     if (!file) return;
     setUploadingCover(true);
     try {
-      const url = await uploadPlaylistCover(playlist.id, user?.id ?? "", file, coverUrl);
+      const url = await uploadPlaylistCover(
+        playlist.id,
+        user?.id ?? "",
+        file,
+        coverUrl,
+      );
       setCoverUrl(url);
     } catch {
       setError("Failed to upload cover photo.");
@@ -272,16 +317,64 @@ export default function PlaylistEditor({ playlist, isOwner }: Props) {
   }
 
   return (
-    <div className="w-full max-w-2xl">
+    <div className="w-full">
       {/* Cover photo */}
-      <div className="relative w-full h-52 rounded-xl overflow-hidden mb-6 bg-gray-100">
-        <img
-          src={coverUrl}
-          alt={playlist.name}
-          className="w-full h-full object-cover"
+      <div className="relative mb-6">
+        <PlaylistCard
+          className="h-[30rem]"
+          size="hero"
+          image={coverUrl}
+          city={playlist.name}
+          playlistName={playlist.description ?? undefined}
+          topLeft={
+            <IconButton
+              variant="overlay"
+              icon={<Close />}
+              label="Close"
+              onClick={() =>
+                fromNew
+                  ? router.push(`/${playlist.profiles.username}`)
+                  : router.back()
+              }
+            />
+          }
+          topRight={
+            isOwner ? (
+              <IconButton
+                variant="overlay"
+                icon={<Overflow orientation="horizontal" />}
+                label="More options"
+                onClick={() => setIsSheetOpen(true)}
+              />
+            ) : undefined
+          }
+          bottomLeft={
+            <Link
+              href={`/${playlist.profiles.username}`}
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <div className="size-5 rounded-full overflow-hidden bg-white/20 shrink-0">
+                {playlist.profiles.avatar_url && (
+                  <img
+                    src={playlist.profiles.avatar_url}
+                    alt={playlist.profiles.username}
+                    className="size-full object-cover"
+                  />
+                )}
+              </div>
+              <p className="text-neon text-body-xs">
+                {playlist.profiles.username}
+              </p>
+            </Link>
+          }
+          bottomRight={
+            <p className="text-neon text-body-xs">
+              Last updated {timeAgo(playlist.updated_at)}
+            </p>
+          }
         />
         {editMode && (
-          <label className="absolute inset-0 flex items-center justify-center bg-black/40 cursor-pointer hover:bg-black/50 transition-colors">
+          <label className="absolute inset-0 flex items-center justify-center bg-black/40 cursor-pointer hover:bg-black/50 transition-colors rounded-[1.5rem]">
             <span className="text-white text-sm font-medium">
               {uploadingCover ? "Uploading…" : "Change photo"}
             </span>
@@ -300,7 +393,6 @@ export default function PlaylistEditor({ playlist, isOwner }: Props) {
       <div className="mb-8">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold mb-2">{playlist.name}</h1>
             {editMode ? (
               <textarea
                 value={description}
@@ -311,30 +403,16 @@ export default function PlaylistEditor({ playlist, isOwner }: Props) {
                 className="w-full text-sm text-gray-600 border border-gray-200 rounded-lg px-3 py-2 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4"
               />
             ) : (
-              description && (
-                <p className="text-gray-600 mb-4">{description}</p>
-              )
+              description && <p className="text-gray-600 mb-4">{description}</p>
             )}
             <div className="flex items-center gap-4 text-sm text-gray-500">
-              <p>
-                By{" "}
-                <Link
-                  href={`/${playlist.profiles.username}`}
-                  className="text-blue-500 hover:underline"
-                >
-                  @{playlist.profiles.username}
-                </Link>
-              </p>
-              <p>•</p>
               <p>{spots.length} spots</p>
               <p>•</p>
               <p>{playlist.is_public ? "Public" : "Private"}</p>
             </div>
           </div>
 
-          {!isOwner && (
-            <PlaylistBookmarkButton playlistId={playlist.id} />
-          )}
+          {!isOwner && <PlaylistBookmarkButton playlistId={playlist.id} />}
 
           {isOwner && (
             <div className="flex items-center gap-2 flex-shrink-0">
@@ -436,6 +514,31 @@ export default function PlaylistEditor({ playlist, isOwner }: Props) {
               {addingId === place.spot_id ? "Adding…" : "Add"}
             </button>
           )}
+        />
+      )}
+
+      {isOwner && (
+        <Sheet
+          isOpen={isSheetOpen}
+          onClose={() => setIsSheetOpen(false)}
+          title="Options"
+          items={
+            [
+              ...(canShare ? [{ label: "Share", onClick: handleShare }] : []),
+              {
+                label: "Edit",
+                onClick: () => {
+                  setIsSheetOpen(false);
+                  setEditMode(true);
+                },
+              },
+              {
+                label: "Delete playlist",
+                onClick: handleDeletePlaylist,
+                variant: "danger" as const,
+              },
+            ] satisfies SheetItem[]
+          }
         />
       )}
     </div>

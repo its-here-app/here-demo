@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../lib/authContext";
 import { createClient } from "../../lib/supabase/client";
-import { TopNavigation } from "../../components/ui/TopNavigation";
+import { NavBar } from "../../components/ui/NavBar";
 import { Smiley, Arrow } from "../../components/ui/stickers";
 import { TextInput } from "../../components/ui/inputs";
 import { Button } from "../../components/ui/Button";
@@ -220,11 +220,11 @@ export default function LoginPage() {
     <main className="relative flex h-screen flex-row bg-black overflow-hidden">
       {/* Left column */}
       <div className="relative flex flex-col h-full overflow-hidden flex-1 min-w-0">
-        <TopNavigation
+        <NavBar
           variant="logo-only"
           theme="dark"
           className="relative z-10"
-          rightAction={
+          right={
             step === "profile" ? (
               <button
                 type="button"

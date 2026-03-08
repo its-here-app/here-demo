@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ProfileHeader from "./ProfileHeader";
 import { getUserByUsername } from "@/lib/services/users";
@@ -6,7 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { Playlist } from "@/types";
 import Link from "next/link";
 import { Button } from "../../components/ui/Button";
-import { Card } from "../../components/ui/Card";
+import { PlaylistCard } from "../../components/ui/PlaylistCard";
 
 export default async function UserProfilePage({
   params,
@@ -34,7 +35,7 @@ export default async function UserProfilePage({
 
   return (
     <main className="flex min-h-screen flex-col items-center">
-      <div className="w-full p-[var(--space-page)]">
+      <div className="w-full pt-10 lg:pt-0">
         <ProfileHeader profile={profile} />
 
         {playlists.length === 0 ? (
@@ -42,18 +43,19 @@ export default async function UserProfilePage({
             <p className="text-secondary">No public playlists yet</p>
           </div>
         ) : (
-          <div className="grid gap-20 sm:grid-cols-2 xl:grid-cols-3 mt-4 lg:mt-16">
+          <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3 mt-4 lg:mt-16">
             {playlists.map((playlist) => (
               <Link
                 key={playlist.id}
                 href={`/playlists/${playlist.slug}`}
                 className="block"
               >
-                <Card
+                <PlaylistCard
                   size="lg"
+                  image={playlist.cover_photo_url ?? undefined}
                   city={playlist.name}
                   playlistName={playlist.description ?? undefined}
-                  className="w-full bg-black/80 rounded-[.75rem]"
+                  className="w-full"
                 />
               </Link>
             ))}

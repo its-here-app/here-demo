@@ -19,7 +19,9 @@ export default function SavesPage() {
   const router = useRouter();
 
   const [tab, setTab] = useState<"spots" | "playlists">("spots");
-  const [savedPlaylists, setSavedPlaylists] = useState<SavedPlaylist[] | null>(null);
+  const [savedPlaylists, setSavedPlaylists] = useState<SavedPlaylist[] | null>(
+    null,
+  );
   const [playlistsLoading, setPlaylistsLoading] = useState(false);
 
   useEffect(() => {
@@ -70,7 +72,10 @@ export default function SavesPage() {
                 : "border-transparent text-gray-500 hover:text-gray-700"
             }`}
           >
-            Playlists {savedPlaylists && savedPlaylists.length > 0 && `(${savedPlaylists.length})`}
+            Playlists{" "}
+            {savedPlaylists &&
+              savedPlaylists.length > 0 &&
+              `(${savedPlaylists.length})`}
           </button>
         </div>
 
@@ -96,12 +101,21 @@ export default function SavesPage() {
               />
             </div>
             {savedSpots.length === 0 ? (
-              <p className="text-gray-400 text-sm">No saved spots yet. Search above to find places to save.</p>
+              <p className="text-gray-400 text-sm">
+                No saved spots yet. Search above to find places to save.
+              </p>
             ) : (
               <div className="space-y-3">
                 {savedSpots.map((spot) => (
-                  <div key={spot.id} className="bg-white border border-gray-200 rounded-lg p-5">
-                    <SpotCard className="flex-1" spot={spot} bookmark={<BookmarkButton spot={spot} />} />
+                  <div
+                    key={spot.id}
+                    className="bg-white border border-gray-200 rounded-lg p-5"
+                  >
+                    <SpotCard
+                      className="flex-1"
+                      spot={spot}
+                      bookmark={<BookmarkButton spot={spot} />}
+                    />
                   </div>
                 ))}
               </div>
@@ -125,15 +139,23 @@ export default function SavesPage() {
                     className="flex items-center gap-4 bg-white border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow"
                   >
                     <img
-                      src={playlist.cover_photo_url ?? getDefaultCover(playlist.city)}
+                      src={
+                        playlist.cover_photo_url ??
+                        getDefaultCover(playlist.city)
+                      }
                       alt={playlist.name}
                       className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 truncate">{playlist.name}</p>
-                      <p className="text-sm text-gray-500 truncate">{playlist.city}</p>
+                      <p className="font-medium text-gray-900 truncate">
+                        {playlist.name}
+                      </p>
+                      <p className="text-sm text-gray-500 truncate">
+                        {playlist.city}
+                      </p>
                       <p className="text-xs text-gray-400">
-                        @{playlist.profiles.username} · {playlist.spot_count} spots
+                        @{playlist.profiles.username} · {playlist.spot_count}{" "}
+                        spots
                       </p>
                     </div>
                     <PlaylistBookmarkButton playlistId={playlist.id} />

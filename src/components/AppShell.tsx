@@ -19,7 +19,9 @@ export default function AppShell({
   return (
     <div className="flex min-h-screen">
       {nav}
-      <div className="flex-1 pt-14 lg:pt-0 pb-16 lg:pb-0">{children}</div>
+      <div className="flex-1 p-[var(--space-page-sm)]  pb-16 lg:pb-0">
+        {children}
+      </div>
     </div>
   );
 }

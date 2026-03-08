@@ -15,15 +15,15 @@ export function Overflow({ orientation = "horizontal", className }: Props) {
     >
       {orientation === "horizontal" ? (
         <>
-          <circle cx="6.5" cy="12" r="1.5" fill="black" />
-          <circle cx="12" cy="12" r="1.5" fill="black" />
-          <circle cx="17.5" cy="12" r="1.5" fill="black" />
+          <circle cx="6.5" cy="12" r="1.5" fill="currentColor" />
+          <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+          <circle cx="17.5" cy="12" r="1.5" fill="currentColor" />
         </>
       ) : (
         <>
-          <circle cx="12" cy="6.5" r="1.5" fill="black" />
-          <circle cx="12" cy="12" r="1.5" fill="black" />
-          <circle cx="12" cy="17.5" r="1.5" fill="black" />
+          <circle cx="12" cy="6.5" r="1.5" fill="currentColor" />
+          <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+          <circle cx="12" cy="17.5" r="1.5" fill="currentColor" />
         </>
       )}
     </svg>

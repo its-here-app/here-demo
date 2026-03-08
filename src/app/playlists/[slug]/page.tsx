@@ -13,7 +13,8 @@ async function getPlaylist(slug: string) {
       *,
       profiles!playlists_user_id_fkey (
         username,
-        full_name
+        full_name,
+        avatar_url
       ),
       playlist_spots (
         id,
@@ -55,10 +56,12 @@ export async function generateMetadata({
 
 export default async function PlaylistPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ from?: string }>;
 }) {
-  const { slug } = await params;
+  const [{ slug }, { from }] = await Promise.all([params, searchParams]);
   const supabase = await createClient();
 
   const [
@@ -79,8 +82,8 @@ export default async function PlaylistPage({
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-24">
-      <PlaylistEditor playlist={playlist} isOwner={isOwner} />
+    <main className="flex min-h-screen flex-col items-center ">
+      <PlaylistEditor playlist={playlist} isOwner={isOwner} fromNew={from === "new"} />
     </main>
   );
 }
