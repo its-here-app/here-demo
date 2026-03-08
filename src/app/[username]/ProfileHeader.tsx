@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useShare } from "@/lib/useShare";
 import { useAuth } from "../../lib/authContext";
 import { useRouter } from "next/navigation";
 import { AppBarConfig } from "@/lib/appBarContext";
@@ -35,7 +36,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [canShare, setCanShare] = useState(false);
+  const { canShare, share } = useShare();
   const [followsModal, setFollowsModal] = useState<{
     open: boolean;
     tab: "followers" | "following";
@@ -49,10 +50,6 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
     blocking: boolean;
     blockedBy: boolean;
   } | null>(null);
-
-  useEffect(() => {
-    setCanShare(!!navigator.share);
-  }, []);
 
   useEffect(() => {
     Promise.all([
@@ -98,13 +95,6 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
     }
   }
 
-  function shareProfile() {
-    navigator.share({
-      title: profile.full_name,
-      url: `${window.location.origin}/${profile.username}`,
-    });
-  }
-
   function copyProfileUrl() {
     navigator.clipboard.writeText(
       `${window.location.origin}/${profile.username}`,
@@ -118,7 +108,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
 
   const shareItem: SheetItem = {
     label: "Share profile",
-    onClick: shareProfile,
+    onClick: () => share(`${window.location.origin}/${profile.username}`),
   };
   const logOutItem: SheetItem = {
     label: "Log out",

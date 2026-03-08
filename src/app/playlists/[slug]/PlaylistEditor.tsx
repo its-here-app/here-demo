@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
+import { useShare } from "@/lib/useShare";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
@@ -22,6 +23,7 @@ import { IconButton } from "@/components/ui/IconButton";
 import { Close } from "@/components/ui/icons/Close";
 import { Overflow } from "@/components/ui/icons/Overflow";
 import { Photo } from "@/components/ui/icons/Photo";
+import { Share } from "@/components/ui/icons/Share";
 import { Sheet, ConfirmSheet } from "@/components/ui/Sheet";
 import type { SheetItem } from "@/components/ui/Sheet";
 import SpotCard from "@/components/ui/SpotCard";
@@ -49,6 +51,7 @@ interface Props {
   playlist: any;
   isOwner: boolean;
   fromNew?: boolean;
+  onClose?: () => void;
 }
 
 function timeAgo(dateStr: string): string {
@@ -158,7 +161,12 @@ function SortableSpotCard({
   );
 }
 
-export default function PlaylistEditor({ playlist, isOwner, fromNew }: Props) {
+export default function PlaylistEditor({
+  playlist,
+  isOwner,
+  fromNew,
+  onClose,
+}: Props) {
   const { user } = useAuth();
   const router = useRouter();
 
@@ -182,11 +190,7 @@ export default function PlaylistEditor({ playlist, isOwner, fromNew }: Props) {
   const [error, setError] = useState("");
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
-  const [canShare, setCanShare] = useState(false);
-
-  useEffect(() => {
-    setCanShare(!!navigator.share);
-  }, []);
+  const { canShare, share } = useShare();
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -270,13 +274,6 @@ export default function PlaylistEditor({ playlist, isOwner, fromNew }: Props) {
     }
   }
 
-  function handleShare() {
-    navigator.share({
-      title: playlist.name,
-      url: `${window.location.origin}/playlists/${playlist.slug}`,
-    });
-  }
-
   async function handleDeletePlaylist() {
     setError("");
     try {
@@ -335,9 +332,11 @@ export default function PlaylistEditor({ playlist, isOwner, fromNew }: Props) {
                 icon={<Close />}
                 label="Close"
                 onClick={() =>
-                  fromNew
-                    ? router.push(`/${playlist.profiles.username}`)
-                    : router.back()
+                  onClose
+                    ? onClose()
+                    : fromNew
+                      ? router.push(`/${playlist.profiles.username}`)
+                      : router.back()
                 }
               />
             )
@@ -362,7 +361,19 @@ export default function PlaylistEditor({ playlist, isOwner, fromNew }: Props) {
                 label="More options"
                 onClick={() => setIsSheetOpen(true)}
               />
-            ) : undefined
+            ) : (
+              <div className="text-white flex items-center gap-2">
+                <BookmarkButton playlistId={playlist.id} variant="overlay" />
+                {canShare && (
+                  <IconButton
+                    variant="overlay"
+                    icon={<Share />}
+                    label="Share"
+                    onClick={() => share(`${window.location.origin}/playlists/${playlist.slug}`)}
+                  />
+                )}
+              </div>
+            )
           }
           bottomLeft={
             editMode ? undefined : (
@@ -441,8 +452,6 @@ export default function PlaylistEditor({ playlist, isOwner, fromNew }: Props) {
                 <p>{playlist.is_public ? "Public" : "Private"}</p>
               </div>
             </div>
-
-            {!isOwner && <BookmarkButton playlistId={playlist.id} />}
           </div>
         </div>
 
@@ -508,7 +517,7 @@ export default function PlaylistEditor({ playlist, isOwner, fromNew }: Props) {
           title="Options"
           items={
             [
-              ...(canShare ? [{ label: "Share", onClick: handleShare }] : []),
+              ...(canShare ? [{ label: "Share", onClick: () => share(`${window.location.origin}/playlists/${playlist.slug}`) }] : []),
               {
                 label: "Edit",
                 onClick: () => {

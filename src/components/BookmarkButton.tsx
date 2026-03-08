@@ -6,12 +6,13 @@ import { useAuth } from "@/lib/authContext";
 import { isPlaylistSaved, savePlaylist, unsavePlaylist } from "@/lib/services/saves";
 import type { DraftSpot } from "@/types";
 import { IconButton } from "@/components/ui/IconButton";
+import type { IconButtonVariant } from "@/components/ui/IconButton";
 import { Bookmark } from "@/components/ui/icons/Bookmark";
 
-type SpotProps = { spot: DraftSpot; playlistId?: never };
-type PlaylistProps = { playlistId: string; spot?: never };
+type SpotProps = { spot: DraftSpot; playlistId?: never; variant?: IconButtonVariant };
+type PlaylistProps = { playlistId: string; spot?: never; variant?: IconButtonVariant };
 
-export default function BookmarkButton({ spot, playlistId }: SpotProps | PlaylistProps) {
+export default function BookmarkButton({ spot, playlistId, variant = "secondary" }: SpotProps | PlaylistProps) {
   const { isSaved, toggle } = useSaves();
   const { user } = useAuth();
   const [playlistSaved, setPlaylistSaved] = useState(false);
@@ -40,7 +41,7 @@ export default function BookmarkButton({ spot, playlistId }: SpotProps | Playlis
     if (!user || loading) return null;
     return (
       <IconButton
-        variant="secondary"
+        variant={variant}
         icon={<Bookmark active={playlistSaved} />}
         label={playlistSaved ? "Remove from saves" : "Save playlist"}
         onClick={togglePlaylist}
@@ -51,7 +52,7 @@ export default function BookmarkButton({ spot, playlistId }: SpotProps | Playlis
   const saved = isSaved(spot!.google_place_id);
   return (
     <IconButton
-      variant="secondary"
+      variant={variant}
       icon={<Bookmark active={saved} />}
       label={saved ? "Remove from saves" : "Save spot"}
       onClick={() => toggle(spot!)}

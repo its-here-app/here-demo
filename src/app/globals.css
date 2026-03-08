@@ -364,6 +364,10 @@
 
 /* ─── Base ─────────────────────────────────────────────────────────────────── */
 
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
   background-color: #ffffff;
   color: var(--color-black);
@@ -375,4 +379,14 @@ a,
 label,
 [role="button"] {
   cursor: pointer;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
 }

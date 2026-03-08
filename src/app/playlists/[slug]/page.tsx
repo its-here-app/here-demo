@@ -1,43 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import PlaylistEditor from "./PlaylistEditor";
-
-async function getPlaylist(slug: string) {
-  const supabase = await createClient();
-
-  const { data, error } = await supabase
-    .from("playlists")
-    .select(
-      `
-      *,
-      profiles!playlists_user_id_fkey (
-        username,
-        full_name,
-        avatar_url
-      ),
-      playlist_spots (
-        id,
-        notes,
-        created_at,
-        spots (
-          id,
-          google_place_id,
-          name,
-          address,
-          photo_url,
-          rating,
-          types
-        )
-      )
-    `,
-    )
-    .eq("slug", slug)
-    .single();
-
-  if (error || !data) return null;
-  return data;
-}
+import PlaylistOverlay from "./PlaylistOverlay";
+import { getPlaylist } from "./getPlaylist";
 
 export async function generateMetadata({
   params,
@@ -82,8 +47,6 @@ export default async function PlaylistPage({
   }
 
   return (
-    <main>
-      <PlaylistEditor playlist={playlist} isOwner={isOwner} fromNew={from === "new"} />
-    </main>
+    <PlaylistOverlay playlist={playlist} isOwner={isOwner} fromNew={from === "new"} />
   );
 }

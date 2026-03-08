@@ -9,6 +9,15 @@ import Link from "next/link";
 import { Button } from "../../components/ui/Button";
 import { PlaylistCard } from "../../components/ui/PlaylistCard";
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ username: string }>;
+}): Promise<Metadata> {
+  const { username } = await params;
+  return { title: `@${username} • Here*` };
+}
+
 export default async function UserProfilePage({
   params,
 }: {
@@ -34,7 +43,7 @@ export default async function UserProfilePage({
   );
 
   return (
-    <main className="flex min-h-screen flex-col items-center">
+    <main className="flex flex-col items-center">
       <div className="w-full pt-10 lg:pt-0">
         <ProfileHeader profile={profile} />
 
