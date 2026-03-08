@@ -4,7 +4,10 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
 import { getProfile } from "@/lib/services/users";
-import { BottomNavigation, type BottomNavTab } from "@/components/ui/BottomNavigation";
+import {
+  BottomNavigation,
+  type BottomNavTab,
+} from "@/components/ui/BottomNavigation";
 import type { Profile } from "@/types";
 
 export default function BottomNav() {
@@ -22,23 +25,29 @@ export default function BottomNav() {
 
   if (loading || !user || pathname.startsWith("/signin")) return null;
 
-  const activeTab: BottomNavTab =
-    pathname.startsWith("/search") ? "search"
-    : pathname === "/saves" ? "saved"
-    : username && pathname.startsWith(`/${username}`) ? "profile"
-    : "home";
+  const activeTab: BottomNavTab = pathname.startsWith("/search")
+    ? "search"
+    : pathname === "/saves"
+      ? "saved"
+      : username && pathname.startsWith(`/${username}`)
+        ? "profile"
+        : "home";
 
   function handleTabChange(tab: BottomNavTab) {
     switch (tab) {
-      case "home":    return router.push("/");
-      case "search":  return router.push("/search");
-      case "saved":   return router.push("/saves");
-      case "profile": return router.push(username ? `/${username}` : "/");
+      case "home":
+        return router.push("/");
+      case "search":
+        return router.push("/search");
+      case "saved":
+        return router.push("/saves");
+      case "profile":
+        return router.push(username ? `/${username}` : "/");
     }
   }
 
   return (
-    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50">
+    <div className="fixed bottom-0 left-0 right-0 z-50 lg:translate-y-[100%] transition-transform duration-400">
       <BottomNavigation
         demo
         activeTab={activeTab}

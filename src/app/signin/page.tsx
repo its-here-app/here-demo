@@ -13,6 +13,8 @@ import { ArrowRight } from "../../components/ui/icons/ArrowRight";
 import { Google } from "../../components/ui/icons/Google";
 import { Camera } from "../../components/ui/icons/Camera";
 import { Check } from "../../components/ui/icons/Check";
+import { FullLogo } from "../../components/ui/Logo";
+
 import { getUserByUsername } from "../../lib/services/users";
 
 type Step = "auth" | "profile";
@@ -220,22 +222,18 @@ export default function LoginPage() {
     <main className="relative flex h-screen flex-row bg-black overflow-hidden">
       {/* Left column */}
       <div className="relative flex flex-col h-full overflow-hidden flex-1 min-w-0">
-        <NavBar
-          variant="logo-only"
-          theme="dark"
-          className="relative z-10"
-          right={
-            step === "profile" ? (
-              <button
-                type="button"
-                onClick={handleCancel}
-                className="text-body-sm text-white/50 hover:text-white/80 transition-colors cursor-pointer"
-              >
-                Cancel
-              </button>
-            ) : undefined
-          }
-        />
+        <div className="p-[var(--space-page)] flex flex-row items-center justify-between">
+          <FullLogo className="w-20" color="white" />
+          {step === "profile" ? (
+            <button
+              type="button"
+              onClick={handleCancel}
+              className="text-body-sm text-white/50 hover:text-white/80 transition-colors cursor-pointer"
+            >
+              Cancel
+            </button>
+          ) : undefined}
+        </div>
 
         <div className="relative flex-1 overflow-hidden">
           {/* ── Auth panel ── */}
@@ -451,7 +449,7 @@ export default function LoginPage() {
 
       {/* Right column — grows in horizontally at lg */}
       <div className="overflow-hidden shrink-0 h-full w-0 lg:w-[60%] transition-[width] duration-400 ease-out">
-        <div className="h-full w-[60vw] py-2 pr-2">
+        <div className="h-full w-[60vw] py-[var(--space-page-sm)] pr-[var(--space-page-sm)]">
           <div className="bg-grey/20 h-full w-full rounded-sm" />
         </div>
       </div>

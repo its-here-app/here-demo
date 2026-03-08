@@ -202,6 +202,9 @@
   /* Page margin */
   --space-page-sm: 0.75rem; /* 12px */
   --space-page: clamp(0.75rem, 3vw, 2rem); /* 12px → 32px */
+
+  /* Sidebar */
+  --sidebar-width: 16.875rem /* 270px */;
 }
 
 /* Border radius — lg+ overrides */
