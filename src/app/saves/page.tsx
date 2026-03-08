@@ -7,9 +7,8 @@ import { useAuth } from "@/lib/authContext";
 import { useSaves } from "@/lib/savesContext";
 import { getSavedPlaylists } from "@/lib/services/saves";
 import type { SavedPlaylist } from "@/lib/services/saves";
-import SpotCard from "@/components/SpotCard";
+import SpotCard from "@/components/ui/SpotCard";
 import BookmarkButton from "@/components/BookmarkButton";
-import PlaylistBookmarkButton from "@/components/PlaylistBookmarkButton";
 import SpotSearchInput from "@/components/SpotSearchInput";
 import { getDefaultCover } from "@/lib/playlist-covers";
 
@@ -107,10 +106,7 @@ export default function SavesPage() {
             ) : (
               <div className="space-y-3">
                 {savedSpots.map((spot) => (
-                  <div
-                    key={spot.id}
-                    className="bg-white border border-gray-200 rounded-lg p-5"
-                  >
+                  <div key={spot.id} className="">
                     <SpotCard
                       className="flex-1"
                       spot={spot}
@@ -158,7 +154,7 @@ export default function SavesPage() {
                         spots
                       </p>
                     </div>
-                    <PlaylistBookmarkButton playlistId={playlist.id} />
+                    <BookmarkButton playlistId={playlist.id} />
                   </Link>
                 ))}
               </div>

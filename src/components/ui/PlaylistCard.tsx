@@ -127,7 +127,7 @@ const imageRadius: Record<PlaylistCardSize, string> = {
 };
 
 const actionPadding: Record<PlaylistCardSize, string> = {
-  hero: "p-4",
+  hero: "py-4 px-4 lg:p-6",
   lg: "p-4",
   md: "p-2",
   sm: "p-2",
@@ -181,7 +181,7 @@ export function PlaylistCard({
   return (
     <Wrapper
       {...(wrapperProps as Record<string, unknown>)}
-      className={`flex flex-col gap-3 w-full cursor-pointer ${className ?? ""}`}
+      className={`flex flex-col gap-3 w-full ${href || onClick ? "cursor-pointer" : ""} ${className ?? ""}`}
     >
       <div
         className={`relative overflow-hidden bg-black/10 w-full ${imageHeight[size]} ${imageRadius[size]}`}

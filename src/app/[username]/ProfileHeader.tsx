@@ -3,6 +3,10 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../lib/authContext";
 import { useRouter } from "next/navigation";
+import { AppBarConfig } from "@/lib/appBarContext";
+import { IconButton } from "@/components/ui/IconButton";
+import { ArrowLeft } from "@/components/ui/icons/ArrowLeft";
+import { Overflow } from "@/components/ui/icons/Overflow";
 import {
   getRelationship,
   followUser,
@@ -13,11 +17,7 @@ import {
   getFollowingCount,
   signOut,
 } from "@/lib/services/users";
-import { NavBar } from "../../components/ui/NavBar";
 import { Profile } from "../../components/ui/Profile";
-import { IconButton } from "../../components/ui/IconButton";
-import { ArrowLeft } from "../../components/ui/icons/ArrowLeft";
-import { Overflow } from "../../components/ui/icons/Overflow";
 import EditProfileModal from "../../components/EditProfileModal";
 import FollowsModal from "../../components/FollowsModal";
 import { Sheet } from "../../components/ui/Sheet";
@@ -52,23 +52,6 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
 
   useEffect(() => {
     setCanShare(!!navigator.share);
-  }, []);
-
-  useEffect(() => {
-    document.dispatchEvent(
-      new CustomEvent("profile-mounted", { detail: { isOwnProfile } }),
-    );
-    return () => {
-      document.dispatchEvent(new CustomEvent("profile-unmounted"));
-    };
-  }, [isOwnProfile]);
-
-  useEffect(() => {
-    function handler() {
-      setIsSheetOpen(true);
-    }
-    document.addEventListener("profile-overflow", handler);
-    return () => document.removeEventListener("profile-overflow", handler);
   }, []);
 
   useEffect(() => {
@@ -159,7 +142,6 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
               onClick: handleBlock,
               variant: "danger",
             },
-        logOutItem,
       ];
 
   const profileType = isOwnProfile
@@ -170,8 +152,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
 
   return (
     <>
-      <NavBar
-        className="hidden lg:flex -mx-[var(--space-page-sm)] -mt-[var(--space-page)] pt-[var(--space-page)]"
+      <AppBarConfig
         left={
           !isOwnProfile ? (
             <IconButton
@@ -182,10 +163,13 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
             />
           ) : undefined
         }
+        center={
+          <p className="text-body-xs text-secondary lg:hidden">@{profile.username}</p>
+        }
         right={
           <IconButton
             variant="secondary"
-            icon={<Overflow />}
+            icon={<Overflow orientation="horizontal" />}
             label="More options"
             onClick={() => setIsSheetOpen(true)}
           />

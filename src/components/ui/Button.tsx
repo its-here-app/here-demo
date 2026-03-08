@@ -20,7 +20,7 @@ const sizeClasses: Record<ButtonSize, string> = {
 
 function variantClasses(variant: ButtonVariant, darkTheme: boolean): string {
   if (variant === "overlay") {
-    return "backdrop-blur-sm bg-white/20 text-white rounded-full px-3 py-1.5";
+    return "backdrop-blur-sm bg-white/20 text-white rounded-full px-3 py-1.5 text-body-xs gap-1";
   }
   if (!darkTheme) {
     switch (variant) {

@@ -2,7 +2,6 @@ import { AuthProvider } from "@/lib/authContext";
 import { SavesProvider } from "@/lib/savesContext";
 import Sidebar from "@/components/Sidebar";
 import BottomNav from "@/components/BottomNav";
-import TopNav from "@/components/TopNav";
 import AppShell from "@/components/AppShell";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -43,7 +42,6 @@ export default function RootLayout({
             <AppShell
               nav={
                 <>
-                  <TopNav />
                   <Sidebar />
                   <BottomNav />
                 </>

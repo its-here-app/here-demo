@@ -82,7 +82,7 @@ export default async function PlaylistPage({
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center ">
+    <main>
       <PlaylistEditor playlist={playlist} isOwner={isOwner} fromNew={from === "new"} />
     </main>
   );

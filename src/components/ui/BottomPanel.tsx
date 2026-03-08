@@ -88,7 +88,12 @@ export function BottomPanel({
 
   const fadeIn = isAnimating ? "opacity-100" : "opacity-0";
   const closeBtn = (
-    <button type="button" onClick={onClose} aria-label="Close" className="text-white shrink-0 cursor-pointer">
+    <button
+      type="button"
+      onClick={onClose}
+      aria-label="Close"
+      className="text-white shrink-0 cursor-pointer"
+    >
       <Close focus />
     </button>
   );
@@ -97,13 +102,19 @@ export function BottomPanel({
     <>
       {/* Desktop: full-page overlay */}
       {desktopVariant === "full-page" && (
-        <div className={`fixed inset-0 z-[60] bg-black hidden lg:flex flex-col transition-opacity duration-300 ${fadeIn}`}>
-          <div className="flex items-center justify-between px-8 pt-8 shrink-0">
-            <FullLogo color="white" />
+        <div
+          className={`fixed inset-0 z-[60] bg-black hidden lg:flex flex-col transition-opacity duration-300 ${fadeIn}`}
+        >
+          <div className="flex items-center justify-between p-[var(--space-page)] shrink-0">
+            <FullLogo color="white" className="w-20" />
             {closeBtn}
           </div>
           <div className="flex-1 flex flex-col items-center justify-center gap-[3.75rem] py-12">
-            <p className={`${boldTitle ? "text-body-sm-bold" : "text-body-sm"} text-white text-center`}>{title}</p>
+            <p
+              className={`${boldTitle ? "text-body-sm-bold" : "text-body-sm"} text-white text-center`}
+            >
+              {title}
+            </p>
             <div className="flex flex-col gap-4 w-[22.875rem]">{children}</div>
           </div>
         </div>
@@ -111,13 +122,31 @@ export function BottomPanel({
 
       {/* Desktop: floating card */}
       {desktopVariant === "floating" && (
-        <div className={`fixed inset-0 z-[60] hidden lg:flex flex-col items-center justify-center transition-opacity duration-300 ${fadeIn}`}>
-          <Scrim visible={isAnimating} onClick={onClose} variant={scrim === "black" ? "dark" : "default"} />
-          {logo && <div className="absolute top-8 left-8"><FullLogo color="white" /></div>}
-          <div className="relative bg-black rounded-[2rem] p-6 flex flex-col gap-5 overflow-x-hidden" style={{ width: desktopWidth ?? "24.375rem", minHeight: desktopMinHeight }}>
+        <div
+          className={`fixed inset-0 z-[60] hidden lg:flex flex-col items-center justify-center transition-opacity duration-300 ${fadeIn}`}
+        >
+          <Scrim
+            visible={isAnimating}
+            onClick={onClose}
+            variant={scrim === "black" ? "dark" : "default"}
+          />
+          {logo && (
+            <div className="absolute top-8 left-8">
+              <FullLogo color="white" />
+            </div>
+          )}
+          <div
+            className="relative bg-black rounded-[2rem] p-6 flex flex-col gap-5 overflow-x-hidden"
+            style={{
+              width: desktopWidth ?? "24.375rem",
+              minHeight: desktopMinHeight,
+            }}
+          >
             <div className="flex items-start justify-between gap-2">
               <div className="size-6 shrink-0" />
-              <p className="text-body-sm-bold text-white text-center flex-1">{title}</p>
+              <p className="text-body-sm-bold text-white text-center flex-1">
+                {title}
+              </p>
               {closeBtn}
             </div>
             {children}
@@ -134,8 +163,14 @@ export function BottomPanel({
         >
           <div className="flex items-start justify-between gap-2">
             {centerTitle && <div className="size-6 shrink-0" />}
-            <div className={`flex flex-col ${centerTitle ? "flex-1 items-center" : ""}`}>
-              <p className={`${boldTitle ? "text-body-sm-bold" : "text-body-sm"} text-white`}>{title}</p>
+            <div
+              className={`flex flex-col ${centerTitle ? "flex-1 items-center" : ""}`}
+            >
+              <p
+                className={`${boldTitle ? "text-body-sm-bold" : "text-body-sm"} text-white`}
+              >
+                {title}
+              </p>
               {subtitle && <p className="text-body-xs text-grey">{subtitle}</p>}
             </div>
             {closeBtn}

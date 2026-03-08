@@ -1,140 +1,53 @@
-import type { ReactNode } from "react";
+import type { Spot } from "@/types";
+import { Badge } from "@/components/ui/Badge";
+import { Rating } from "@/components/ui/Rating";
 
-// ─── SpotCard ─────────────────────────────────────────────────────────────────
-
-export type SpotCardSize = "xs" | "xxs" | "profile" | "nested";
+const FILTERED_TYPES = new Set(["point_of_interest", "establishment"]);
 
 interface SpotCardProps {
-  size?: SpotCardSize;
-  image?: string;
-  title?: string;
-  subtitle?: string;
-  /** Right-side action slot — xxs, profile, nested only */
-  actions?: ReactNode;
-  /** Avatar override — xxs, profile only */
-  avatar?: ReactNode;
-  href?: string;
-  onClick?: () => void;
+  spot: Pick<Spot, "name" | "address" | "photo_url" | "rating" | "types">;
+  action?: React.ReactNode;
+  bookmark?: React.ReactNode;
   className?: string;
 }
 
-const imageRadius: Record<SpotCardSize, string> = {
-  xs: "rounded-[0.625rem]",
-  xxs: "rounded-[0.625rem]",
-  profile: "rounded-[0.625rem]",
-  nested: "rounded-[0.5rem]",
-};
-
-function CardImage({
-  src,
-  alt = "",
-  size,
-  className,
-}: {
-  src?: string;
-  alt?: string;
-  size: SpotCardSize;
-  className?: string;
-}) {
-  return (
-    <div
-      className={`bg-black/10 overflow-hidden shrink-0 ${imageRadius[size]} ${className ?? ""}`}
-    >
-      {src && <img src={src} alt={alt} className="size-full object-cover" />}
-    </div>
-  );
-}
-
-export function SpotCard({
-  size = "xxs",
-  image,
-  title,
-  subtitle,
-  actions,
-  avatar,
-  href,
-  onClick,
+export default function SpotCard({
+  spot,
+  action,
+  bookmark,
   className,
 }: SpotCardProps) {
-  const Wrapper = href ? "a" : "div";
-  const wrapperProps = href
-    ? { href }
-    : onClick
-      ? { onClick, role: "button" }
-      : {};
+  const firstType = spot.types
+    ?.filter((t) => !FILTERED_TYPES.has(t))
+    .map((t) => t.replace(/_/g, " "))[0];
 
-  // ── xSmall ────────────────────────────────────────────────────────────────
-  if (size === "xs") {
-    return (
-      <Wrapper
-        {...(wrapperProps as Record<string, unknown>)}
-        className={`flex items-start justify-between gap-3 w-full cursor-pointer ${className ?? ""}`}
-      >
-        <div className="flex-1 min-w-0">
-          {title && <p className="text-body-sm-bold line-clamp-2">{title}</p>}
-          {subtitle && (
-            <p className="text-body-xs text-grey mt-0.5">{subtitle}</p>
-          )}
-        </div>
-        <CardImage
-          src={image}
-          alt={title}
-          size="xs"
-          className="size-[5rem] shrink-0"
-        />
-      </Wrapper>
-    );
-  }
-
-  // ── xxSmall / Profile ─────────────────────────────────────────────────────
-  if (size === "xxs" || size === "profile") {
-    return (
-      <Wrapper
-        {...(wrapperProps as Record<string, unknown>)}
-        className={`flex items-center justify-between gap-3 w-full cursor-pointer ${className ?? ""}`}
-      >
-        <div className="flex items-center gap-3 flex-1 min-w-0">
-          {avatar ?? (
-            <CardImage
-              src={image}
-              alt={title}
-              size="xxs"
-              className="size-10 rounded-full"
-            />
-          )}
-          <div className="flex-1 min-w-0">
-            {title && <p className="text-body-sm-bold truncate">{title}</p>}
-            {subtitle && (
-              <p className="text-body-xs text-grey truncate">{subtitle}</p>
-            )}
-          </div>
-        </div>
-        {actions && <div className="shrink-0">{actions}</div>}
-      </Wrapper>
-    );
-  }
-
-  // ── Nested ────────────────────────────────────────────────────────────────
   return (
-    <Wrapper
-      {...(wrapperProps as Record<string, unknown>)}
-      className={`bg-black/5 flex items-center justify-between p-2 rounded-[0.75rem] w-full cursor-pointer ${className ?? ""}`}
-    >
-      <div className="flex items-center gap-2 flex-1 min-w-0">
-        <CardImage
-          src={image}
-          alt={title}
-          size="nested"
-          className="size-10 shrink-0"
+    <div className={`flex items-start gap-2 ${className ?? ""}`}>
+      {spot.photo_url && (
+        <img
+          src={spot.photo_url}
+          alt={spot.name}
+          className="flex-shrink-0 w-20 h-20 rounded-xs object-cover"
         />
-        <div className="flex-1 min-w-0">
-          {title && <p className="text-body-sm-bold truncate">{title}</p>}
-          {subtitle && (
-            <p className="text-body-xs text-grey truncate">{subtitle}</p>
-          )}
-        </div>
+      )}
+      <div className="flex-1 min-w-0">
+        <p className="text-header-radio-2 mb-[2px]">{spot.name}</p>
+        <p className="text-body-xs text-secondary mb-1 line-clamp-1 ">
+          {spot.address}
+        </p>
+        {(spot.rating != null || firstType) && (
+          <div className="flex items-center gap-1 mt-1 flex-wrap">
+            {firstType && <Badge>{firstType}</Badge>}
+            {spot.rating != null && <Rating rating={spot.rating} />}
+          </div>
+        )}
       </div>
-      {actions && <div className="shrink-0">{actions}</div>}
-    </Wrapper>
+      {(bookmark || action) && (
+        <div className="flex-shrink-0 flex flex-col items-center gap-1">
+          {bookmark}
+          {action}
+        </div>
+      )}
+    </div>
   );
 }

@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../lib/authContext";
 import { createClient } from "../../lib/supabase/client";
-import { NavBar } from "../../components/ui/NavBar";
 import { Smiley, Arrow } from "../../components/ui/stickers";
 import { TextInput } from "../../components/ui/inputs";
 import { Button } from "../../components/ui/Button";

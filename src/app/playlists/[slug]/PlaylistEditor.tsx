@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
@@ -17,15 +17,16 @@ import {
 import { getDefaultCover } from "@/lib/playlist-covers";
 import type { PlaylistSpot, SearchResult } from "@/types";
 import { PlaylistCard } from "@/components/ui/PlaylistCard";
+import { Button } from "@/components/ui/Button";
 import { IconButton } from "@/components/ui/IconButton";
 import { Close } from "@/components/ui/icons/Close";
 import { Overflow } from "@/components/ui/icons/Overflow";
-import { Sheet } from "@/components/ui/Sheet";
+import { Photo } from "@/components/ui/icons/Photo";
+import { Sheet, ConfirmSheet } from "@/components/ui/Sheet";
 import type { SheetItem } from "@/components/ui/Sheet";
-import SpotCard from "@/components/SpotCard";
+import SpotCard from "@/components/ui/SpotCard";
 import BookmarkButton from "@/components/BookmarkButton";
 import SpotSearchInput from "@/components/SpotSearchInput";
-import PlaylistBookmarkButton from "@/components/PlaylistBookmarkButton";
 import {
   DndContext,
   closestCenter,
@@ -53,6 +54,7 @@ interface Props {
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
   const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "now";
   if (mins < 60) return `${mins}m ago`;
   const hours = Math.floor(mins / 60);
   if (hours < 24) return `${hours}h ago`;
@@ -108,11 +110,7 @@ function SortableSpotCard({
   };
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className="bg-white border border-gray-200 rounded-lg p-5"
-    >
+    <div ref={setNodeRef} style={style} className="">
       <div className="flex items-start gap-3">
         {editMode && (
           <button
@@ -165,6 +163,7 @@ export default function PlaylistEditor({ playlist, isOwner, fromNew }: Props) {
   const router = useRouter();
 
   const [editMode, setEditMode] = useState(false);
+  const coverInputRef = useRef<HTMLInputElement>(null);
   const [coverUrl, setCoverUrl] = useState<string>(
     playlist.cover_photo_url ?? getDefaultCover(playlist.city),
   );
@@ -180,10 +179,9 @@ export default function PlaylistEditor({ playlist, isOwner, fromNew }: Props) {
   );
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [addingId, setAddingId] = useState<string | null>(null);
-  const [confirmDelete, setConfirmDelete] = useState(false);
-  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState("");
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const [canShare, setCanShare] = useState(false);
 
   useEffect(() => {
@@ -280,20 +278,17 @@ export default function PlaylistEditor({ playlist, isOwner, fromNew }: Props) {
   }
 
   async function handleDeletePlaylist() {
-    setDeleting(true);
     setError("");
     try {
       await deletePlaylist(playlist.id, user?.id ?? "");
       router.push(`/${playlist.profiles.username}`);
     } catch {
       setError("Failed to delete playlist.");
-      setDeleting(false);
     }
   }
 
   function handleExitEdit() {
     setEditMode(false);
-    setConfirmDelete(false);
     setError("");
   }
 
@@ -317,29 +312,50 @@ export default function PlaylistEditor({ playlist, isOwner, fromNew }: Props) {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full lg:grid lg:grid-cols-2 lg:gap-6 lg:items-start">
       {/* Cover photo */}
-      <div className="relative mb-6">
+      <div className="relative mb-6 lg:mb-0 lg:sticky lg:top-0 lg:h-[calc(100vh-2*var(--space-page-sm))]">
         <PlaylistCard
-          className="h-[30rem]"
+          className="h-[30rem] lg:h-full"
           size="hero"
           image={coverUrl}
           city={playlist.name}
           playlistName={playlist.description ?? undefined}
           topLeft={
-            <IconButton
-              variant="overlay"
-              icon={<Close />}
-              label="Close"
-              onClick={() =>
-                fromNew
-                  ? router.push(`/${playlist.profiles.username}`)
-                  : router.back()
-              }
-            />
+            editMode ? (
+              <button
+                onClick={handleExitEdit}
+                className="text-body-xs text-white cursor-pointer"
+              >
+                Cancel
+              </button>
+            ) : (
+              <IconButton
+                variant="overlay"
+                icon={<Close />}
+                label="Close"
+                onClick={() =>
+                  fromNew
+                    ? router.push(`/${playlist.profiles.username}`)
+                    : router.back()
+                }
+              />
+            )
+          }
+          topCenter={
+            editMode ? (
+              <p className="text-body-sm-bold text-white">Edit playlist</p>
+            ) : undefined
           }
           topRight={
-            isOwner ? (
+            editMode ? (
+              <button
+                onClick={handleExitEdit}
+                className="text-body-xs text-white cursor-pointer"
+              >
+                Done
+              </button>
+            ) : isOwner ? (
               <IconButton
                 variant="overlay"
                 icon={<Overflow orientation="horizontal" />}
@@ -349,173 +365,141 @@ export default function PlaylistEditor({ playlist, isOwner, fromNew }: Props) {
             ) : undefined
           }
           bottomLeft={
-            <Link
-              href={`/${playlist.profiles.username}`}
-              className="flex items-center gap-2 cursor-pointer"
-            >
-              <div className="size-5 rounded-full overflow-hidden bg-white/20 shrink-0">
-                {playlist.profiles.avatar_url && (
-                  <img
-                    src={playlist.profiles.avatar_url}
-                    alt={playlist.profiles.username}
-                    className="size-full object-cover"
-                  />
-                )}
-              </div>
-              <p className="text-neon text-body-xs">
-                {playlist.profiles.username}
-              </p>
-            </Link>
+            editMode ? undefined : (
+              <Link
+                href={`/${playlist.profiles.username}`}
+                className="flex items-center gap-2 lg:gap-3 cursor-pointer"
+              >
+                <div className="size-5 lg:size-7 rounded-full overflow-hidden bg-white/20 shrink-0">
+                  {playlist.profiles.avatar_url && (
+                    <img
+                      src={playlist.profiles.avatar_url}
+                      alt={playlist.profiles.username}
+                      className="size-full object-cover"
+                    />
+                  )}
+                </div>
+                <p className="text-neon text-body-xs">
+                  {playlist.profiles.username}
+                </p>
+              </Link>
+            )
+          }
+          bottomCenter={
+            editMode ? (
+              <Button
+                variant="overlay"
+                size="sm"
+                leftIcon={<Photo />}
+                onClick={() => coverInputRef.current?.click()}
+                disabled={uploadingCover}
+              >
+                {uploadingCover ? "Uploading…" : "Change cover photo"}
+              </Button>
+            ) : undefined
           }
           bottomRight={
-            <p className="text-neon text-body-xs">
-              Last updated {timeAgo(playlist.updated_at)}
-            </p>
+            editMode ? undefined : (
+              <p className="text-neon text-body-xs">
+                Last updated {timeAgo(playlist.updated_at)}
+              </p>
+            )
           }
         />
+        <input
+          ref={coverInputRef}
+          type="file"
+          accept="image/*"
+          className="sr-only"
+          onChange={handleCoverUpload}
+        />
+      </div>
+
+      {/* Right column */}
+      <div>
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              {editMode ? (
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  onBlur={(e) => handleDescriptionBlur(e.target.value)}
+                  placeholder="Add a description…"
+                  rows={2}
+                  className="w-full text-sm text-gray-600 border border-gray-200 rounded-lg px-3 py-2 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4"
+                />
+              ) : (
+                description && (
+                  <p className="text-gray-600 mb-4">{description}</p>
+                )
+              )}
+              <div className="flex items-center gap-4 text-sm text-gray-500">
+                <p>{spots.length} spots</p>
+                <p>•</p>
+                <p>{playlist.is_public ? "Public" : "Private"}</p>
+              </div>
+            </div>
+
+            {!isOwner && <BookmarkButton playlistId={playlist.id} />}
+          </div>
+        </div>
+
+        {error && (
+          <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm mb-4">
+            {error}
+          </div>
+        )}
+
+        {/* Spots */}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={spots.map((s) => s.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="space-y-3 mb-6">
+              {spots.length === 0 && (
+                <p className="text-gray-500 text-sm">No spots yet.</p>
+              )}
+              {spots.map((ps) => (
+                <SortableSpotCard
+                  key={ps.id}
+                  ps={ps}
+                  editMode={editMode}
+                  removingId={removingId}
+                  onRemove={handleRemoveSpot}
+                  onNotesChange={handleNotesChange}
+                  onNotesBlur={handleNotesBlur}
+                />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
+
+        {/* Search — edit mode only */}
         {editMode && (
-          <label className="absolute inset-0 flex items-center justify-center bg-black/40 cursor-pointer hover:bg-black/50 transition-colors rounded-[1.5rem]">
-            <span className="text-white text-sm font-medium">
-              {uploadingCover ? "Uploading…" : "Change photo"}
-            </span>
-            <input
-              type="file"
-              accept="image/*"
-              className="sr-only"
-              onChange={handleCoverUpload}
-              disabled={uploadingCover}
-            />
-          </label>
+          <SpotSearchInput
+            placeholder={`Search spots in ${playlist.city}`}
+            city={playlist.city}
+            excludePlaceIds={existingPlaceIds}
+            renderAction={(place) => (
+              <button
+                onClick={() => handleAddSpot(place)}
+                disabled={addingId === place.spot_id}
+                className="flex-shrink-0 text-sm text-blue-500 hover:text-blue-700 disabled:opacity-40"
+              >
+                {addingId === place.spot_id ? "Adding…" : "Add"}
+              </button>
+            )}
+          />
         )}
       </div>
-
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            {editMode ? (
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                onBlur={(e) => handleDescriptionBlur(e.target.value)}
-                placeholder="Add a description…"
-                rows={2}
-                className="w-full text-sm text-gray-600 border border-gray-200 rounded-lg px-3 py-2 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4"
-              />
-            ) : (
-              description && <p className="text-gray-600 mb-4">{description}</p>
-            )}
-            <div className="flex items-center gap-4 text-sm text-gray-500">
-              <p>{spots.length} spots</p>
-              <p>•</p>
-              <p>{playlist.is_public ? "Public" : "Private"}</p>
-            </div>
-          </div>
-
-          {!isOwner && <PlaylistBookmarkButton playlistId={playlist.id} />}
-
-          {isOwner && (
-            <div className="flex items-center gap-2 flex-shrink-0">
-              {editMode ? (
-                <>
-                  {confirmDelete ? (
-                    <>
-                      <button
-                        onClick={() => setConfirmDelete(false)}
-                        className="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        onClick={handleDeletePlaylist}
-                        disabled={deleting}
-                        className="px-3 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50"
-                      >
-                        {deleting ? "Deleting…" : "Confirm delete"}
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button
-                        onClick={() => setConfirmDelete(true)}
-                        className="px-3 py-2 text-sm text-red-500 border border-red-200 rounded-lg hover:bg-red-50"
-                      >
-                        Delete
-                      </button>
-                      <button
-                        onClick={handleExitEdit}
-                        className="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
-                      >
-                        Done
-                      </button>
-                    </>
-                  )}
-                </>
-              ) : (
-                <button
-                  onClick={() => setEditMode(true)}
-                  className="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
-                >
-                  Edit
-                </button>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {error && (
-        <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm mb-4">
-          {error}
-        </div>
-      )}
-
-      {/* Spots */}
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
-        <SortableContext
-          items={spots.map((s) => s.id)}
-          strategy={verticalListSortingStrategy}
-        >
-          <div className="space-y-3 mb-6">
-            {spots.length === 0 && (
-              <p className="text-gray-500 text-sm">No spots yet.</p>
-            )}
-            {spots.map((ps) => (
-              <SortableSpotCard
-                key={ps.id}
-                ps={ps}
-                editMode={editMode}
-                removingId={removingId}
-                onRemove={handleRemoveSpot}
-                onNotesChange={handleNotesChange}
-                onNotesBlur={handleNotesBlur}
-              />
-            ))}
-          </div>
-        </SortableContext>
-      </DndContext>
-
-      {/* Search — edit mode only */}
-      {editMode && (
-        <SpotSearchInput
-          placeholder={`Search spots in ${playlist.city}`}
-          city={playlist.city}
-          excludePlaceIds={existingPlaceIds}
-          renderAction={(place) => (
-            <button
-              onClick={() => handleAddSpot(place)}
-              disabled={addingId === place.spot_id}
-              className="flex-shrink-0 text-sm text-blue-500 hover:text-blue-700 disabled:opacity-40"
-            >
-              {addingId === place.spot_id ? "Adding…" : "Add"}
-            </button>
-          )}
-        />
-      )}
+      {/* end right column */}
 
       {isOwner && (
         <Sheet
@@ -534,13 +518,26 @@ export default function PlaylistEditor({ playlist, isOwner, fromNew }: Props) {
               },
               {
                 label: "Delete playlist",
-                onClick: handleDeletePlaylist,
+                onClick: () => setIsConfirmDeleteOpen(true),
                 variant: "danger" as const,
               },
             ] satisfies SheetItem[]
           }
         />
       )}
+
+      <ConfirmSheet
+        isOpen={isConfirmDeleteOpen}
+        onClose={() => setIsConfirmDeleteOpen(false)}
+        items={[
+          { label: "Never mind", onClick: () => {} },
+          {
+            label: "Yes, delete",
+            onClick: handleDeletePlaylist,
+            variant: "danger",
+          },
+        ]}
+      />
     </div>
   );
 }
