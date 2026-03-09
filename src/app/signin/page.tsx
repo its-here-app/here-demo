@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../lib/authContext";
 import { createClient } from "../../lib/supabase/client";
@@ -10,14 +10,15 @@ import { Button } from "../../components/ui/Button";
 import { IconButton } from "../../components/ui/IconButton";
 import { ArrowRight } from "../../components/ui/icons/ArrowRight";
 import { Google } from "../../components/ui/icons/Google";
-import { Camera } from "../../components/ui/icons/Camera";
+import { Avatar } from "../../components/ui/Avatar";
+import { Sheet } from "../../components/ui/Sheet";
 import { Check } from "../../components/ui/icons/Check";
 import { FullLogo } from "../../components/ui/Logo";
 
 import { getUserByUsername } from "../../lib/services/users";
 
 type Step = "auth" | "profile";
-type UsernameStatus = "idle" | "checking" | "valid" | "taken";
+type UsernameStatus = "idle" | "too-short" | "checking" | "valid" | "taken";
 
 export default function LoginPage() {
   const { user, loading: authLoading } = useAuth();
@@ -42,6 +43,22 @@ export default function LoginPage() {
   const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string>("");
   const [saving, setSaving] = useState(false);
+  const [isPhotoSheetOpen, setIsPhotoSheetOpen] = useState(false);
+  const [hasCamera, setHasCamera] = useState(false);
+  const uploadInputRef = useRef<HTMLInputElement>(null);
+  const captureInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setHasCamera(window.matchMedia("(pointer: coarse)").matches);
+  }, []);
+
+  function handleAvatarClick() {
+    if (hasCamera) {
+      setIsPhotoSheetOpen(true);
+    } else {
+      uploadInputRef.current?.click();
+    }
+  }
 
   // Handle returning from Google OAuth or already-authenticated users
   useEffect(() => {
@@ -66,15 +83,19 @@ export default function LoginPage() {
 
   // Debounced username uniqueness check
   useEffect(() => {
-    if (username.length < 3) {
+    if (username.length === 0) {
       setUsernameStatus("idle");
       return;
+    }
+    if (username.length < 3) {
+      const timer = setTimeout(() => setUsernameStatus("too-short"), 800);
+      return () => clearTimeout(timer);
     }
     setUsernameStatus("checking");
     const timer = setTimeout(async () => {
       const existing = await getUserByUsername(username);
       setUsernameStatus(existing ? "taken" : "valid");
-    }, 500);
+    }, 800);
     return () => clearTimeout(timer);
   }, [username]);
 
@@ -214,15 +235,18 @@ export default function LoginPage() {
   }
 
   if (authLoading) {
-    return <main className="h-screen bg-black" />;
+    return <main className="h-dvh bg-black" />;
   }
 
   return (
-    <main className="relative flex h-screen flex-row bg-black overflow-hidden">
+    <main className="relative flex h-dvh flex-row bg-black overflow-hidden">
       {/* Left column */}
-      <div className="relative flex flex-col h-full overflow-hidden flex-1 min-w-0">
+      <div className="relative flex flex-col h-full overflow-hidden flex-1 min-w-0 min-h-[40rem]">
         <div className="p-[var(--space-page)] flex flex-row items-center justify-between">
-          <FullLogo className="w-20" color="white" />
+          <FullLogo
+            className="w-[58.5px] lg:w-20 transition-width duration-200 ease-out"
+            color="white"
+          />
           {step === "profile" ? (
             <button
               type="button"
@@ -331,42 +355,67 @@ export default function LoginPage() {
 
           {/* ── Profile panel ── */}
           <div
-            className={`absolute inset-0 flex flex-col items-center gap-12 pt-12 px-[var(--space-page)] transition-transform duration-600 ease-in-out ${
+            className={`absolute inset-0 min-h-[48rem] flex flex-col items-center lg:items-start justify-center gap-12 -mt-24 px-[var(--space-page)] transition-transform duration-600 ease-in-out ${
               step === "profile" ? "translate-x-0" : "translate-x-full"
             }`}
           >
-            <div className="text-center text-white">
-              <h1 className="text-display-radio-2 mb-2">Welcome</h1>
+            <div className="text-center lg:text-left text-white">
+              <h1 className="text-display-radio-2 lg:text-display-radio-1 mb-2 max-w-[18rem]">
+                Welcome <span className="hidden lg:inline">Here*</span>
+              </h1>
               <p className="text-body-sm">Let’s start with some basics</p>
             </div>
 
             <form
               id="profile-form"
               onSubmit={handleProfileSubmit}
-              className="flex flex-col gap-2 w-full max-w-[22.875rem]"
+              className="flex flex-col gap-2 w-full"
             >
-              <div className="flex justify-center mb-4">
-                <label className="relative size-[6.125rem] rounded-full cursor-pointer shrink-0">
-                  <div className="size-full rounded-full overflow-hidden bg-white/10">
-                    {photoPreview && (
-                      <img
-                        src={photoPreview}
-                        alt="Profile"
-                        className="size-full object-cover"
-                      />
-                    )}
-                  </div>
-                  <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center">
-                    <Camera className="text-white size-9" />
-                  </div>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handlePhotoChange}
-                    className="hidden"
-                  />
-                </label>
+              <div className="flex justify-center lg:justify-start lg:mb-4">
+                <div
+                  className="relative cursor-pointer"
+                  onClick={handleAvatarClick}
+                >
+                  <Avatar size="xl" editIcon src={photoPreview || undefined} />
+                </div>
+                <input
+                  ref={uploadInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoChange}
+                  className="hidden"
+                />
+                <input
+                  ref={captureInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="user"
+                  onChange={handlePhotoChange}
+                  className="hidden"
+                />
               </div>
+
+              <Sheet
+                isOpen={isPhotoSheetOpen}
+                onClose={() => setIsPhotoSheetOpen(false)}
+                title="Add photo"
+                items={[
+                  {
+                    label: "Upload photo",
+                    onClick: () => {
+                      setIsPhotoSheetOpen(false);
+                      uploadInputRef.current?.click();
+                    },
+                  },
+                  {
+                    label: "Take photo",
+                    onClick: () => {
+                      setIsPhotoSheetOpen(false);
+                      captureInputRef.current?.click();
+                    },
+                  },
+                ]}
+              />
 
               <TextInput
                 aria-label="Name"
@@ -395,6 +444,11 @@ export default function LoginPage() {
                 }
               />
 
+              {usernameStatus === "too-short" && (
+                <p className="text-body-xs text-danger">
+                  Username must be at least 3 characters
+                </p>
+              )}
               {usernameStatus === "taken" && (
                 <p className="text-body-xs text-danger">Username is taken</p>
               )}
@@ -412,24 +466,10 @@ export default function LoginPage() {
               {error && (
                 <p className="text-body-xs text-danger text-center">{error}</p>
               )}
-
-              {/* Desktop: Get started inside form flow */}
-              <div className="hidden lg:flex pt-[calc(3.75rem-1rem)]">
-                <Button
-                  type="submit"
-                  variant="filled"
-                  size="lg"
-                  darkTheme
-                  disabled={saving || !name || usernameStatus !== "valid"}
-                  className="w-full"
-                >
-                  {saving ? "Saving..." : "Done"}
-                </Button>
-              </div>
             </form>
 
-            {/* Mobile: Get started pinned to bottom */}
-            <div className="lg:hidden absolute bottom-8 left-0 right-0 flex justify-center px-[var(--space-page)]">
+            {/* Done button — pinned to bottom on all sizes */}
+            <div className="absolute bottom-8 left-0 right-0 flex justify-center px-[var(--space-page)]">
               <Button
                 type="submit"
                 form="profile-form"
@@ -437,7 +477,7 @@ export default function LoginPage() {
                 size="lg"
                 darkTheme
                 disabled={saving || !name || usernameStatus !== "valid"}
-                className="w-full max-w-[22.875rem]"
+                className="w-full disabled:!opacity-100 disabled:!bg-white/15 disabled:text-grey"
               >
                 {saving ? "Saving..." : "Done"}
               </Button>

@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../lib/authContext";
-import { Camera } from "./ui/icons/Camera";
+import { Avatar } from "./ui/Avatar";
+import { Sheet } from "./ui/Sheet";
 import { Check } from "./ui/icons/Check";
 import { TextInput } from "./ui/inputs/TextInput";
 import { BottomPanel } from "./ui/BottomPanel";
@@ -15,7 +16,7 @@ import {
   uploadProfilePhoto,
 } from "@/lib/services/users";
 
-type UsernameStatus = "idle" | "checking" | "valid" | "taken";
+type UsernameStatus = "idle" | "too-short" | "checking" | "valid" | "taken";
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -43,6 +44,10 @@ export default function EditProfileModal({
   const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string>("");
   const [currentPhotoUrl, setCurrentPhotoUrl] = useState<string>("");
+  const [isPhotoSheetOpen, setIsPhotoSheetOpen] = useState(false);
+  const [hasCamera, setHasCamera] = useState(false);
+  const uploadInputRef = useRef<HTMLInputElement>(null);
+  const captureInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isOpen && user) {
@@ -51,9 +56,31 @@ export default function EditProfileModal({
   }, [isOpen, user]);
 
   useEffect(() => {
-    if (username.length < 3) {
+    setHasCamera(window.matchMedia("(pointer: coarse)").matches);
+  }, []);
+
+  function handleAvatarClick() {
+    if (hasCamera || photoPreview) {
+      setIsPhotoSheetOpen(true);
+    } else {
+      uploadInputRef.current?.click();
+    }
+  }
+
+  function handleRemovePhoto() {
+    setProfilePhoto(null);
+    setPhotoPreview("");
+    setCurrentPhotoUrl("");
+  }
+
+  useEffect(() => {
+    if (username.length === 0) {
       setUsernameStatus("idle");
       return;
+    }
+    if (username.length < 3) {
+      const timer = setTimeout(() => setUsernameStatus("too-short"), 800);
+      return () => clearTimeout(timer);
     }
     if (username === initialUsername) {
       setUsernameStatus("valid");
@@ -63,7 +90,7 @@ export default function EditProfileModal({
     const timer = setTimeout(async () => {
       const existing = await getUserByUsername(username);
       setUsernameStatus(existing ? "taken" : "valid");
-    }, 500);
+    }, 800);
     return () => clearTimeout(timer);
   }, [username]);
 
@@ -140,27 +167,52 @@ export default function EditProfileModal({
     <>
       {/* Avatar */}
       <div className="flex justify-center mb-4">
-        <label className="relative size-[6.125rem] rounded-full cursor-pointer shrink-0">
-          <div className="size-full rounded-full overflow-hidden bg-white/10">
-            {photoPreview && (
-              <img
-                src={photoPreview}
-                alt="Profile"
-                className="size-full object-cover"
-              />
-            )}
-          </div>
-          <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center">
-            <Camera className="text-white size-9" />
-          </div>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handlePhotoChange}
-            className="hidden"
-          />
-        </label>
+        <div className="relative cursor-pointer" onClick={handleAvatarClick}>
+          <Avatar size="xl" editIcon src={photoPreview || undefined} />
+        </div>
+        <input
+          ref={uploadInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handlePhotoChange}
+          className="hidden"
+        />
+        <input
+          ref={captureInputRef}
+          type="file"
+          accept="image/*"
+          capture="user"
+          onChange={handlePhotoChange}
+          className="hidden"
+        />
       </div>
+
+      <Sheet
+        isOpen={isPhotoSheetOpen}
+        onClose={() => setIsPhotoSheetOpen(false)}
+        title="Change photo"
+        items={[
+          {
+            label: "Upload photo",
+            onClick: () => {
+              setIsPhotoSheetOpen(false);
+              uploadInputRef.current?.click();
+            },
+          },
+          ...(hasCamera ? [{
+            label: "Take photo",
+            onClick: () => {
+              setIsPhotoSheetOpen(false);
+              captureInputRef.current?.click();
+            },
+          }] : []),
+          ...(photoPreview ? [{
+            label: "Remove photo",
+            onClick: handleRemovePhoto,
+            variant: "danger" as const,
+          }] : []),
+        ]}
+      />
 
       <TextInput
         label="Name"
@@ -187,6 +239,9 @@ export default function EditProfileModal({
         }
       />
 
+      {usernameStatus === "too-short" && (
+        <p className="text-body-xs text-danger">Username must be at least 3 characters</p>
+      )}
       {usernameStatus === "taken" && (
         <p className="text-body-xs text-danger">Username is taken</p>
       )}

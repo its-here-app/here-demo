@@ -76,6 +76,7 @@ export function ConfirmSheet({ isOpen, onClose, title = "Are you sure?", items }
         </div>
         {items.map((item, i) => (
           <button
+            type="button"
             key={i}
             onClick={() => {
               item.onClick();

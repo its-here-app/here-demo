@@ -45,15 +45,7 @@ export function Avatar({
         }`}
       >
         <div className="size-full rounded-full overflow-hidden bg-black/10">
-          {src ? (
-            <img src={src} alt={alt} className="size-full object-cover" />
-          ) : (
-            <div className="size-full flex items-center justify-center">
-              <span className="text-body-xs text-grey">
-                {username?.slice(0, 2).toUpperCase() ?? "?"}
-              </span>
-            </div>
-          )}
+          <img src={src || "/avatar.png"} alt={alt} className="size-full object-cover" />
         </div>
 
         {editIcon && size === "xl" && (

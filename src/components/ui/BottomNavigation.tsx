@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Avatar } from "./Avatar";
 import { Bookmark } from "./icons/Bookmark";
 import { Home } from "./icons/Home";
 import { Search } from "./icons/Search";
@@ -25,25 +26,6 @@ interface BottomNavigationProps {
   className?: string;
 }
 
-// ─── Icons ────────────────────────────────────────────────────────────────────
-
-function Avatar({ src, active }: { src?: string; active?: boolean }) {
-  return (
-    <div
-      className={`relative size-7 rounded-full shrink-0 ${
-        active ? "outline outline-1 -outline-offset-1 outline-black" : ""
-      }`}
-    >
-      {src && (
-        <img
-          src={src}
-          alt="Profile"
-          className="absolute size-[22px] rounded-full object-cover top-[3px] left-1/2 -translate-x-1/2"
-        />
-      )}
-    </div>
-  );
-}
 
 function NavButton({
   active = false,
@@ -105,7 +87,7 @@ export function BottomNavigation({
           aria-label="Profile"
           className="transition-opacity hover:opacity-70"
         >
-          <Avatar src={avatarUrl} active={activeTab === "profile"} />
+          <Avatar src={avatarUrl} focus={activeTab === "profile"} size="md" />
         </button>
       </div>
     );
@@ -161,7 +143,7 @@ export function BottomNavigation({
         aria-current={activeTab === "profile" ? "page" : undefined}
         className="transition-opacity hover:opacity-70"
       >
-        <Avatar src={avatarUrl} active={activeTab === "profile"} />
+        <Avatar src={avatarUrl} focus={activeTab === "profile"} size="md" />
       </button>
     </div>
   );

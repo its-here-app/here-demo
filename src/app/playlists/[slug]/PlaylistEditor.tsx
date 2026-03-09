@@ -17,6 +17,7 @@ import {
 } from "@/lib/services/playlists";
 import { getDefaultCover } from "@/lib/playlist-covers";
 import type { PlaylistSpot, SearchResult } from "@/types";
+import { Avatar } from "@/components/ui/Avatar";
 import { PlaylistCard } from "@/components/ui/PlaylistCard";
 import { Button } from "@/components/ui/Button";
 import { IconButton } from "@/components/ui/IconButton";
@@ -381,15 +382,7 @@ export default function PlaylistEditor({
                 href={`/${playlist.profiles.username}`}
                 className="flex items-center gap-2 lg:gap-3 cursor-pointer"
               >
-                <div className="size-5 lg:size-7 rounded-full overflow-hidden bg-white/20 shrink-0">
-                  {playlist.profiles.avatar_url && (
-                    <img
-                      src={playlist.profiles.avatar_url}
-                      alt={playlist.profiles.username}
-                      className="size-full object-cover"
-                    />
-                  )}
-                </div>
+                <Avatar size="sm" lgSize="md" src={playlist.profiles.avatar_url ?? undefined} />
                 <p className="text-neon text-body-xs">
                   {playlist.profiles.username}
                 </p>

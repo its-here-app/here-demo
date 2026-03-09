@@ -21,6 +21,19 @@ export default function PlaylistOverlay({ playlist, isOwner, fromNew }: Props) {
     return () => { document.title = prev; };
   }, []);
 
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") dismiss();
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   function dismiss() {
     setClosing(true);
     setTimeout(() => {
