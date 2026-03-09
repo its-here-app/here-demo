@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import type { ReactNode, RefObject } from "react";
 import { Scrim } from "./Scrim";
 import { Button } from "./Button";
 
@@ -8,6 +10,7 @@ export interface SheetItem {
   label: string;
   onClick: () => void;
   variant?: "default" | "danger";
+  icon?: ReactNode;
 }
 
 interface SheetProps {
@@ -15,6 +18,9 @@ interface SheetProps {
   onClose: () => void;
   title?: string;
   items: SheetItem[];
+  anchorRef?: RefObject<HTMLElement | null>;
+  /** Force horizontal alignment of the dropdown. "start" = opens right, "end" = opens left. Default: auto based on viewport position. */
+  align?: "start" | "end";
 }
 
 interface ConfirmSheetProps {
@@ -94,10 +100,46 @@ export function ConfirmSheet({ isOpen, onClose, title = "Are you sure?", items }
   );
 }
 
-export function Sheet({ isOpen, onClose, title, items }: SheetProps) {
+type DropdownPos = {
+  top?: number;
+  bottom?: number;
+  left?: number;
+  right?: number;
+};
+
+export function Sheet({ isOpen, onClose, title, items, anchorRef, align }: SheetProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [dropdownPos, setDropdownPos] = useState<DropdownPos | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
+  const isLg = typeof window !== "undefined" && window.matchMedia("(min-width: 1024px)").matches;
+
+  // Compute dropdown position before paint so it's always set when isVisible becomes true
+  useLayoutEffect(() => {
+    if (!isOpen || !anchorRef?.current) return;
+    if (!window.matchMedia("(min-width: 1024px)").matches) return;
+
+    const rect = anchorRef.current.getBoundingClientRect();
+    const estimatedHeight = 200;
+
+    // Vertical: below if there's space, otherwise above
+    const belowFits = rect.bottom + 8 + estimatedHeight < window.innerHeight;
+    const vertical: DropdownPos = belowFits
+      ? { top: rect.bottom + 8 }
+      : { bottom: window.innerHeight - rect.top + 8 };
+
+    // Horizontal: forced by align prop, or auto based on anchor center
+    const anchorCenter = rect.left + rect.width / 2;
+    const horizontal: DropdownPos =
+      align === "end" || (align !== "start" && anchorCenter > window.innerWidth / 2)
+        ? { right: window.innerWidth - rect.right }
+        : { left: rect.left };
+
+    setDropdownPos({ ...vertical, ...horizontal });
+  }, [isOpen]);
+
+  // Visibility + animation
   useEffect(() => {
     if (isOpen) {
       setIsVisible(true);
@@ -112,27 +154,90 @@ export function Sheet({ isOpen, onClose, title, items }: SheetProps) {
       };
     } else {
       setIsAnimating(false);
-      const t = setTimeout(() => setIsVisible(false), 300);
+      const t = setTimeout(() => {
+        setIsVisible(false);
+        setDropdownPos(null);
+      }, isLg ? 150 : 300);
       return () => clearTimeout(t);
     }
   }, [isOpen]);
 
+  // Escape key
   useEffect(() => {
     function handleEscape(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
     }
-    if (isOpen) {
-      document.addEventListener("keydown", handleEscape);
+    if (isOpen) document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [isOpen, onClose]);
+
+  // Body scroll lock — mobile only
+  useEffect(() => {
+    if (!isLg && isOpen) {
       document.body.style.overflow = "hidden";
     }
     return () => {
-      document.removeEventListener("keydown", handleEscape);
       document.body.style.overflow = "unset";
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, isLg]);
+
+  // Click outside — lg+ only
+  useEffect(() => {
+    if (!isLg || !isOpen) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node) &&
+        !anchorRef?.current?.contains(e.target as Node)
+      ) {
+        onClose();
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isLg, isOpen, onClose]);
 
   if (!isVisible) return null;
 
+  // ── lg+ dropdown ───────────────────────────────────────────────────────────
+  if (isLg) {
+    // Don't render until position is known
+    if (!dropdownPos) return null;
+
+    return createPortal(
+      <div
+        ref={dropdownRef}
+        style={dropdownPos}
+        className={`fixed z-[60] bg-white rounded-[1rem] shadow-[2px_2px_15px_rgba(0,0,0,0.1)] px-[1.125rem] py-3 flex flex-col transition-all duration-150 origin-top ${
+          isAnimating ? "opacity-100 scale-100" : "opacity-0 scale-95"
+        }`}
+      >
+        {items.map((item, i) => (
+          <button
+            type="button"
+            key={i}
+            onClick={() => {
+              item.onClick();
+              onClose();
+            }}
+            className={`flex items-center gap-2 cursor-pointer text-body-xs whitespace-nowrap ${
+              item.variant === "danger" ? "text-danger" : "text-primary"
+            } ${i < items.length - 1 ? "border-b border-black/10 pb-2 mb-2" : ""}`}
+          >
+            {item.icon && (
+              <span className="size-5 flex items-center justify-center shrink-0">
+                {item.icon}
+              </span>
+            )}
+            {item.label}
+          </button>
+        ))}
+      </div>,
+      document.body
+    );
+  }
+
+  // ── Mobile bottom sheet ────────────────────────────────────────────────────
   return (
     <div className="fixed inset-0 z-[60] flex flex-col justify-end">
       <Scrim visible={isAnimating} onClick={onClose} />
@@ -152,6 +257,7 @@ export function Sheet({ isOpen, onClose, title, items }: SheetProps) {
           )}
           {items.map((item, i) => (
             <button
+              type="button"
               key={i}
               onClick={() => {
                 item.onClick();

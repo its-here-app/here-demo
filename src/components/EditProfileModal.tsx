@@ -48,6 +48,7 @@ export default function EditProfileModal({
   const [hasCamera, setHasCamera] = useState(false);
   const uploadInputRef = useRef<HTMLInputElement>(null);
   const captureInputRef = useRef<HTMLInputElement>(null);
+  const avatarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen && user) {
@@ -61,7 +62,7 @@ export default function EditProfileModal({
 
   function handleAvatarClick() {
     if (hasCamera || photoPreview) {
-      setIsPhotoSheetOpen(true);
+      setIsPhotoSheetOpen(s => !s);
     } else {
       uploadInputRef.current?.click();
     }
@@ -167,7 +168,14 @@ export default function EditProfileModal({
     <>
       {/* Avatar */}
       <div className="flex justify-center mb-4">
-        <div className="relative cursor-pointer" onClick={handleAvatarClick}>
+        <div
+          ref={(el) => {
+            if (!el) { avatarRef.current = null; return; }
+            if (el.getBoundingClientRect().width > 0) avatarRef.current = el;
+          }}
+          className="relative cursor-pointer"
+          onClick={handleAvatarClick}
+        >
           <Avatar size="xl" editIcon src={photoPreview || undefined} />
         </div>
         <input
@@ -190,6 +198,7 @@ export default function EditProfileModal({
       <Sheet
         isOpen={isPhotoSheetOpen}
         onClose={() => setIsPhotoSheetOpen(false)}
+        anchorRef={avatarRef}
         title="Change photo"
         items={[
           {

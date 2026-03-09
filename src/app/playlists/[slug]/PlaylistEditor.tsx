@@ -22,9 +22,11 @@ import { PlaylistCard } from "@/components/ui/PlaylistCard";
 import { Button } from "@/components/ui/Button";
 import { IconButton } from "@/components/ui/IconButton";
 import { Close } from "@/components/ui/icons/Close";
+import { Edit } from "@/components/ui/icons/Edit";
 import { Overflow } from "@/components/ui/icons/Overflow";
 import { Photo } from "@/components/ui/icons/Photo";
 import { Share } from "@/components/ui/icons/Share";
+import { Trash } from "@/components/ui/icons/Trash";
 import { Sheet, ConfirmSheet } from "@/components/ui/Sheet";
 import type { SheetItem } from "@/components/ui/Sheet";
 import SpotCard from "@/components/ui/SpotCard";
@@ -190,6 +192,7 @@ export default function PlaylistEditor({
   const [addingId, setAddingId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const overflowRef = useRef<HTMLButtonElement>(null);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const { canShare, share } = useShare();
 
@@ -360,7 +363,8 @@ export default function PlaylistEditor({
                 variant="overlay"
                 icon={<Overflow orientation="horizontal" />}
                 label="More options"
-                onClick={() => setIsSheetOpen(true)}
+                ref={overflowRef}
+                onClick={() => setIsSheetOpen(s => !s)}
               />
             ) : (
               <div className="text-white flex items-center gap-2">
@@ -507,21 +511,25 @@ export default function PlaylistEditor({
         <Sheet
           isOpen={isSheetOpen}
           onClose={() => setIsSheetOpen(false)}
+          anchorRef={overflowRef}
+          align="end"
           title="Options"
           items={
             [
-              ...(canShare ? [{ label: "Share", onClick: () => share(`${window.location.origin}/playlists/${playlist.slug}`) }] : []),
+              ...(canShare ? [{ label: "Share", onClick: () => share(`${window.location.origin}/playlists/${playlist.slug}`), icon: <Share /> }] : []),
               {
                 label: "Edit",
                 onClick: () => {
                   setIsSheetOpen(false);
                   setEditMode(true);
                 },
+                icon: <Edit />,
               },
               {
                 label: "Delete playlist",
                 onClick: () => setIsConfirmDeleteOpen(true),
                 variant: "danger" as const,
+                icon: <Trash />,
               },
             ] satisfies SheetItem[]
           }

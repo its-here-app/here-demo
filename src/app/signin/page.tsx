@@ -47,17 +47,22 @@ export default function LoginPage() {
   const [hasCamera, setHasCamera] = useState(false);
   const uploadInputRef = useRef<HTMLInputElement>(null);
   const captureInputRef = useRef<HTMLInputElement>(null);
+  const avatarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setHasCamera(window.matchMedia("(pointer: coarse)").matches);
   }, []);
 
   function handleAvatarClick() {
-    if (hasCamera) {
-      setIsPhotoSheetOpen(true);
+    if (hasCamera || photoPreview) {
+      setIsPhotoSheetOpen(s => !s);
     } else {
       uploadInputRef.current?.click();
     }
+  }
+
+  function handleRemovePhoto() {
+    setPhotoPreview("");
   }
 
   // Handle returning from Google OAuth or already-authenticated users
@@ -373,6 +378,7 @@ export default function LoginPage() {
             >
               <div className="flex justify-center lg:justify-start lg:mb-4">
                 <div
+                  ref={avatarRef}
                   className="relative cursor-pointer"
                   onClick={handleAvatarClick}
                 >
@@ -398,7 +404,8 @@ export default function LoginPage() {
               <Sheet
                 isOpen={isPhotoSheetOpen}
                 onClose={() => setIsPhotoSheetOpen(false)}
-                title="Add photo"
+                anchorRef={avatarRef}
+                title={photoPreview ? "Change photo" : "Add photo"}
                 items={[
                   {
                     label: "Upload photo",
@@ -407,13 +414,18 @@ export default function LoginPage() {
                       uploadInputRef.current?.click();
                     },
                   },
-                  {
+                  ...(hasCamera ? [{
                     label: "Take photo",
                     onClick: () => {
                       setIsPhotoSheetOpen(false);
                       captureInputRef.current?.click();
                     },
-                  },
+                  }] : []),
+                  ...(photoPreview ? [{
+                    label: "Remove photo",
+                    onClick: handleRemovePhoto,
+                    variant: "danger" as const,
+                  }] : []),
                 ]}
               />
 

@@ -78,7 +78,7 @@ function TopActions({
   if (!left && !center && !right) return null;
   return (
     <div
-      className={`absolute top-0 inset-x-0 grid grid-cols-3 items-center ${padding}`}
+      className={`absolute top-0 inset-x-0 flex items-center justify-between whitespace-nowrap ${padding}`}
     >
       <div className="flex justify-start">{left}</div>
       <div className="flex justify-center">{center}</div>
@@ -101,7 +101,7 @@ function BottomActions({
   if (!left && !center && !right) return null;
   return (
     <div
-      className={`absolute bottom-0 inset-x-0 grid grid-cols-3 items-center ${padding}`}
+      className={`absolute bottom-0 inset-x-0 flex items-center justify-between whitespace-nowrap ${padding}`}
     >
       <div className="flex justify-start">{left}</div>
       <div className="flex justify-center">{center}</div>

@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Avatar } from "./Avatar";
 import { Button } from "./Button";
 
-export type ProfileType = "yours" | "others" | "friend";
+export type ProfileType = "yours" | "others" | "friend" | "blocked";
 
 interface ProfileProps {
   type?: ProfileType;
@@ -41,6 +41,7 @@ export function Profile({
 }: ProfileProps) {
   const isOthers = type === "others";
   const isFriend = type === "friend";
+  const isBlocked = type === "blocked";
 
   return (
     <div className={`flex flex-col items-center w-full ${className ?? ""}`}>
@@ -107,6 +108,11 @@ export function Profile({
             {isFriend && (
               <Button variant="filled" className="flex-1" onClick={onFollow}>
                 Following
+              </Button>
+            )}
+            {isBlocked && (
+              <Button variant="tonal" className="flex-1" onClick={onFollow}>
+                Unblock
               </Button>
             )}
             {(isOthers || isFriend) && instagramHandle && (

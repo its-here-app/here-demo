@@ -1,13 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useShare } from "@/lib/useShare";
 import { useAuth } from "../../lib/authContext";
 import { useRouter } from "next/navigation";
 import { AppBarConfig } from "@/lib/appBarContext";
 import { IconButton } from "@/components/ui/IconButton";
 import { ArrowLeft } from "@/components/ui/icons/ArrowLeft";
+import { Block } from "@/components/ui/icons/Block";
+import { Edit } from "@/components/ui/icons/Edit";
+import { Link } from "@/components/ui/icons/Link";
+import { Logout } from "@/components/ui/icons/Logout";
 import { Overflow } from "@/components/ui/icons/Overflow";
+import { Share } from "@/components/ui/icons/Share";
 import {
   getRelationship,
   followUser,
@@ -21,7 +26,7 @@ import {
 import { Profile } from "../../components/ui/Profile";
 import EditProfileModal from "../../components/EditProfileModal";
 import FollowsModal from "../../components/FollowsModal";
-import { Sheet } from "../../components/ui/Sheet";
+import { Sheet, ConfirmSheet } from "../../components/ui/Sheet";
 import type { SheetItem } from "../../components/ui/Sheet";
 import type { Profile as ProfileData } from "@/types";
 
@@ -36,6 +41,9 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [isConfirmBlockOpen, setIsConfirmBlockOpen] = useState(false);
+  const [isConfirmUnblockOpen, setIsConfirmUnblockOpen] = useState(false);
+  const overflowRef = useRef<HTMLButtonElement>(null);
   const { canShare, share } = useShare();
   const [followsModal, setFollowsModal] = useState<{
     open: boolean;
@@ -85,6 +93,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
     if (relationship.blocking) {
       await unblockUser(user.id, profile.id);
       setRelationship((r) => r && { ...r, blocking: false });
+      router.refresh();
     } else {
       const wasFollowing = relationship.following;
       await blockUser(user.id, profile.id);
@@ -109,36 +118,42 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
   const shareItem: SheetItem = {
     label: "Share profile",
     onClick: () => share(`${window.location.origin}/${profile.username}`),
+    icon: <Share />,
   };
   const logOutItem: SheetItem = {
     label: "Log out",
     onClick: handleSignOut,
     variant: "danger",
+    icon: <Logout />,
   };
 
   const sheetItems: SheetItem[] = isOwnProfile
     ? [
         ...(canShare ? [shareItem] : []),
-        { label: "Copy profile URL", onClick: copyProfileUrl },
+        { label: "Edit profile", onClick: () => setIsEditModalOpen(true), icon: <Edit /> },
+        { label: "Copy profile URL", onClick: copyProfileUrl, icon: <Link /> },
         logOutItem,
       ]
     : [
         ...(canShare ? [shareItem] : []),
-        { label: "Copy profile URL", onClick: copyProfileUrl },
+        { label: "Copy profile URL", onClick: copyProfileUrl, icon: <Link /> },
         relationship?.blocking
-          ? { label: `Unblock @${profile.username}`, onClick: handleBlock }
+          ? { label: `Unblock @${profile.username}`, onClick: () => setIsConfirmUnblockOpen(true), variant: "danger" as const, icon: <Block /> }
           : {
               label: `Block @${profile.username}`,
-              onClick: handleBlock,
+              onClick: () => setIsConfirmBlockOpen(true),
               variant: "danger",
+              icon: <Block />,
             },
       ];
 
   const profileType = isOwnProfile
     ? "yours"
-    : relationship?.following
-      ? "friend"
-      : "others";
+    : relationship?.blocking
+      ? "blocked"
+      : relationship?.following
+        ? "friend"
+        : "others";
 
   return (
     <>
@@ -161,7 +176,8 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
             variant="secondary"
             icon={<Overflow orientation="horizontal" />}
             label="More options"
-            onClick={() => setIsSheetOpen(true)}
+            ref={overflowRef}
+            onClick={() => setIsSheetOpen(s => !s)}
           />
         }
       />
@@ -175,7 +191,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
         followerCount={counts?.followers ?? 0}
         followingCount={counts?.following ?? 0}
         onEditProfile={() => setIsEditModalOpen(true)}
-        onFollow={handleFollow}
+        onFollow={relationship?.blocking ? () => setIsConfirmUnblockOpen(true) : handleFollow}
         onFollowersClick={() =>
           setFollowsModal({ open: true, tab: "followers" })
         }
@@ -204,8 +220,29 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
       <Sheet
         isOpen={isSheetOpen}
         onClose={() => setIsSheetOpen(false)}
+        anchorRef={overflowRef}
         title="Options"
         items={sheetItems}
+      />
+
+      <ConfirmSheet
+        isOpen={isConfirmBlockOpen}
+        onClose={() => setIsConfirmBlockOpen(false)}
+        title="Are you sure?"
+        items={[
+          { label: "Never mind", onClick: () => {} },
+          { label: `Yes, block @${profile.username}`, onClick: handleBlock, variant: "danger" },
+        ]}
+      />
+
+      <ConfirmSheet
+        isOpen={isConfirmUnblockOpen}
+        onClose={() => setIsConfirmUnblockOpen(false)}
+        title="Are you sure?"
+        items={[
+          { label: "Never mind", onClick: () => {} },
+          { label: `Yes, unblock @${profile.username}`, onClick: handleBlock, variant: "danger" },
+        ]}
       />
     </>
   );

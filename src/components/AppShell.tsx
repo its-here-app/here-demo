@@ -19,12 +19,12 @@ export default function AppShell({
   if (isAuth) return <>{children}</>;
 
   return (
-    <div className="flex min-h-screen lg:ml-[var(--sidebar-width)]">
+    <div className="flex min-h-screen lg:ml-[var(--sidebar-width)] transition-margin duration-400">
       {nav}
       <div className="flex-1 flex flex-col">
         <AppBarProvider>
           <AppBar />
-          <div className="p-[var(--space-page-sm)] pb-16 lg:pb-0">
+          <div className="p-[var(--space-page-sm)] lg:p-[var(--space-page)] pb-16 lg:pb-0">
             {children}
           </div>
         </AppBarProvider>

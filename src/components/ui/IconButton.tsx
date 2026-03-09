@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 export type IconButtonVariant = "primary" | "secondary" | "tertiary" | "brand" | "hero" | "overlay";
@@ -21,30 +22,25 @@ function variantClasses(variant: IconButtonVariant): string {
   }
 }
 
-export function IconButton({
-  variant = "primary",
-  size = "default",
-  icon,
-  label,
-  className,
-  ...rest
-}: IconButtonProps) {
-  const isHero = variant === "hero";
+export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
+  function IconButton({ variant = "primary", size = "default", icon, label, className, ...rest }, ref) {
+    const isHero = variant === "hero";
 
-  // Hero is a wide pill shape; all others are square-ish circles
-  const shapeClasses = isHero
-    ? "h-11 w-16 px-5 py-2.5 rounded-full"
-    : size === "lg"
-    ? "size-[3.375rem] rounded-[1.875rem]"
-    : "size-9 rounded-[1.875rem]";
+    const shapeClasses = isHero
+      ? "h-11 w-16 px-5 py-2.5 rounded-full"
+      : size === "lg"
+      ? "size-[3.375rem] rounded-[1.875rem]"
+      : "size-9 rounded-[1.875rem]";
 
-  return (
-    <button
-      aria-label={label}
-      className={`inline-flex items-center justify-center shrink-0 cursor-pointer transition-opacity hover:opacity-80 active:opacity-70 disabled:opacity-40 disabled:cursor-not-allowed ${shapeClasses} ${variantClasses(variant)} ${className ?? ""}`}
-      {...rest}
-    >
-      <span className="size-6 flex items-center justify-center">{icon}</span>
-    </button>
-  );
-}
+    return (
+      <button
+        ref={ref}
+        aria-label={label}
+        className={`inline-flex items-center justify-center shrink-0 cursor-pointer transition-opacity hover:opacity-80 active:opacity-70 disabled:opacity-40 disabled:cursor-not-allowed ${shapeClasses} ${variantClasses(variant)} ${className ?? ""}`}
+        {...rest}
+      >
+        <span className="size-6 flex items-center justify-center">{icon}</span>
+      </button>
+    );
+  }
+);
