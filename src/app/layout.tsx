@@ -1,11 +1,11 @@
 import { AuthProvider } from "@/lib/authContext";
 import { SavesProvider } from "@/lib/savesContext";
-import Sidebar from "@/components/Sidebar";
-import BottomNav from "@/components/BottomNav";
-import AppShell from "@/components/AppShell";
+import Sidebar from "@/components/layout/Sidebar";
+import BottomNav from "@/components/layout/BottomNav";
+import AppShell from "@/components/layout/AppShell";
 import { Toaster } from "@/components/ui/Toast";
 import { Snackbar } from "@/components/ui/Snackbar";
-import { CreatePlaylistFlow } from "@/components/CreatePlaylistFlow";
+import { CreatePlaylistFlow } from "@/components/modals/CreatePlaylistFlow";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";

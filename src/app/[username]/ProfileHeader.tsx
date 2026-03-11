@@ -23,9 +23,9 @@ import {
   getFollowingCount,
   signOut,
 } from "@/lib/services/users";
-import { Profile } from "../../components/ui/Profile";
-import EditProfileModal from "../../components/EditProfileModal";
-import FollowsModal from "../../components/FollowsModal";
+import { Profile } from "../../components/Profile";
+import EditProfileModal from "../../components/modals/EditProfileModal";
+import FollowsModal from "../../components/modals/FollowsModal";
 import { Sheet, ConfirmSheet } from "../../components/ui/Sheet";
 import type { SheetItem } from "../../components/ui/Sheet";
 import type { Profile as ProfileData } from "@/types";

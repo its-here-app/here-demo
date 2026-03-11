@@ -2,15 +2,15 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "../lib/authContext";
-import { Avatar } from "./ui/Avatar";
-import { Sheet } from "./ui/Sheet";
-import { Check } from "./ui/icons/Check";
-import { Error } from "./ui/icons/Error";
-import { toast } from "./ui/Toast";
-import { TextInput } from "./ui/inputs/TextInput";
-import { BottomPanel } from "./ui/BottomPanel";
-import { Button } from "./ui/Button";
+import { useAuth } from "../../lib/authContext";
+import { Avatar } from "../ui/Avatar";
+import { Sheet } from "../ui/Sheet";
+import { Check } from "../ui/icons/Check";
+import { Error } from "../ui/icons/Error";
+import { toast } from "../ui/Toast";
+import { TextInput } from "../ui/inputs/TextInput";
+import { BottomPanel } from "../ui/BottomPanel";
+import { Button } from "../ui/Button";
 import {
   getProfile,
   getUserByUsername,
@@ -181,7 +181,7 @@ export default function EditProfileModal({
   const formBody = (
     <>
       {/* Avatar */}
-      <div className="flex justify-center mb-4">
+      <div className="flex justify-center">
         <div
           ref={(el) => {
             if (!el) {
@@ -264,6 +264,7 @@ export default function EditProfileModal({
           setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))
         }
         required
+        minLength={3}
         maxLength={30}
         placeholder="username"
         state={usernameStatus === "valid" ? "filled" : "default"}
@@ -298,19 +299,6 @@ export default function EditProfileModal({
           Delete account
         </Button>
       </div>
-
-      {/* Desktop save button */}
-      <div className="hidden lg:flex justify-center pt-[calc(3.75rem-1rem)]">
-        <Button
-          type="submit"
-          variant="tonal"
-          size="lg"
-          darkTheme
-          disabled={saving}
-        >
-          {saving ? "Saving..." : "Save"}
-        </Button>
-      </div>
     </>
   );
 
@@ -318,7 +306,7 @@ export default function EditProfileModal({
     <BottomPanel
       isOpen={isOpen}
       onClose={onClose}
-      title="Edit profile"
+      header="Edit profile"
       desktopVariant="full-page"
       footer={
         <Button
@@ -327,8 +315,20 @@ export default function EditProfileModal({
           variant="tonal"
           size="md"
           darkTheme
-          disabled={saving}
+          disabled={saving || usernameStatus === "too-short" || usernameStatus === "taken" || usernameStatus === "checking"}
           className="w-full"
+        >
+          {saving ? "Saving..." : "Save"}
+        </Button>
+      }
+      desktopFooter={
+        <Button
+          type="submit"
+          form="edit-profile-form"
+          variant="tonal"
+          size="lg"
+          darkTheme
+          disabled={saving || usernameStatus === "too-short" || usernameStatus === "taken" || usernameStatus === "checking"}
         >
           {saving ? "Saving..." : "Save"}
         </Button>

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { Avatar } from "./Avatar";
-import { Button } from "./Button";
+import { Avatar } from "./ui/Avatar";
+import { Button } from "./ui/Button";
 
 export type ProfileType = "yours" | "others" | "friend" | "blocked";
 

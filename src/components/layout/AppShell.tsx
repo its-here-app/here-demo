@@ -24,7 +24,7 @@ export default function AppShell({
       <div className="flex-1 flex flex-col">
         <AppBarProvider>
           <AppBar />
-          <div className="p-[var(--space-page-sm)] lg:p-[var(--space-page)] pb-16 lg:pb-0">
+          <div className="p-[var(--space-page-sm)] lg:p-[var(--space-page)] pb-15">
             {children}
           </div>
         </AppBarProvider>

@@ -10,7 +10,7 @@ import {
   addSpotToPlaylist,
   createPlaylist,
 } from "@/lib/services/playlists";
-import Modal from "@/components/Modal";
+import Modal from "@/components/modals/Modal";
 import type { DraftSpot } from "@/types";
 
 export default function NewPlaylistPage() {

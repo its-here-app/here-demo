@@ -8,47 +8,44 @@ import { Scrim } from "./Scrim";
 interface BottomPanelProps {
   isOpen: boolean;
   onClose: () => void;
-  title: string;
-  /** Optional secondary line below title */
-  subtitle?: string;
-  /** Optional line directly below the header, same font as title but grey, gap 0 */
-  subhead?: string;
+  header: string;
+  /** Optional line directly below the header, same font as header but grey */
+  subheader?: string;
   /** Optional footer area (e.g. a save/confirm button) */
   footer?: ReactNode;
+  /** Overrides footer in the full-page desktop variant */
+  desktopFooter?: ReactNode;
   /** Controls the desktop rendering: "full-page" = full-screen overlay, "floating" = centered card */
-  desktopVariant: "full-page" | "floating" | undefined;
+  desktopVariant: "full-page" | "floating";
   /** Custom width for the floating desktop variant (default: 24.375rem / 390px) */
   desktopWidth?: string;
-  /** Optional min-height for the floating desktop variant */
-  desktopMinHeight?: string;
-  /** Scrim color for the floating desktop variant — default is black/40, "black" is fully opaque */
-  scrim?: "black";
-  /** Show the FullLogo in the top-left corner of the floating desktop overlay */
+  /** Optional fixed height for the floating desktop variant */
+  desktopHeight?: string;
+  /** Show the FullLogo — in the top bar for full-page, or top-left corner for floating */
   logo?: boolean;
-  /** Centers the title in the header */
-  centerTitle?: boolean;
-  /** Optional fixed height for the mobile panel (e.g. "30rem") */
-  panelHeight?: string;
-  /** Sets the mobile panel height to 80vh */
-  tall?: boolean;
+  /** Centers the header text */
+  centerHeader?: boolean;
+  /** Mobile panel height: "tall" = 90vh, or a fixed value (e.g. "30rem"). Default is auto. */
+  mobileHeight?: "tall" | string;
+  /** Vertically centers the body/children within the available space */
+  centerBody?: boolean;
   children: ReactNode;
 }
 
 export function BottomPanel({
   isOpen,
   onClose,
-  title,
-  subtitle,
-  subhead,
+  header,
+  subheader,
   footer,
+  desktopFooter,
   desktopVariant,
   desktopWidth,
-  desktopMinHeight,
-  scrim,
+  desktopHeight,
   logo = false,
-  centerTitle = false,
-  panelHeight,
-  tall = false,
+  centerHeader = false,
+  mobileHeight,
+  centerBody = false,
   children,
 }: BottomPanelProps) {
   const [isVisible, setIsVisible] = useState(false);
@@ -108,24 +105,28 @@ export function BottomPanel({
         <div
           className={`fixed inset-0 z-[60] bg-black hidden lg:flex flex-col transition-opacity duration-300 ${fadeIn}`}
         >
-          <div className="flex items-center justify-between p-[var(--space-page)] shrink-0">
-            <FullLogo color="white" className="w-20" />
+          <div className="relative z-10 flex items-center justify-between p-[var(--space-page)] shrink-0">
+            {logo ? <FullLogo color="white" className="w-20" /> : <div />}
             {closeBtn}
           </div>
-          <div className="flex-1 flex flex-col items-center justify-center gap-[3.75rem] py-12">
-            <div className="flex flex-col items-center">
-              <p className="text-body-sm-bold text-white text-center">
-                {title}
-              </p>
-              {subhead && (
-                <p className="text-body-sm-bold text-grey text-center">
-                  {subhead}
+          <div className="absolute inset-0 flex flex-col items-center justify-center py-12">
+            <div className="flex flex-col gap-[3.75rem] w-[22.875rem]">
+              <div className="flex flex-col items-center">
+                <p className="text-body-sm-bold text-white text-center">
+                  {header}
                 </p>
-              )}
-            </div>
-            <div className="flex flex-col gap-4 w-[22.875rem]">
+                {subheader && (
+                  <p className="text-body-sm-bold text-grey text-center">
+                    {subheader}
+                  </p>
+                )}
+              </div>
               {children}
-              {footer && <div className="pt-3">{footer}</div>}
+              {(desktopFooter ?? footer) && (
+                <div className="flex justify-center">
+                  {desktopFooter ?? footer}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -136,11 +137,7 @@ export function BottomPanel({
         <div
           className={`fixed inset-0 z-[60] hidden lg:flex flex-col items-center justify-center transition-opacity duration-300 ${fadeIn}`}
         >
-          <Scrim
-            visible={isAnimating}
-            onClick={onClose}
-            variant={scrim === "black" ? "dark" : "default"}
-          />
+          <Scrim visible={isAnimating} onClick={onClose} variant="default" />
           {logo && (
             <div className="absolute top-8 left-8">
               <FullLogo color="white" />
@@ -150,20 +147,20 @@ export function BottomPanel({
             className="relative bg-black rounded-[2rem] p-6 flex flex-col gap-5 overflow-x-hidden"
             style={{
               width: desktopWidth ?? "24.375rem",
-              minHeight: desktopMinHeight,
+              height: desktopHeight,
             }}
           >
             <div>
               <div className="flex items-start justify-between gap-2">
                 <div className="size-6 shrink-0" />
                 <p className="text-body-sm-bold text-white text-center flex-1">
-                  {title}
+                  {header}
                 </p>
                 {closeBtn}
               </div>
-              {subhead && (
+              {subheader && (
                 <p className="text-body-sm-bold text-grey text-center">
-                  {subhead}
+                  {subheader}
                 </p>
               )}
             </div>
@@ -177,27 +174,25 @@ export function BottomPanel({
         <Scrim visible={isAnimating} onClick={onClose} />
         <div
           className={`relative bg-black rounded-t-[1.5rem] flex flex-col gap-5 px-6 pt-6 pb-9 overflow-x-hidden transition-transform duration-300 ${isAnimating ? "translate-y-0" : "translate-y-full"}`}
-          style={{ height: panelHeight ?? (tall ? "90vh" : undefined) }}
+          style={{ height: mobileHeight === "tall" ? "90vh" : mobileHeight }}
         >
-          <div>
-            <div className="flex items-start justify-between gap-2">
-              {centerTitle && <div className="size-6 shrink-0" />}
-              <div
-                className={`flex flex-col ${centerTitle ? "flex-1 items-center" : ""}`}
-              >
-                <p className="text-body-sm-bold text-white">{title}</p>
-                {subtitle && (
-                  <p className="text-body-xs text-grey">{subtitle}</p>
-                )}
-              </div>
-              {closeBtn}
+          <div className="relative">
+            <div className={`flex flex-col ${centerHeader ? "items-center px-8" : "pr-8"}`}>
+              <p className="text-body-sm-bold text-white">{header}</p>
             </div>
-            {subhead && (
-              <p className="text-body-sm-bold text-grey">{subhead}</p>
+            {subheader && (
+              <p className={`text-body-sm-bold text-grey ${centerHeader ? "text-center px-8" : "pr-8"}`}>
+                {subheader}
+              </p>
             )}
+            <div className="absolute top-0 right-0">{closeBtn}</div>
           </div>
-          <div className="flex flex-col gap-4">{children}</div>
-          {footer && <div className="pt-3">{footer}</div>}
+          <div
+            className={`flex flex-col gap-4 ${mobileHeight || centerBody ? "flex-1" : ""} ${centerBody ? "justify-center" : ""}`}
+          >
+            {children}
+          </div>
+          {footer && <div className="pt-3 flex justify-center">{footer}</div>}
         </div>
       </div>
     </>

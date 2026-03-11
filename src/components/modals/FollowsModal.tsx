@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Avatar } from "./ui/Avatar";
-import { BottomPanel } from "./ui/BottomPanel";
-import { Tab, Tabs } from "./ui/Tabs";
+import { Avatar } from "../ui/Avatar";
+import { BottomPanel } from "../ui/BottomPanel";
+import { Tab, Tabs } from "../ui/Tabs";
 import { getFollowers, getFollowing } from "@/lib/services/users";
 import type { FollowUser } from "@/lib/services/users";
 
@@ -95,12 +95,12 @@ export default function FollowsModal({
     <BottomPanel
       isOpen={isOpen}
       onClose={onClose}
-      title={`@${profileName}`}
-      centerTitle
-      panelHeight="30rem"
+      header={`@${profileName}`}
+      centerHeader
+      mobileHeight="30rem"
       desktopVariant="floating"
       desktopWidth="43rem"
-      desktopMinHeight="440px"
+      desktopHeight="440px"
     >
       {/* Tabs */}
       <Tabs className="">

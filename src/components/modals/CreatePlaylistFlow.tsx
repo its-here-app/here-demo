@@ -5,14 +5,14 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
 import { BottomPanel } from "@/components/ui/BottomPanel";
 import { TextInput } from "@/components/ui/inputs";
-import { GhostInput } from "@/components/ui/GhostInput";
+import { GhostInput } from "@/components/ui/inputs/GhostInput";
 import { Button } from "@/components/ui/Button";
 import { ConfirmSheet } from "@/components/ui/Sheet";
 import { snackbar } from "@/components/ui/Snackbar";
 import { Error } from "@/components/ui/icons/Error";
 import { Photo } from "@/components/ui/icons/Photo";
-import { PlaylistCard } from "@/components/ui/PlaylistCard";
-import SpotCard from "@/components/ui/SpotCard";
+import { PlaylistCard } from "@/components/PlaylistCard";
+import SpotCard from "@/components/SpotCard";
 import { getDefaultCover } from "@/lib/playlist-covers";
 import {
   resolveSpot,
@@ -266,14 +266,15 @@ export function CreatePlaylistFlow() {
       <BottomPanel
         isOpen={panelOpen}
         onClose={closePanel}
-        title="Create a playlist"
-        subhead="Which city are you making a playlist for?"
-        tall
+        header="Create a playlist"
+        subheader="Which city are you making a playlist for?"
+        mobileHeight="tall"
+        centerBody
         desktopVariant="full-page"
         footer={
           <Button
             variant="filled"
-            size="lg"
+            size="md"
             darkTheme
             softDisabled
             disabled={!city.trim()}
@@ -283,12 +284,26 @@ export function CreatePlaylistFlow() {
             Create
           </Button>
         }
+        desktopFooter={
+          <Button
+            variant="filled"
+            size="lg"
+            darkTheme
+            softDisabled
+            disabled={!city.trim()}
+            onClick={handleCreate}
+          >
+            Create
+          </Button>
+        }
       >
         <GhostInput
           value={city}
           onChange={(e) => setCity(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && city.trim() && handleCreate()}
           placeholder="New York"
           autoFocus
+          className="lg:-mt-[1.5rem]"
         />
       </BottomPanel>
 
@@ -408,7 +423,7 @@ export function CreatePlaylistFlow() {
       <BottomPanel
         isOpen={missingPanelOpen}
         onClose={() => setMissingPanelOpen(false)}
-        title="Missing spots"
+        header="Missing spots"
         desktopVariant="floating"
       >
         <div className="space-y-3">

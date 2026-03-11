@@ -18,7 +18,7 @@ import {
 import { getDefaultCover } from "@/lib/playlist-covers";
 import type { PlaylistSpot, SearchResult } from "@/types";
 import { Avatar } from "@/components/ui/Avatar";
-import { PlaylistCard } from "@/components/ui/PlaylistCard";
+import { PlaylistCard } from "@/components/PlaylistCard";
 import { Button } from "@/components/ui/Button";
 import { IconButton } from "@/components/ui/IconButton";
 import { Close } from "@/components/ui/icons/Close";
@@ -30,7 +30,7 @@ import { Trash } from "@/components/ui/icons/Trash";
 import { Sheet, ConfirmSheet } from "@/components/ui/Sheet";
 import { snackbar } from "@/components/ui/Snackbar";
 import type { SheetItem } from "@/components/ui/Sheet";
-import SpotCard from "@/components/ui/SpotCard";
+import SpotCard from "@/components/SpotCard";
 import { TextInput } from "@/components/ui/inputs";
 import BookmarkButton from "@/components/BookmarkButton";
 import SpotSearchInput from "@/components/SpotSearchInput";

@@ -7,7 +7,7 @@ import type { Playlist } from "@/types";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { Button } from "../../components/ui/Button";
-import { PlaylistCard } from "../../components/ui/PlaylistCard";
+import { PlaylistCard } from "../../components/PlaylistCard";
 import { Block } from "../../components/ui/icons/Block";
 
 export async function generateMetadata({

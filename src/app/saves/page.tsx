@@ -7,7 +7,7 @@ import { useAuth } from "@/lib/authContext";
 import { useSaves } from "@/lib/savesContext";
 import { getSavedPlaylists } from "@/lib/services/saves";
 import type { SavedPlaylist } from "@/lib/services/saves";
-import SpotCard from "@/components/ui/SpotCard";
+import SpotCard from "@/components/SpotCard";
 import BookmarkButton from "@/components/BookmarkButton";
 import SpotSearchInput from "@/components/SpotSearchInput";
 import { getDefaultCover } from "@/lib/playlist-covers";

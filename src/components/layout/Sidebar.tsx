@@ -5,12 +5,12 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
 import { signOut, getUserUsername, getProfile } from "@/lib/services/users";
-import { FullLogo } from "./ui/Logo";
-import { Add } from "./ui/icons/Add";
-import { openCreatePlaylist } from "@/components/CreatePlaylistFlow";
-import { Bookmark } from "./ui/icons/Bookmark";
-import { Logout } from "./ui/icons/Logout";
-import { Avatar } from "./ui/Avatar";
+import { FullLogo } from "../ui/Logo";
+import { Add } from "../ui/icons/Add";
+import { openCreatePlaylist } from "@/components/modals/CreatePlaylistFlow";
+import { Bookmark } from "../ui/icons/Bookmark";
+import { Logout } from "../ui/icons/Logout";
+import { Avatar } from "../ui/Avatar";
 
 export default function Sidebar() {
   const { user, loading } = useAuth();

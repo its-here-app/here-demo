@@ -1,15 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createUser } from "@/lib/services/users";
+import { createUser, getUserByUsername } from "@/lib/services/users";
+
+type UsernameStatus = "idle" | "too-short" | "checking" | "valid" | "taken";
 
 export default function NewUserPage() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [username, setUserName] = useState("");
+  const [usernameStatus, setUsernameStatus] = useState<UsernameStatus>("idle");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (username.length === 0) {
+      setUsernameStatus("idle");
+      return;
+    }
+    if (username.length < 3) {
+      const timer = setTimeout(() => setUsernameStatus("too-short"), 800);
+      return () => clearTimeout(timer);
+    }
+    setUsernameStatus("checking");
+    const timer = setTimeout(async () => {
+      const existing = await getUserByUsername(username);
+      setUsernameStatus(existing ? "taken" : "valid");
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [username]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -28,6 +48,12 @@ export default function NewUserPage() {
       setLoading(false);
     }
   }
+
+  const saveDisabled =
+    loading ||
+    usernameStatus === "too-short" ||
+    usernameStatus === "taken" ||
+    usernameStatus === "checking";
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
@@ -58,11 +84,19 @@ export default function NewUserPage() {
               type="text"
               id="username"
               value={username}
-              onChange={(e) => setUserName(e.target.value)}
+              onChange={(e) => setUserName(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
               required
+              minLength={3}
+              maxLength={30}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Enter username"
             />
+            {usernameStatus === "too-short" && (
+              <p className="text-xs text-red-500 mt-1">Username must be at least 3 characters</p>
+            )}
+            {usernameStatus === "taken" && (
+              <p className="text-xs text-red-500 mt-1">Username already taken, please try another</p>
+            )}
           </div>
 
           {error && (
@@ -73,7 +107,7 @@ export default function NewUserPage() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={saveDisabled}
             className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             {loading ? "Creating..." : "Create User"}
