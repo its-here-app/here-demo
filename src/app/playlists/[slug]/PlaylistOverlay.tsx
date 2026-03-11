@@ -34,10 +34,12 @@ export default function PlaylistOverlay({ playlist, isOwner, fromNew }: Props) {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  function dismiss() {
+  function dismiss(pushTo?: string) {
     setClosing(true);
     setTimeout(() => {
-      if (fromNew) {
+      if (pushTo) {
+        router.push(pushTo);
+      } else if (fromNew) {
         router.push(`/${playlist.profiles.username}`);
       } else {
         router.back();

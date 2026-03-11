@@ -28,6 +28,7 @@ import { Photo } from "@/components/ui/icons/Photo";
 import { Share } from "@/components/ui/icons/Share";
 import { Trash } from "@/components/ui/icons/Trash";
 import { Sheet, ConfirmSheet } from "@/components/ui/Sheet";
+import { snackbar } from "@/components/ui/Snackbar";
 import type { SheetItem } from "@/components/ui/Sheet";
 import SpotCard from "@/components/ui/SpotCard";
 import BookmarkButton from "@/components/BookmarkButton";
@@ -54,7 +55,7 @@ interface Props {
   playlist: any;
   isOwner: boolean;
   fromNew?: boolean;
-  onClose?: () => void;
+  onClose?: (pushTo?: string) => void;
 }
 
 function timeAgo(dateStr: string): string {
@@ -278,14 +279,27 @@ export default function PlaylistEditor({
     }
   }
 
-  async function handleDeletePlaylist() {
-    setError("");
-    try {
-      await deletePlaylist(playlist.id, user?.id ?? "");
-      router.push(`/${playlist.profiles.username}`);
-    } catch {
-      setError("Failed to delete playlist.");
-    }
+  function handleDeletePlaylist() {
+    const id = playlist.id;
+    const username = playlist.profiles.username;
+    const userId = user?.id ?? "";
+
+    const timer = setTimeout(async () => {
+      await deletePlaylist(id, userId);
+      router.replace(`/${username}`);
+    }, 6000);
+
+    snackbar({
+      icon: <Trash />,
+      message: `${playlist.city} ${playlist.name} deleted`,
+      actionLabel: "Undo",
+      onAction: () => {
+        clearTimeout(timer);
+        router.replace(`/${username}`);
+      },
+    });
+
+    onClose?.(`/${username}?pendingDelete=${id}`);
   }
 
   function handleExitEdit() {

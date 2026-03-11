@@ -179,6 +179,8 @@
   --color-red: #f80000;
 
   /* Colors — neutral palette */
+  --color-grey-900: #212121;
+  --color-grey-200: #e5e2de;
   --color-grey-100: #f0f0f0;
 
   /* Colors — semantic */
@@ -201,13 +203,14 @@
 
   /* Page margin */
   --space-page-sm: 0.75rem; /* 12px */
-  --space-page: clamp(0.75rem, 3vw, 2rem); /* 12px → 32px */
+  /* --space-page: clamp(0.75rem, 3vw, 2rem); */
+  --space-page: var(--space-page-sm);
 
   /* Sidebar */
   --sidebar-width: 16.875rem /* 270px */;
 }
 
-/* Border radius — lg+ overrides */
+/* lg+ overrides */
 @media (min-width: 64rem) {
   :root {
     --radius-xs: 0.5rem; /* 8px */
@@ -215,6 +218,7 @@
     --radius-md: 1rem; /* 16px */
     --radius-lg: 1.5rem; /* 24px */
     --radius-xl: 2rem; /* 32px */
+    --space-page: 2rem; /* 32px */
   }
 }
 
@@ -360,6 +364,49 @@
   line-height: 1rem; /* 16px */
   letter-spacing: -0.02em;
   font-weight: 400;
+}
+
+/* ─── Keyframes ─────────────────────────────────────────────────────────────── */
+
+@keyframes toast-in {
+  from {
+    transform: translateY(calc(-100% - 1rem));
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes toast-out {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(calc(-100% - 1rem));
+    opacity: 0;
+  }
+}
+@keyframes snackbar-in {
+  from {
+    transform: translateY(calc(100% + 1rem));
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes snackbar-out {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(calc(100% + 1rem));
+    opacity: 0;
+  }
 }
 
 /* ─── Base ─────────────────────────────────────────────────────────────────── */

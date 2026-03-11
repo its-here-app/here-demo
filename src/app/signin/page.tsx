@@ -13,7 +13,9 @@ import { Google } from "../../components/ui/icons/Google";
 import { Avatar } from "../../components/ui/Avatar";
 import { Sheet } from "../../components/ui/Sheet";
 import { Check } from "../../components/ui/icons/Check";
+import { Error } from "../../components/ui/icons/Error";
 import { FullLogo } from "../../components/ui/Logo";
+import { toast } from "../../components/ui/Toast";
 
 import { getUserByUsername } from "../../lib/services/users";
 
@@ -55,7 +57,7 @@ export default function LoginPage() {
 
   function handleAvatarClick() {
     if (hasCamera || photoPreview) {
-      setIsPhotoSheetOpen(s => !s);
+      setIsPhotoSheetOpen((s) => !s);
     } else {
       uploadInputRef.current?.click();
     }
@@ -103,6 +105,20 @@ export default function LoginPage() {
     }, 800);
     return () => clearTimeout(timer);
   }, [username]);
+
+  useEffect(() => {
+    if (usernameStatus === "too-short") {
+      toast({
+        icon: <Error />,
+        message: "Username must be at least 3 characters",
+      });
+    } else if (usernameStatus === "taken") {
+      toast({
+        icon: <Error />,
+        message: "Username already taken, please try another",
+      });
+    }
+  }, [usernameStatus]);
 
   async function handleGoogleSignIn() {
     setLoading(true);
@@ -233,7 +249,7 @@ export default function LoginPage() {
 
       router.push(`/${username}`);
     } catch (err: any) {
-      setError(err.message);
+      toast({ icon: <Error />, message: err.message });
     } finally {
       setSaving(false);
     }
@@ -414,18 +430,26 @@ export default function LoginPage() {
                       uploadInputRef.current?.click();
                     },
                   },
-                  ...(hasCamera ? [{
-                    label: "Take photo",
-                    onClick: () => {
-                      setIsPhotoSheetOpen(false);
-                      captureInputRef.current?.click();
-                    },
-                  }] : []),
-                  ...(photoPreview ? [{
-                    label: "Remove photo",
-                    onClick: handleRemovePhoto,
-                    variant: "danger" as const,
-                  }] : []),
+                  ...(hasCamera
+                    ? [
+                        {
+                          label: "Take photo",
+                          onClick: () => {
+                            setIsPhotoSheetOpen(false);
+                            captureInputRef.current?.click();
+                          },
+                        },
+                      ]
+                    : []),
+                  ...(photoPreview
+                    ? [
+                        {
+                          label: "Remove photo",
+                          onClick: handleRemovePhoto,
+                          variant: "danger" as const,
+                        },
+                      ]
+                    : []),
                 ]}
               />
 
@@ -447,23 +471,18 @@ export default function LoginPage() {
                   )
                 }
                 required
+                maxLength={30}
                 placeholder="username"
                 state={usernameStatus === "valid" ? "filled" : "default"}
                 rightSlot={
                   usernameStatus === "valid" ? (
                     <Check focus className="text-neon" />
+                  ) : usernameStatus === "too-short" ||
+                    usernameStatus === "taken" ? (
+                    <Error className="text-neon" />
                   ) : undefined
                 }
               />
-
-              {usernameStatus === "too-short" && (
-                <p className="text-body-xs text-danger">
-                  Username must be at least 3 characters
-                </p>
-              )}
-              {usernameStatus === "taken" && (
-                <p className="text-body-xs text-danger">Username is taken</p>
-              )}
 
               <TextInput
                 aria-label="Bio"
@@ -474,10 +493,6 @@ export default function LoginPage() {
                 placeholder="Tell us something about yourself... (Optional bio)"
                 state={bio ? "filled" : "default"}
               />
-
-              {error && (
-                <p className="text-body-xs text-danger text-center">{error}</p>
-              )}
             </form>
 
             {/* Done button — pinned to bottom on all sizes */}

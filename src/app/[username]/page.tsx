@@ -21,10 +21,15 @@ export async function generateMetadata({
 
 export default async function UserProfilePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ username: string }>;
+  searchParams: Promise<{ pendingDelete?: string }>;
 }) {
-  const { username } = await params;
+  const [{ username }, { pendingDelete }] = await Promise.all([
+    params,
+    searchParams,
+  ]);
   const supabase = await createClient();
   const [
     profile,
@@ -38,7 +43,7 @@ export default async function UserProfilePage({
   }
 
   const isOwnProfile = user?.id === profile.id;
-  const [playlists, blockRow] = await Promise.all([
+  const [rawPlaylists, blockRow] = await Promise.all([
     getPlaylistsByUser(profile.id, !isOwnProfile),
     user && !isOwnProfile
       ? supabase
@@ -50,6 +55,7 @@ export default async function UserProfilePage({
       : null,
   ]);
   const isBlocked = !!blockRow?.data;
+  const playlists = rawPlaylists.filter((p) => p.id !== pendingDelete);
 
   return (
     <main className="flex flex-col items-center">

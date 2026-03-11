@@ -6,6 +6,8 @@ import { useAuth } from "../lib/authContext";
 import { Avatar } from "./ui/Avatar";
 import { Sheet } from "./ui/Sheet";
 import { Check } from "./ui/icons/Check";
+import { Error } from "./ui/icons/Error";
+import { toast } from "./ui/Toast";
 import { TextInput } from "./ui/inputs/TextInput";
 import { BottomPanel } from "./ui/BottomPanel";
 import { Button } from "./ui/Button";
@@ -34,7 +36,6 @@ export default function EditProfileModal({
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
 
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
@@ -62,7 +63,7 @@ export default function EditProfileModal({
 
   function handleAvatarClick() {
     if (hasCamera || photoPreview) {
-      setIsPhotoSheetOpen(s => !s);
+      setIsPhotoSheetOpen((s) => !s);
     } else {
       uploadInputRef.current?.click();
     }
@@ -95,6 +96,20 @@ export default function EditProfileModal({
     return () => clearTimeout(timer);
   }, [username]);
 
+  useEffect(() => {
+    if (usernameStatus === "too-short") {
+      toast({
+        icon: <Error />,
+        message: "Username must be at least 3 characters",
+      });
+    } else if (usernameStatus === "taken") {
+      toast({
+        icon: <Error />,
+        message: "Username already taken, please try another",
+      });
+    }
+  }, [usernameStatus]);
+
   async function loadProfile() {
     if (!user) return;
     try {
@@ -110,7 +125,7 @@ export default function EditProfileModal({
         setPhotoPreview(profile.avatar_url || "");
       }
     } catch {
-      setError("Failed to load profile");
+      toast({ icon: <Error />, message: "Failed to load profile" });
     } finally {
       setLoading(false);
     }
@@ -131,7 +146,6 @@ export default function EditProfileModal({
     if (!user) return;
 
     setSaving(true);
-    setError("");
 
     try {
       let photoUrl = currentPhotoUrl;
@@ -158,7 +172,7 @@ export default function EditProfileModal({
         onClose();
       }
     } catch (err: any) {
-      setError(err.message);
+      toast({ icon: <Error />, message: err.message });
     } finally {
       setSaving(false);
     }
@@ -170,7 +184,10 @@ export default function EditProfileModal({
       <div className="flex justify-center mb-4">
         <div
           ref={(el) => {
-            if (!el) { avatarRef.current = null; return; }
+            if (!el) {
+              avatarRef.current = null;
+              return;
+            }
             if (el.getBoundingClientRect().width > 0) avatarRef.current = el;
           }}
           className="relative cursor-pointer"
@@ -208,18 +225,26 @@ export default function EditProfileModal({
               uploadInputRef.current?.click();
             },
           },
-          ...(hasCamera ? [{
-            label: "Take photo",
-            onClick: () => {
-              setIsPhotoSheetOpen(false);
-              captureInputRef.current?.click();
-            },
-          }] : []),
-          ...(photoPreview ? [{
-            label: "Remove photo",
-            onClick: handleRemovePhoto,
-            variant: "danger" as const,
-          }] : []),
+          ...(hasCamera
+            ? [
+                {
+                  label: "Take photo",
+                  onClick: () => {
+                    setIsPhotoSheetOpen(false);
+                    captureInputRef.current?.click();
+                  },
+                },
+              ]
+            : []),
+          ...(photoPreview
+            ? [
+                {
+                  label: "Remove photo",
+                  onClick: handleRemovePhoto,
+                  variant: "danger" as const,
+                },
+              ]
+            : []),
         ]}
       />
 
@@ -239,21 +264,17 @@ export default function EditProfileModal({
           setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))
         }
         required
+        maxLength={30}
         placeholder="username"
         state={usernameStatus === "valid" ? "filled" : "default"}
         rightSlot={
           usernameStatus === "valid" ? (
             <Check focus className="text-neon" />
+          ) : usernameStatus === "too-short" || usernameStatus === "taken" ? (
+            <Error className="text-neon" />
           ) : undefined
         }
       />
-
-      {usernameStatus === "too-short" && (
-        <p className="text-body-xs text-danger">Username must be at least 3 characters</p>
-      )}
-      {usernameStatus === "taken" && (
-        <p className="text-body-xs text-danger">Username is taken</p>
-      )}
 
       <TextInput
         label="Bio (optional)"
@@ -290,10 +311,6 @@ export default function EditProfileModal({
           {saving ? "Saving..." : "Save"}
         </Button>
       </div>
-
-      {error && (
-        <p className="text-body-xs text-danger text-center">{error}</p>
-      )}
     </>
   );
 

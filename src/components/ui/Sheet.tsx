@@ -55,14 +55,17 @@ export function ConfirmSheet({ isOpen, onClose, title = "Are you sure?", items }
 
   useEffect(() => {
     function handleEscape(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") {
+        e.stopImmediatePropagation();
+        onClose();
+      }
     }
     if (isOpen) {
-      document.addEventListener("keydown", handleEscape);
+      document.addEventListener("keydown", handleEscape, { capture: true });
       document.body.style.overflow = "hidden";
     }
     return () => {
-      document.removeEventListener("keydown", handleEscape);
+      document.removeEventListener("keydown", handleEscape, { capture: true });
       document.body.style.overflow = "unset";
     };
   }, [isOpen, onClose]);
