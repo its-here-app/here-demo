@@ -5,6 +5,7 @@ import BottomNav from "@/components/BottomNav";
 import AppShell from "@/components/AppShell";
 import { Toaster } from "@/components/ui/Toast";
 import { Snackbar } from "@/components/ui/Snackbar";
+import { CreatePlaylistFlow } from "@/components/CreatePlaylistFlow";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -56,6 +57,7 @@ export default function RootLayout({
             {modal}
             <Toaster />
             <Snackbar />
+            <CreatePlaylistFlow />
           </SavesProvider>
         </AuthProvider>
       </body>

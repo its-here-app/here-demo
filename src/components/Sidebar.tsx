@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/authContext";
 import { signOut, getUserUsername, getProfile } from "@/lib/services/users";
 import { FullLogo } from "./ui/Logo";
 import { Add } from "./ui/icons/Add";
+import { openCreatePlaylist } from "@/components/CreatePlaylistFlow";
 import { Bookmark } from "./ui/icons/Bookmark";
 import { Logout } from "./ui/icons/Logout";
 import { Avatar } from "./ui/Avatar";
@@ -63,15 +64,12 @@ export default function Sidebar() {
 
         <div className="border-t border-black/10 w-full" />
 
-        <Link href="/playlists/new" className="flex items-center gap-5">
-          <Add
-            focus={pathname === "/playlists/new"}
-            className="size-8 shrink-0"
-          />
+        <button onClick={openCreatePlaylist} className="flex items-center gap-5 cursor-pointer">
+          <Add className="size-8 shrink-0" />
           <span className="text-header-radio-3 text-black">
             Start a new playlist
           </span>
-        </Link>
+        </button>
       </nav>
 
       {/* Log out */}

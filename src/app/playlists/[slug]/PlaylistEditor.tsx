@@ -31,6 +31,7 @@ import { Sheet, ConfirmSheet } from "@/components/ui/Sheet";
 import { snackbar } from "@/components/ui/Snackbar";
 import type { SheetItem } from "@/components/ui/Sheet";
 import SpotCard from "@/components/ui/SpotCard";
+import { TextInput } from "@/components/ui/inputs";
 import BookmarkButton from "@/components/BookmarkButton";
 import SpotSearchInput from "@/components/SpotSearchInput";
 import {
@@ -334,8 +335,8 @@ export default function PlaylistEditor({
           className="h-[30rem] lg:h-full"
           size="hero"
           image={coverUrl}
-          city={playlist.name}
-          playlistName={playlist.description ?? undefined}
+          city={playlist.city}
+          name={playlist.name}
           topLeft={
             editMode ? (
               <button
@@ -444,13 +445,14 @@ export default function PlaylistEditor({
           <div className="flex items-start justify-between gap-4">
             <div>
               {editMode ? (
-                <textarea
+                <TextInput
+                  size="tall"
+                  lightMode
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   onBlur={(e) => handleDescriptionBlur(e.target.value)}
                   placeholder="Add a description…"
-                  rows={2}
-                  className="w-full text-sm text-gray-600 border border-gray-200 rounded-lg px-3 py-2 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4"
+                  className="mb-4"
                 />
               ) : (
                 description && (

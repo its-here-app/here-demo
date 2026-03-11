@@ -97,7 +97,6 @@ export default function FollowsModal({
       onClose={onClose}
       title={`@${profileName}`}
       centerTitle
-      boldTitle
       panelHeight="30rem"
       desktopVariant="floating"
       desktopWidth="43rem"

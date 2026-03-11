@@ -8,6 +8,7 @@ import {
   BottomNavigation,
   type BottomNavTab,
 } from "@/components/ui/BottomNavigation";
+import { openCreatePlaylist } from "@/components/CreatePlaylistFlow";
 import type { Profile } from "@/types";
 
 export default function BottomNav() {
@@ -53,7 +54,7 @@ export default function BottomNav() {
         activeTab={activeTab}
         avatarUrl={profile?.avatar_url ?? undefined}
         onTabChange={handleTabChange}
-        onAdd={() => router.push("/playlists/new")}
+        onAdd={openCreatePlaylist}
       />
     </div>
   );

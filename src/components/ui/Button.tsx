@@ -7,6 +7,8 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
   darkTheme?: boolean;
+  /** Uses a muted disabled appearance (full opacity, white/15 bg, grey text) instead of opacity-40 */
+  softDisabled?: boolean;
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
   children: ReactNode;
@@ -43,6 +45,7 @@ export function Button({
   variant = "filled",
   size = "md",
   darkTheme = false,
+  softDisabled = false,
   leftIcon,
   rightIcon,
   children,
@@ -50,9 +53,12 @@ export function Button({
   ...rest
 }: ButtonProps) {
   const isOverlay = variant === "overlay";
+  const disabledClasses = softDisabled
+    ? "disabled:!opacity-100 disabled:!bg-white/15 disabled:text-grey disabled:!cursor-not-allowed"
+    : "disabled:opacity-40 disabled:!cursor-not-allowed";
   return (
     <button
-      className={`inline-flex items-center justify-center cursor-pointer transition-opacity hover:opacity-80 active:opacity-70 disabled:opacity-40 disabled:!cursor-not-allowed ${
+      className={`inline-flex items-center justify-center cursor-pointer transition-opacity hover:opacity-80 active:opacity-70 ${disabledClasses} ${
         isOverlay ? variantClasses(variant, darkTheme) : `${sizeClasses[size]} ${variantClasses(variant, darkTheme)}`
       } ${className ?? ""}`}
       {...rest}

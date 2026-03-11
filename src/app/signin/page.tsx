@@ -503,8 +503,9 @@ export default function LoginPage() {
                 variant="filled"
                 size="lg"
                 darkTheme
+                softDisabled
                 disabled={saving || !name || usernameStatus !== "valid"}
-                className="w-full disabled:!opacity-100 disabled:!bg-white/15 disabled:text-grey"
+                className="w-full"
               >
                 {saving ? "Saving..." : "Done"}
               </Button>

@@ -100,8 +100,8 @@ export default async function UserProfilePage({
                     <PlaylistCard
                       size="lg"
                       image={playlist.cover_photo_url ?? undefined}
-                      city={playlist.name}
-                      playlistName={playlist.description ?? undefined}
+                      city={playlist.city}
+                      name={playlist.name}
                       className="w-full"
                     />
                   </Link>

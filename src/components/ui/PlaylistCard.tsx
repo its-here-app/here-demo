@@ -1,4 +1,6 @@
-import type { ReactNode } from "react";
+"use client";
+
+import { useState, type ReactNode } from "react";
 
 // ─── TextScrim ────────────────────────────────────────────────────────────────
 // Gradient overlay for text legibility on card images.
@@ -49,7 +51,7 @@ interface PlaylistCardProps {
   size?: PlaylistCardSize;
   image?: string;
   city?: string;
-  playlistName?: string;
+  name?: string;
   title?: string;
   subtitle?: string;
   /** Overlay action slots */
@@ -59,6 +61,8 @@ interface PlaylistCardProps {
   bottomLeft?: ReactNode;
   bottomCenter?: ReactNode;
   bottomRight?: ReactNode;
+  /** When provided, renders the name as an editable inline input */
+  onNameChange?: (name: string) => void;
   href?: string;
   onClick?: () => void;
   className?: string;
@@ -138,7 +142,7 @@ export function PlaylistCard({
   size = "md",
   image,
   city,
-  playlistName,
+  name,
   title,
   subtitle,
   topLeft,
@@ -147,10 +151,13 @@ export function PlaylistCard({
   bottomLeft,
   bottomCenter,
   bottomRight,
+  onNameChange,
   href,
   onClick,
   className,
 }: PlaylistCardProps) {
+  const [imageLoaded, setImageLoaded] = useState(false);
+
   // ── Empty ─────────────────────────────────────────────────────────────────
   if (size === "empty") {
     return (
@@ -184,13 +191,14 @@ export function PlaylistCard({
       className={`flex flex-col gap-3 w-full ${href || onClick ? "cursor-pointer" : ""} ${className ?? ""}`}
     >
       <div
-        className={`relative overflow-hidden bg-black/10 w-full ${imageHeight[size]} ${imageRadius[size]}`}
+        className={`relative overflow-hidden w-full ${imageLoaded ? "bg-transparent" : "bg-black"} ${imageHeight[size]} ${imageRadius[size]}`}
       >
         {image && (
           <img
             src={image}
             alt={city ?? title ?? ""}
             className="absolute inset-0 size-full object-cover"
+            onLoad={() => setImageLoaded(true)}
           />
         )}
         <div
@@ -203,8 +211,17 @@ export function PlaylistCard({
         {city && (
           <div className="absolute inset-x-0 bottom-1/3 top-1/3 flex flex-col items-center justify-center px-8 text-center text-neon">
             <p className="text-display-crimson-2">{city}</p>
-            {playlistName && (
-              <p className="text-display-golos-1">{playlistName}</p>
+            {onNameChange ? (
+              <input
+                type="text"
+                value={name ?? ""}
+                onChange={(e) => onNameChange(e.target.value)}
+                placeholder="Playlist name"
+                className="text-display-golos-1 text-center bg-transparent border-none outline-none w-full cursor-text placeholder:opacity-40"
+                onClick={(e) => e.stopPropagation()}
+              />
+            ) : (
+              name && <p className="text-display-golos-1">{name}</p>
             )}
           </div>
         )}
