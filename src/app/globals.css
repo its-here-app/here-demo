@@ -231,6 +231,11 @@
     --border-strong: var(--color-white);
     --border-subtle: oklch(100% 0 0 / 15%);
   }
+  @media (hover: none) and (pointer: coarse) {
+    input, textarea, select {
+      font-size: 1rem; /* Prevent iOS auto-zoom on focus */
+    }
+  }
 }
 
 /* ─── Border utilities ──────────────────────────────────────────────────────── */
