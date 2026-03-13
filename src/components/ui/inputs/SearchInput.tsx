@@ -68,7 +68,7 @@ export function SearchInput({
         value={value}
         onChange={(e) => onChange?.(e.target.value)}
         placeholder={placeholder}
-        className="flex-1 min-w-0 bg-transparent text-body-sm text-black placeholder:text-grey outline-none"
+        className="flex-1 min-w-0 bg-transparent text-body-sm text-black placeholder:text-tertiary outline-none"
       />
       <button
         type="button"

@@ -226,7 +226,7 @@
   }
   .dark {
     --color-primary: var(--color-white);
-    --color-secondary: oklch(100% 0 0 / 60%);
+    --color-secondary: oklch(100% 0 0 / 50%);
     --color-tertiary: var(--color-grey);
     --border-strong: var(--color-white);
     --border-subtle: oklch(100% 0 0 / 15%);

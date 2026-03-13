@@ -3,12 +3,9 @@ import { notFound } from "next/navigation";
 import ProfileHeader from "./ProfileHeader";
 import { getUserByUsername } from "@/lib/services/users";
 import { getPlaylistsByUser } from "@/lib/services/playlists";
-import type { Playlist } from "@/types";
 import { createClient } from "@/lib/supabase/server";
-import Link from "next/link";
-import { Button } from "../../components/ui/Button";
-import { PlaylistCard } from "../../components/PlaylistCard";
 import { Block } from "../../components/ui/icons/Block";
+import ProfileTabs from "./ProfileTabs";
 
 export async function generateMetadata({
   params,
@@ -84,53 +81,7 @@ export default async function UserProfilePage({
             </div>
           </div>
         ) : (
-          <>
-            {playlists.length === 0 ? (
-              <div className="hidden bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
-                <p className="text-secondary">No public playlists yet</p>
-              </div>
-            ) : (
-              <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3 mt-4 lg:mt-16">
-                {playlists.map((playlist: Playlist) => (
-                  <Link
-                    key={playlist.id}
-                    href={`/playlists/${playlist.slug}`}
-                    className="block"
-                  >
-                    <PlaylistCard
-                      size="lg"
-                      image={playlist.cover_photo_url ?? undefined}
-                      city={playlist.city}
-                      name={playlist.name}
-                      className="w-full"
-                    />
-                  </Link>
-                ))}
-              </div>
-            )}
-            {/* Get started / No lists */}
-            {playlists.length === 0 && (
-              <div className="text-center flex flex-col items-center mt-16">
-                {isOwnProfile && (
-                  <h1 className="text-display-radio-2 mb-[.5rem]">
-                    Get started
-                  </h1>
-                )}
-                <p className="text-body-sm text-secondary max-w-70 mb-6">
-                  {isOwnProfile
-                    ? "You don’t have any lists yet. Create your first to organize your favorite places and share them with friends"
-                    : "No public lists found"}
-                </p>
-                {isOwnProfile && (
-                  <Link href="/playlists/new">
-                    <Button size="lg" variant="tonal" className="bg-neon">
-                      Create a list
-                    </Button>
-                  </Link>
-                )}
-              </div>
-            )}
-          </>
+          <ProfileTabs playlists={playlists} isOwnProfile={isOwnProfile} />
         )}
       </div>
     </main>

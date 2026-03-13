@@ -325,6 +325,7 @@ export function CreatePlaylistFlow() {
                 city={city}
                 name={draftName}
                 onNameChange={setDraftName}
+                autoFocusName
                 topLeft={
                   <button
                     onClick={() => setConfirmCancelOpen(true)}

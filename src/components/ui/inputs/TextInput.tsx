@@ -48,33 +48,44 @@ export const TextInput = forwardRef<
 
   const isTall = size === "tall";
 
+  const textareaRest = isTall
+    ? (rest as TextareaHTMLAttributes<HTMLTextAreaElement>)
+    : null;
+  const charsLeft =
+    isTall && textareaRest?.maxLength != null
+      ? textareaRest.maxLength - (textareaRest.value?.toString().length ?? 0)
+      : null;
+
   const textClass =
     state === "default"
-      ? "text-primary/50 placeholder:text-primary/50"
-      : "text-primary placeholder:text-primary/50";
+      ? "text-primary/50 placeholder:text-tertiary"
+      : "text-primary placeholder:text-tertiary";
 
   const bg = lightMode ? "bg-transparent" : "bg-black";
   const focusClass = focusBrand ? "focus-within:border-brand" : "";
 
   return (
     <div className={`flex flex-col gap-2 w-full ${className ?? ""}`}>
-      {label && (
-        <span className="text-body-xs text-secondary">
-          {label}
-        </span>
-      )}
+      {label && <span className="text-body-xs text-secondary">{label}</span>}
       <div
         className={`group ${bg} border border-subtle ${focusClass} flex gap-2.5 px-4 py-3 rounded-[1rem] w-full ${
-          isTall ? "h-[5.375rem] items-start" : "h-14 items-center"
+          isTall ? "relative h-[5.375rem] items-start" : "h-14 items-center"
         }`}
       >
         {isTall ? (
-          <textarea
-            ref={ref as React.Ref<HTMLTextAreaElement>}
-            placeholder={placeholder}
-            className={`flex-1 min-w-0 min-h-0 h-full bg-transparent text-body-sm resize-none outline-none ${textClass}`}
-            {...(rest as TextareaHTMLAttributes<HTMLTextAreaElement>)}
-          />
+          <>
+            <textarea
+              ref={ref as React.Ref<HTMLTextAreaElement>}
+              placeholder={placeholder}
+              className={`flex-1 min-w-0 min-h-0 h-full bg-transparent text-body-sm resize-none outline-none ${textClass}`}
+              {...(rest as TextareaHTMLAttributes<HTMLTextAreaElement>)}
+            />
+            {charsLeft != null && (
+              <span className="absolute bottom-3 right-3 text-body-xs text-tertiary pointer-events-none">
+                {charsLeft}
+              </span>
+            )}
+          </>
         ) : (
           <input
             ref={ref as React.Ref<HTMLInputElement>}

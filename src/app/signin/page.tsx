@@ -325,6 +325,7 @@ export default function LoginPage() {
                 className="flex flex-col gap-3"
               >
                 <TextInput
+                  focusBrand
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -345,6 +346,7 @@ export default function LoginPage() {
 
                 {showPassword && (
                   <TextInput
+                    focusBrand
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -454,15 +456,18 @@ export default function LoginPage() {
               />
 
               <TextInput
+                focusBrand
                 aria-label="Name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
+                maxLength={30}
                 placeholder="Your name"
                 state={name ? "filled" : "default"}
               />
 
               <TextInput
+                focusBrand
                 aria-label="Username"
                 value={username}
                 onChange={(e) =>
@@ -485,11 +490,12 @@ export default function LoginPage() {
               />
 
               <TextInput
+                focusBrand
                 aria-label="Bio"
                 size="tall"
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                maxLength={150}
+                maxLength={110}
                 placeholder="Tell us something about yourself... (Optional bio)"
                 state={bio ? "filled" : "default"}
               />

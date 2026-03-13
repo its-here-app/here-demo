@@ -63,6 +63,7 @@ interface PlaylistCardProps {
   bottomRight?: ReactNode;
   /** When provided, renders the name as an editable inline input */
   onNameChange?: (name: string) => void;
+  autoFocusName?: boolean;
   href?: string;
   onClick?: () => void;
   className?: string;
@@ -152,6 +153,7 @@ export function PlaylistCard({
   bottomCenter,
   bottomRight,
   onNameChange,
+  autoFocusName,
   href,
   onClick,
   className,
@@ -171,7 +173,9 @@ export function PlaylistCard({
         {(title || subtitle) && (
           <div className="flex flex-col gap-0.5 mt-3">
             {title && <p className="text-display-golos-3">{title}</p>}
-            {subtitle && <p className="text-body-sm text-secondary">{subtitle}</p>}
+            {subtitle && (
+              <p className="text-body-sm text-secondary">{subtitle}</p>
+            )}
           </div>
         )}
       </div>
@@ -188,7 +192,7 @@ export function PlaylistCard({
   return (
     <Wrapper
       {...(wrapperProps as Record<string, unknown>)}
-      className={`flex flex-col gap-3 w-full ${href || onClick ? "cursor-pointer" : ""} ${className ?? ""}`}
+      className={`flex flex-col gap-3 w-full ${href || onClick ? "cursor-pointer group" : ""} ${className ?? ""}`}
     >
       <div
         className={`relative overflow-hidden w-full ${imageLoaded ? "bg-transparent" : "bg-black"} ${imageHeight[size]} ${imageRadius[size]}`}
@@ -197,7 +201,7 @@ export function PlaylistCard({
           <img
             src={image}
             alt={city ?? title ?? ""}
-            className="absolute inset-0 size-full object-cover"
+            className="absolute inset-0 size-full object-cover transition-transform duration-400 ease-in-out group-hover:scale-104"
             onLoad={() => setImageLoaded(true)}
           />
         )}
@@ -217,6 +221,7 @@ export function PlaylistCard({
                 value={name ?? ""}
                 onChange={(e) => onNameChange(e.target.value)}
                 placeholder="Playlist name"
+                autoFocus={autoFocusName}
                 className="text-display-golos-1 text-center bg-transparent border-none outline-none w-full cursor-text placeholder:opacity-40"
                 onClick={(e) => e.stopPropagation()}
               />
@@ -241,7 +246,9 @@ export function PlaylistCard({
       {(title || subtitle) && (
         <div className="flex flex-col gap-0.5">
           {title && <p className="text-display-golos-3">{title}</p>}
-          {subtitle && <p className="text-body-sm text-secondary">{subtitle}</p>}
+          {subtitle && (
+            <p className="text-body-sm text-secondary">{subtitle}</p>
+          )}
         </div>
       )}
     </Wrapper>

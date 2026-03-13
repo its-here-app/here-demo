@@ -249,15 +249,18 @@ export default function EditProfileModal({
       />
 
       <TextInput
+        focusBrand
         label="Name"
         value={name}
         onChange={(e) => setName(e.target.value)}
         required
+        maxLength={30}
         placeholder="Your full name"
         state={name ? "filled" : "default"}
       />
 
       <TextInput
+        focusBrand
         label="Username"
         value={username}
         onChange={(e) =>
@@ -278,11 +281,12 @@ export default function EditProfileModal({
       />
 
       <TextInput
+        focusBrand
         label="Bio (optional)"
         size="tall"
         value={bio}
         onChange={(e) => setBio(e.target.value)}
-        maxLength={150}
+        maxLength={110}
         placeholder="Tell us something about yourself..."
         state={bio ? "filled" : "default"}
       />

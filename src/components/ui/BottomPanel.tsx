@@ -116,7 +116,7 @@ export function BottomPanel({
                   {header}
                 </p>
                 {subheader && (
-                  <p className="text-body-sm-bold text-tertiary text-center">
+                  <p className="text-body-sm-bold text-secondary text-center">
                     {subheader}
                   </p>
                 )}
@@ -159,7 +159,7 @@ export function BottomPanel({
                 {closeBtn}
               </div>
               {subheader && (
-                <p className="text-body-sm-bold text-tertiary text-center">
+                <p className="text-body-sm-bold text-secondary text-center">
                   {subheader}
                 </p>
               )}
@@ -177,11 +177,15 @@ export function BottomPanel({
           style={{ height: mobileHeight === "tall" ? "90vh" : mobileHeight }}
         >
           <div className="relative">
-            <div className={`flex flex-col ${centerHeader ? "items-center px-8" : "pr-8"}`}>
+            <div
+              className={`flex flex-col ${centerHeader ? "items-center px-8" : "pr-8"}`}
+            >
               <p className="text-body-sm-bold text-primary">{header}</p>
             </div>
             {subheader && (
-              <p className={`text-body-sm-bold text-tertiary ${centerHeader ? "text-center px-8" : "pr-8"}`}>
+              <p
+                className={`text-body-sm-bold text-secondary ${centerHeader ? "text-center px-8" : "pr-8"}`}
+              >
                 {subheader}
               </p>
             )}
