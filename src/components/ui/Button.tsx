@@ -27,16 +27,16 @@ function variantClasses(variant: ButtonVariant, darkTheme: boolean): string {
   if (!darkTheme) {
     switch (variant) {
       case "filled":  return "bg-black text-white";
-      case "tonal":   return "bg-black/[0.06] text-black";
-      case "outline": return "border border-black/10 text-black";
-      case "text":    return "text-black";
+      case "tonal":   return "bg-black/[0.06] text-primary";
+      case "outline": return "border border-subtle text-primary";
+      case "text":    return "text-primary";
     }
   } else {
     switch (variant) {
       case "filled":  return "bg-white text-black";
-      case "tonal":   return "bg-white/15 text-white";
-      case "outline": return "border border-white/15 text-white";
-      case "text":    return "text-white";
+      case "tonal":   return "bg-white/15 text-primary";
+      case "outline": return "border border-subtle text-primary";
+      case "text":    return "text-primary";
     }
   }
 }
@@ -54,7 +54,7 @@ export function Button({
 }: ButtonProps) {
   const isOverlay = variant === "overlay";
   const disabledClasses = softDisabled
-    ? "disabled:!opacity-100 disabled:!bg-white/15 disabled:text-grey disabled:!cursor-not-allowed"
+    ? "disabled:!opacity-100 disabled:!bg-white/15 disabled:text-secondary disabled:!cursor-not-allowed"
     : "disabled:opacity-40 disabled:!cursor-not-allowed";
   return (
     <button

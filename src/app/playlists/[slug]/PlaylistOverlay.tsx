@@ -16,14 +16,20 @@ export default function PlaylistOverlay({ playlist, isOwner, fromNew }: Props) {
 
   useEffect(() => {
     const prev = document.title;
-    const description = playlist.description ? ` — ${playlist.description}` : "";
+    const description = playlist.description
+      ? ` — ${playlist.description}`
+      : "";
     document.title = `${playlist.city}${description} @${playlist.profiles.username} • Here*`;
-    return () => { document.title = prev; };
+    return () => {
+      document.title = prev;
+    };
   }, []);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, []);
 
   useEffect(() => {
@@ -49,8 +55,10 @@ export default function PlaylistOverlay({ playlist, isOwner, fromNew }: Props) {
 
   return (
     <main
-      className="fixed inset-0 z-50 bg-white overflow-y-auto p-[var(--space-page-sm)] lg:pb-0"
-      style={{ animation: `${closing ? "fadeOut" : "fadeIn"} 250ms ease forwards` }}
+      className="fixed inset-0 z-50 bg-white overflow-y-auto p-[var(--space-page-sm)] lg:pb-0 max-w-[var(--app-max-width)] mx-auto"
+      style={{
+        animation: `${closing ? "fadeOut" : "fadeIn"} 250ms ease forwards`,
+      }}
     >
       <PlaylistEditor
         playlist={playlist}

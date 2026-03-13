@@ -166,12 +166,12 @@ export function PlaylistCard({
         {...(onClick ? { onClick, role: "button" } : {})}
       >
         <div className="aspect-square rounded-sm w-full bg-black/5 flex items-center justify-center">
-          <p className="text-body-sm text-grey">No image</p>
+          <p className="text-body-sm text-secondary">No image</p>
         </div>
         {(title || subtitle) && (
           <div className="flex flex-col gap-0.5 mt-3">
             {title && <p className="text-display-golos-3">{title}</p>}
-            {subtitle && <p className="text-body-sm text-grey">{subtitle}</p>}
+            {subtitle && <p className="text-body-sm text-secondary">{subtitle}</p>}
           </div>
         )}
       </div>
@@ -209,7 +209,7 @@ export function PlaylistCard({
           }}
         />
         {city && (
-          <div className="absolute inset-x-0 bottom-1/3 top-1/3 flex flex-col items-center justify-center px-8 text-center text-neon">
+          <div className="absolute inset-x-0 bottom-1/3 top-1/3 flex flex-col items-center justify-center px-8 text-center text-brand">
             <p className="text-display-crimson-2">{city}</p>
             {onNameChange ? (
               <input
@@ -241,7 +241,7 @@ export function PlaylistCard({
       {(title || subtitle) && (
         <div className="flex flex-col gap-0.5">
           {title && <p className="text-display-golos-3">{title}</p>}
-          {subtitle && <p className="text-body-sm text-grey">{subtitle}</p>}
+          {subtitle && <p className="text-body-sm text-secondary">{subtitle}</p>}
         </div>
       )}
     </Wrapper>

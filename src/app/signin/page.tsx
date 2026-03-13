@@ -256,11 +256,11 @@ export default function LoginPage() {
   }
 
   if (authLoading) {
-    return <main className="h-dvh bg-black" />;
+    return <main className="h-dvh bg-black dark" />;
   }
 
   return (
-    <main className="relative flex h-dvh flex-row bg-black overflow-hidden">
+    <main className="relative flex h-dvh flex-row dark overflow-hidden max-w-[var(--app-max-width)] mx-auto">
       {/* Left column */}
       <div className="relative flex flex-col h-full overflow-hidden flex-1 min-w-0 min-h-[40rem]">
         <div className="p-[var(--space-page)] flex flex-row items-center justify-between">
@@ -272,7 +272,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={handleCancel}
-              className="text-body-sm text-white/50 hover:text-white/80 transition-colors cursor-pointer"
+              className="text-body-sm text-primary/50 hover:text-primary/80 transition-colors cursor-pointer"
             >
               Cancel
             </button>
@@ -295,7 +295,7 @@ export default function LoginPage() {
             </div>
 
             {/* Title */}
-            <div className="flex flex-col gap-4 text-white">
+            <div className="flex flex-col gap-4 text-primary">
               <h1 className="text-display-radio-1">
                 Sign in <div>or sign up</div>
               </h1>
@@ -364,7 +364,7 @@ export default function LoginPage() {
                     setPassword("");
                     setError("");
                   }}
-                  className="text-body-sm text-white/50 hover:text-white/80 transition-colors text-left cursor-pointer"
+                  className="text-body-sm text-primary/50 hover:text-primary/80 transition-colors text-left cursor-pointer"
                 >
                   ← Use a different email
                 </button>
@@ -380,7 +380,7 @@ export default function LoginPage() {
               step === "profile" ? "translate-x-0" : "translate-x-full"
             }`}
           >
-            <div className="text-center lg:text-left text-white">
+            <div className="text-center lg:text-left text-primary">
               <h1 className="text-display-radio-2 lg:text-display-radio-1 mb-2 max-w-[18rem]">
                 Welcome <span className="hidden lg:inline">Here*</span>
               </h1>
@@ -476,10 +476,10 @@ export default function LoginPage() {
                 state={usernameStatus === "valid" ? "filled" : "default"}
                 rightSlot={
                   usernameStatus === "valid" ? (
-                    <Check focus className="text-neon" />
+                    <Check focus className="text-brand" />
                   ) : usernameStatus === "too-short" ||
                     usernameStatus === "taken" ? (
-                    <Error className="text-neon" />
+                    <Error className="text-brand" />
                   ) : undefined
                 }
               />

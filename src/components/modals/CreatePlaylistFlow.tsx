@@ -380,7 +380,7 @@ export function CreatePlaylistFlow() {
                 {/* Public / Private toggle */}
                 <button
                   onClick={() => setIsPublic((p) => !p)}
-                  className="text-body-xs text-grey cursor-pointer"
+                  className="text-body-xs text-secondary cursor-pointer"
                 >
                   {isPublic ? "Public" : "Private"} — tap to change
                 </button>
@@ -427,10 +427,10 @@ export function CreatePlaylistFlow() {
         desktopVariant="floating"
       >
         <div className="space-y-3">
-          <p className="text-body-xs text-grey">
+          <p className="text-body-xs text-tertiary">
             We couldn&apos;t find a few of the spots
           </p>
-          <ul className="text-white text-body-sm list-disc pl-4">
+          <ul className="text-primary text-body-sm list-disc pl-4">
             {unfoundSpots.map((name) => (
               <li key={name} className="">
                 {name}

@@ -12,8 +12,10 @@ export type TextInputState = "default" | "active" | "filled";
 interface BaseProps {
   size?: TextInputSize;
   state?: TextInputState;
-  /** Light mode: transparent background, black/10 border, black text */
+  /** Light mode: transparent background */
   lightMode?: boolean;
+  /** When true, adds focus-within:border-brand to the input wrapper */
+  focusBrand?: boolean;
   label?: string;
   /** Slot for a right-side element (e.g. a submit button or icon) */
   rightSlot?: React.ReactNode;
@@ -28,18 +30,6 @@ type TextareaProps = BaseProps &
 
 type TextInputProps = InputProps | TextareaProps;
 
-const borderByState: Record<TextInputState, string> = {
-  default: "border-white/15",
-  active: "border-neon",
-  filled: "border-white/15",
-};
-
-const borderByStateLight: Record<TextInputState, string> = {
-  default: "border-black/10",
-  active: "border-black/40",
-  filled: "border-black/10",
-};
-
 export const TextInput = forwardRef<
   HTMLInputElement | HTMLTextAreaElement,
   TextInputProps
@@ -48,6 +38,7 @@ export const TextInput = forwardRef<
     size = "default",
     state = "default",
     lightMode = false,
+    focusBrand = false,
     label,
     rightSlot,
     className,
@@ -56,27 +47,24 @@ export const TextInput = forwardRef<
   } = props;
 
   const isTall = size === "tall";
-  const textClass = lightMode
-    ? state === "default"
-      ? "text-black/50 placeholder:text-black/50"
-      : "text-black placeholder:text-black/50"
-    : state === "default"
-      ? "text-white/50 placeholder:text-white/50"
-      : "text-white placeholder:text-white/50";
 
-  const border = lightMode ? borderByStateLight[state] : borderByState[state];
-  const focusBorder = lightMode ? "focus-within:border-black/40" : "focus-within:border-neon";
+  const textClass =
+    state === "default"
+      ? "text-primary/50 placeholder:text-primary/50"
+      : "text-primary placeholder:text-primary/50";
+
   const bg = lightMode ? "bg-transparent" : "bg-black";
+  const focusClass = focusBrand ? "focus-within:border-brand" : "";
 
   return (
     <div className={`flex flex-col gap-2 w-full ${className ?? ""}`}>
       {label && (
-        <span className="text-body-xs text-grey">
+        <span className="text-body-xs text-secondary">
           {label}
         </span>
       )}
       <div
-        className={`group ${bg} border ${border} ${focusBorder} flex gap-2.5 px-4 py-3 rounded-[1rem] w-full ${
+        className={`group ${bg} border border-subtle ${focusClass} flex gap-2.5 px-4 py-3 rounded-[1rem] w-full ${
           isTall ? "h-[5.375rem] items-start" : "h-14 items-center"
         }`}
       >

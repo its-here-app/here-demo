@@ -402,7 +402,7 @@ export default function PlaylistEditor({
                 className="flex items-center gap-2 lg:gap-3 cursor-pointer"
               >
                 <Avatar size="sm" lgSize="md" src={playlist.profiles.avatar_url ?? undefined} />
-                <p className="text-neon text-body-xs">
+                <p className="text-brand text-body-xs">
                   {playlist.profiles.username}
                 </p>
               </Link>
@@ -423,7 +423,7 @@ export default function PlaylistEditor({
           }
           bottomRight={
             editMode ? undefined : (
-              <p className="text-neon text-body-xs">
+              <p className="text-brand text-body-xs">
                 Last updated {timeAgo(playlist.updated_at)}
               </p>
             )

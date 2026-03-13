@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
+
 /* ─── Fonts ────────────────────────────────────────────────────────────────── */
 
 /* PP Radio Grotesk */
@@ -183,9 +185,11 @@
   --color-grey-200: #e5e2de;
   --color-grey-100: #f0f0f0;
 
-  /* Colors — semantic */
+  /* Colors — semantic (light-mode defaults; overridden in .dark via @layer base) */
   --color-primary: var(--color-black);
-  --color-secondary: rgb(0 0 0 / 0.6);
+  --color-secondary: var(--color-grey);
+  --color-tertiary: oklch(0% 0 0 / 40%);
+  --color-brand: var(--color-neon);
   --color-danger: var(--color-red);
 
   /* Fonts */
@@ -208,6 +212,34 @@
 
   /* Sidebar */
   --sidebar-width: 16.875rem /* 270px */;
+
+  /* App max-width */
+  --app-max-width: 1720px;
+}
+
+/* ─── Dark mode token overrides ────────────────────────────────────────────── */
+
+@layer base {
+  :root {
+    --border-strong: var(--color-black);
+    --border-subtle: oklch(0% 0 0 / 10%);
+  }
+  .dark {
+    --color-primary: var(--color-white);
+    --color-secondary: oklch(100% 0 0 / 60%);
+    --color-tertiary: var(--color-grey);
+    --border-strong: var(--color-white);
+    --border-subtle: oklch(100% 0 0 / 15%);
+  }
+}
+
+/* ─── Border utilities ──────────────────────────────────────────────────────── */
+
+@utility border-strong {
+  border-color: var(--border-strong);
+}
+@utility border-subtle {
+  border-color: var(--border-subtle);
 }
 
 /* lg+ overrides */

@@ -17,8 +17,8 @@ export function Tab({ title, icon, active = false, onClick }: TabProps) {
       onClick={onClick}
       className={`flex-1 flex flex-col items-center gap-0.5 py-2 cursor-pointer transition-colors ${
         active
-          ? "text-white"
-          : "text-white/40 hover:text-white/70"
+          ? "text-primary"
+          : "text-primary/40 hover:text-primary/70"
       }`}
     >
       {icon && (
@@ -44,12 +44,12 @@ export function Tabs({ children, className }: TabsProps) {
   return (
     <div
       role="tablist"
-      className={`relative flex w-full border-b border-white/20 ${className ?? ""}`}
+      className={`relative flex w-full border-b border-subtle ${className ?? ""}`}
     >
       {children}
       {activeIndex >= 0 && count > 0 && (
         <div
-          className="absolute bottom-[-1px] h-[1px] bg-white transition-transform duration-300 ease-in-out"
+          className="absolute bottom-[-1px] h-[1px] bg-primary transition-transform duration-300 ease-in-out"
           style={{
             width: `${100 / count}%`,
             transform: `translateX(${activeIndex * 100}%)`,

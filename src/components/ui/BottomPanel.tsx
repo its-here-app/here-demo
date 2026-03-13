@@ -92,7 +92,7 @@ export function BottomPanel({
       type="button"
       onClick={onClose}
       aria-label="Close"
-      className="text-white shrink-0 cursor-pointer"
+      className="text-primary shrink-0 cursor-pointer"
     >
       <Close focus />
     </button>
@@ -103,7 +103,7 @@ export function BottomPanel({
       {/* Desktop: full-page overlay */}
       {desktopVariant === "full-page" && (
         <div
-          className={`fixed inset-0 z-[60] bg-black hidden lg:flex flex-col transition-opacity duration-300 ${fadeIn}`}
+          className={`fixed inset-0 z-[60] bg-black dark hidden lg:flex flex-col transition-opacity duration-300 ${fadeIn}`}
         >
           <div className="relative z-10 flex items-center justify-between p-[var(--space-page)] shrink-0">
             {logo ? <FullLogo color="white" className="w-20" /> : <div />}
@@ -112,11 +112,11 @@ export function BottomPanel({
           <div className="absolute inset-0 flex flex-col items-center justify-center py-12">
             <div className="flex flex-col gap-[3.75rem] w-[22.875rem]">
               <div className="flex flex-col items-center">
-                <p className="text-body-sm-bold text-white text-center">
+                <p className="text-body-sm-bold text-primary text-center">
                   {header}
                 </p>
                 {subheader && (
-                  <p className="text-body-sm-bold text-grey text-center">
+                  <p className="text-body-sm-bold text-tertiary text-center">
                     {subheader}
                   </p>
                 )}
@@ -144,7 +144,7 @@ export function BottomPanel({
             </div>
           )}
           <div
-            className="relative bg-black rounded-[2rem] p-6 flex flex-col gap-5 overflow-x-hidden"
+            className="relative bg-black dark rounded-[2rem] p-6 flex flex-col gap-5 overflow-x-hidden"
             style={{
               width: desktopWidth ?? "24.375rem",
               height: desktopHeight,
@@ -153,13 +153,13 @@ export function BottomPanel({
             <div>
               <div className="flex items-start justify-between gap-2">
                 <div className="size-6 shrink-0" />
-                <p className="text-body-sm-bold text-white text-center flex-1">
+                <p className="text-body-sm-bold text-primary text-center flex-1">
                   {header}
                 </p>
                 {closeBtn}
               </div>
               {subheader && (
-                <p className="text-body-sm-bold text-grey text-center">
+                <p className="text-body-sm-bold text-tertiary text-center">
                   {subheader}
                 </p>
               )}
@@ -173,15 +173,15 @@ export function BottomPanel({
       <div className="fixed inset-0 z-[60] lg:hidden flex flex-col justify-end">
         <Scrim visible={isAnimating} onClick={onClose} />
         <div
-          className={`relative bg-black rounded-t-[1.5rem] flex flex-col gap-5 px-6 pt-6 pb-9 overflow-x-hidden transition-transform duration-300 ${isAnimating ? "translate-y-0" : "translate-y-full"}`}
+          className={`relative bg-black dark rounded-t-[1.5rem] flex flex-col gap-5 px-6 pt-6 pb-9 overflow-x-hidden transition-transform duration-300 ${isAnimating ? "translate-y-0" : "translate-y-full"}`}
           style={{ height: mobileHeight === "tall" ? "90vh" : mobileHeight }}
         >
           <div className="relative">
             <div className={`flex flex-col ${centerHeader ? "items-center px-8" : "pr-8"}`}>
-              <p className="text-body-sm-bold text-white">{header}</p>
+              <p className="text-body-sm-bold text-primary">{header}</p>
             </div>
             {subheader && (
-              <p className={`text-body-sm-bold text-grey ${centerHeader ? "text-center px-8" : "pr-8"}`}>
+              <p className={`text-body-sm-bold text-tertiary ${centerHeader ? "text-center px-8" : "pr-8"}`}>
                 {subheader}
               </p>
             )}

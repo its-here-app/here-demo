@@ -10,12 +10,10 @@ export default function AppBar() {
   }
 
   return (
-    <div className="relative flex items-center px-[var(--space-page-sm)] lg:px-[var(--space-page)] lg:pt-12 h-14 pb-2 pt-3">
-      {state.left && <div className="shrink-0">{state.left}</div>}
-      {state.center && (
-        <div className="absolute left-1/2 -translate-x-1/2">{state.center}</div>
-      )}
-      {state.right && <div className="shrink-0 ml-auto">{state.right}</div>}
+    <div className="flex items-center px-[var(--space-page-sm)] lg:px-[var(--space-page)] lg:pt-12 h-14">
+      <div className="flex-1 flex items-center justify-start">{state.left}</div>
+      <div className="flex-1 flex items-center justify-center">{state.center}</div>
+      <div className="flex-1 flex items-center justify-end">{state.right}</div>
     </div>
   );
 }

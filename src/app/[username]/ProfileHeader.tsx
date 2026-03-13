@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useShare } from "@/lib/useShare";
 import { useAuth } from "../../lib/authContext";
 import { useRouter } from "next/navigation";
+import NextLink from "next/link";
 import { AppBarConfig } from "@/lib/appBarContext";
 import { IconButton } from "@/components/ui/IconButton";
 import { ArrowLeft } from "@/components/ui/icons/ArrowLeft";
@@ -76,7 +77,8 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
   }
 
   async function handleFollow() {
-    if (!user || !relationship) return;
+    if (!user) { router.push("/signin"); return; }
+    if (!relationship) return;
     if (relationship.following) {
       await unfollowUser(user.id, profile.id);
       setRelationship((r) => r && { ...r, following: false });
@@ -130,7 +132,11 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
   const sheetItems: SheetItem[] = isOwnProfile
     ? [
         ...(canShare ? [shareItem] : []),
-        { label: "Edit profile", onClick: () => setIsEditModalOpen(true), icon: <Edit /> },
+        {
+          label: "Edit profile",
+          onClick: () => setIsEditModalOpen(true),
+          icon: <Edit />,
+        },
         { label: "Copy profile URL", onClick: copyProfileUrl, icon: <Link /> },
         logOutItem,
       ]
@@ -138,7 +144,12 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
         ...(canShare ? [shareItem] : []),
         { label: "Copy profile URL", onClick: copyProfileUrl, icon: <Link /> },
         relationship?.blocking
-          ? { label: `Unblock @${profile.username}`, onClick: () => setIsConfirmUnblockOpen(true), variant: "danger" as const, icon: <Block /> }
+          ? {
+              label: `Unblock @${profile.username}`,
+              onClick: () => setIsConfirmUnblockOpen(true),
+              variant: "danger" as const,
+              icon: <Block />,
+            }
           : {
               label: `Block @${profile.username}`,
               onClick: () => setIsConfirmBlockOpen(true),
@@ -159,7 +170,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
     <>
       <AppBarConfig
         left={
-          !isOwnProfile ? (
+          !isOwnProfile && !!user ? (
             <IconButton
               variant="secondary"
               icon={<ArrowLeft />}
@@ -169,16 +180,24 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
           ) : undefined
         }
         center={
-          <p className="text-body-xs text-secondary lg:hidden">@{profile.username}</p>
+          <p className="text-body-xs text-secondary lg:hidden">
+            @{profile.username}
+          </p>
         }
         right={
-          <IconButton
-            variant="secondary"
-            icon={<Overflow orientation="horizontal" />}
-            label="More options"
-            ref={overflowRef}
-            onClick={() => setIsSheetOpen(s => !s)}
-          />
+          !user ? (
+            <NextLink href="/signin" className="text-body-sm-bold text-primary">
+              Sign in
+            </NextLink>
+          ) : (
+            <IconButton
+              variant="secondary"
+              icon={<Overflow orientation="horizontal" />}
+              label="More options"
+              ref={overflowRef}
+              onClick={() => setIsSheetOpen((s) => !s)}
+            />
+          )
         }
       />
 
@@ -191,12 +210,16 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
         followerCount={counts?.followers ?? 0}
         followingCount={counts?.following ?? 0}
         onEditProfile={() => setIsEditModalOpen(true)}
-        onFollow={relationship?.blocking ? () => setIsConfirmUnblockOpen(true) : handleFollow}
+        onFollow={
+          relationship?.blocking
+            ? () => setIsConfirmUnblockOpen(true)
+            : handleFollow
+        }
         onFollowersClick={() =>
-          setFollowsModal({ open: true, tab: "followers" })
+          user ? setFollowsModal({ open: true, tab: "followers" }) : router.push("/signin")
         }
         onFollowingClick={() =>
-          setFollowsModal({ open: true, tab: "following" })
+          user ? setFollowsModal({ open: true, tab: "following" }) : router.push("/signin")
         }
       />
 
@@ -231,7 +254,11 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
         title="Are you sure?"
         items={[
           { label: "Never mind", onClick: () => {} },
-          { label: `Yes, block @${profile.username}`, onClick: handleBlock, variant: "danger" },
+          {
+            label: `Yes, block @${profile.username}`,
+            onClick: handleBlock,
+            variant: "danger",
+          },
         ]}
       />
 
@@ -241,7 +268,11 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
         title="Are you sure?"
         items={[
           { label: "Never mind", onClick: () => {} },
-          { label: `Yes, unblock @${profile.username}`, onClick: handleBlock, variant: "danger" },
+          {
+            label: `Yes, unblock @${profile.username}`,
+            onClick: handleBlock,
+            variant: "danger",
+          },
         ]}
       />
     </>

@@ -10,7 +10,7 @@ export function Badge({ type = "default", children, className }: BadgeProps) {
   return (
     <span
       className={`inline-flex items-start px-2 py-0.5 rounded-[0.375rem] text-body-xs ${
-        type === "brand" ? "bg-neon text-black" : "bg-black/5 text-black"
+        type === "brand" ? "bg-brand text-black" : "bg-black/5 text-primary"
       } ${className ?? ""}`}
     >
       {children}

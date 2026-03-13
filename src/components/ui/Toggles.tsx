@@ -48,7 +48,7 @@ const options: { value: ToggleView; label: string; icon: React.ReactNode }[] = [
 export function Toggles({ value, onChange, className }: TogglesProps) {
   return (
     <div
-      className={`relative flex items-center h-[2.875rem] w-[8.125rem] rounded-[2.5rem] border border-black/10 p-1 gap-0 ${className ?? ""}`}
+      className={`relative flex items-center h-[2.875rem] w-[8.125rem] rounded-[2.5rem] border border-subtle p-1 gap-0 ${className ?? ""}`}
     >
       {options.map((option) => {
         const isActive = value === option.value;
@@ -59,7 +59,7 @@ export function Toggles({ value, onChange, className }: TogglesProps) {
             aria-pressed={isActive}
             onClick={() => onChange(option.value)}
             className={`relative z-10 flex items-center justify-center size-9 rounded-[1.875rem] cursor-pointer transition-colors ${
-              isActive ? "bg-black text-white" : "text-black hover:bg-black/5"
+              isActive ? "bg-black text-white" : "text-primary hover:bg-black/5"
             }`}
           >
             {option.icon}

@@ -57,7 +57,6 @@ export function AppBarConfig({ hidden, left, center, right }: AppBarState) {
   useEffect(() => {
     setState({ hidden, left, center, right });
     return clearState;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [hidden, left, center, right]);
   return null;
 }

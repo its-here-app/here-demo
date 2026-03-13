@@ -35,7 +35,7 @@ export default function Sidebar() {
   const profileHref = username ? `/${username}` : "/";
 
   return (
-    <aside className="flex flex-col w-[var(--sidebar-width)] p-[var(--space-page)] bg-white h-screen fixed left-0 top-0 -ml-[var(--sidebar-width)] lg:ml-0 transition-[margin] duration-400">
+    <aside className="flex flex-col w-[var(--sidebar-width)] p-[var(--space-page)] bg-white h-screen fixed top-0 left-[max(0px,calc((100vw-var(--app-max-width))/2))] -ml-[var(--sidebar-width)] lg:ml-0 transition-[margin] duration-400">
       {/* Logo */}
       <div className="">
         <FullLogo className="w-20" />
@@ -46,9 +46,9 @@ export default function Sidebar() {
         <Link href="/saves" className="flex items-center gap-5">
           <Bookmark
             active={pathname === "/saves"}
-            className="size-8 shrink-0 text-black"
+            className="size-8 shrink-0 text-primary"
           />
-          <span className="text-header-radio-3 text-black">Saves</span>
+          <span className="text-header-radio-3 text-primary">Saves</span>
         </Link>
 
         <Link href={profileHref} className="flex items-center gap-5">
@@ -59,14 +59,14 @@ export default function Sidebar() {
               focus={pathname === profileHref}
             />
           </span>
-          <span className="text-header-radio-3 text-black">Profile</span>
+          <span className="text-header-radio-3 text-primary">Profile</span>
         </Link>
 
-        <div className="border-t border-black/10 w-full" />
+        <div className="border-t border-subtle w-full" />
 
         <button onClick={openCreatePlaylist} className="flex items-center gap-5 cursor-pointer">
           <Add className="size-8 shrink-0" />
-          <span className="text-header-radio-3 text-black">
+          <span className="text-header-radio-3 text-primary">
             Start a new playlist
           </span>
         </button>
@@ -77,8 +77,8 @@ export default function Sidebar() {
         onClick={handleSignOut}
         className="-ml-2 absolute bottom-[var(--space-page)] left-[var(--space-page)] flex items-center gap-5 cursor-pointer"
       >
-        <Logout className="size-8 shrink-0 text-grey" />
-        <span className="text-header-radio-3 text-grey">Log out</span>
+        <Logout className="size-8 shrink-0 text-secondary" />
+        <span className="text-header-radio-3 text-secondary">Log out</span>
       </button>
     </aside>
   );

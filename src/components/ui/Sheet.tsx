@@ -80,7 +80,7 @@ export function ConfirmSheet({ isOpen, onClose, title = "Are you sure?", items }
           isAnimating ? "scale-100 opacity-100" : "scale-95 opacity-0"
         }`}
       >
-        <div className="py-4 px-3 flex items-center justify-center border-b border-black/5">
+        <div className="py-4 px-3 flex items-center justify-center border-b border-subtle">
           <p className="text-body-sm-bold text-primary text-center">{title}</p>
         </div>
         {items.map((item, i) => (
@@ -93,7 +93,7 @@ export function ConfirmSheet({ isOpen, onClose, title = "Are you sure?", items }
             }}
             className={`flex h-[46px] items-center justify-center px-3 cursor-pointer text-body-xs ${
               item.variant === "danger" ? "text-danger" : "text-primary"
-            } ${i < items.length - 1 ? "border-b border-black/5" : ""}`}
+            } ${i < items.length - 1 ? "border-b border-subtle" : ""}`}
           >
             {item.label}
           </button>
@@ -225,7 +225,7 @@ export function Sheet({ isOpen, onClose, title, items, anchorRef, align }: Sheet
             }}
             className={`flex items-center gap-2 cursor-pointer text-body-xs whitespace-nowrap ${
               item.variant === "danger" ? "text-danger" : "text-primary"
-            } ${i < items.length - 1 ? "border-b border-black/10 pb-2 mb-2" : ""}`}
+            } ${i < items.length - 1 ? "border-b border-subtle pb-2 mb-2" : ""}`}
           >
             {item.icon && (
               <span className="size-5 flex items-center justify-center shrink-0">
@@ -268,7 +268,7 @@ export function Sheet({ isOpen, onClose, title, items, anchorRef, align }: Sheet
               }}
               className={`flex h-[46px] items-center justify-center px-3 cursor-pointer text-body-xs ${
                 item.variant === "danger" ? "text-danger" : "text-primary"
-              } ${i < items.length - 1 ? "border-b border-black/5" : ""}`}
+              } ${i < items.length - 1 ? "border-b border-subtle" : ""}`}
             >
               {item.label}
             </button>

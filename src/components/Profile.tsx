@@ -60,7 +60,7 @@ export function Profile({
               {name}
             </p>
             {username && (
-              <p className="text-body-xs text-grey text-center lg:text-left hidden lg:block">
+              <p className="text-body-xs text-secondary text-center lg:text-left hidden lg:block">
                 @{username}
               </p>
             )}
@@ -75,14 +75,14 @@ export function Profile({
             <div className="flex gap-2 justify-center lg:justify-start">
               <button
                 onClick={onFollowersClick}
-                className="text-body-xs text-grey hover:underline"
+                className="text-body-xs text-secondary hover:underline"
               >
                 {followerCount} followers
               </button>
-              <span className="text-body-xs text-grey">•</span>
+              <span className="text-body-xs text-secondary">•</span>
               <button
                 onClick={onFollowingClick}
-                className="text-body-xs text-grey hover:underline"
+                className="text-body-xs text-secondary hover:underline"
               >
                 {followingCount} following
               </button>

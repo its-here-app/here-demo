@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import AppBar from "./AppBar";
 import { AppBarProvider } from "@/lib/appBarContext";
+import { useAuth } from "@/lib/authContext";
 
 const AUTH_PATHS = ["/signin"];
 
@@ -14,13 +15,16 @@ export default function AppShell({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const { user } = useAuth();
   const isAuth = AUTH_PATHS.some((p) => pathname.startsWith(p));
 
-  if (isAuth) return <>{children}</>;
+  if (isAuth) return <div className="bg-black min-h-screen">{children}</div>;
 
   return (
-    <div className="flex min-h-screen lg:ml-[var(--sidebar-width)] transition-margin duration-400">
-      {nav}
+    <div
+      className={`flex min-h-screen transition-margin duration-400 max-w-[var(--app-max-width)] mx-auto${user ? " lg:pl-[var(--sidebar-width)]" : ""}`}
+    >
+      {user && nav}
       <div className="flex-1 flex flex-col">
         <AppBarProvider>
           <AppBar />

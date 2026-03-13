@@ -270,9 +270,9 @@ export default function EditProfileModal({
         state={usernameStatus === "valid" ? "filled" : "default"}
         rightSlot={
           usernameStatus === "valid" ? (
-            <Check focus className="text-neon" />
+            <Check focus className="text-brand" />
           ) : usernameStatus === "too-short" || usernameStatus === "taken" ? (
-            <Error className="text-neon" />
+            <Error className="text-brand" />
           ) : undefined
         }
       />
@@ -340,7 +340,7 @@ export default function EditProfileModal({
         className="flex flex-col gap-4"
       >
         {loading ? (
-          <p className="text-body-sm text-white/50 text-center py-8">
+          <p className="text-body-sm text-primary/50 text-center py-8">
             Loading...
           </p>
         ) : (
