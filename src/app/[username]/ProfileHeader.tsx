@@ -14,6 +14,7 @@ import { Link } from "@/components/ui/icons/Link";
 import { Logout } from "@/components/ui/icons/Logout";
 import { Overflow } from "@/components/ui/icons/Overflow";
 import { Share } from "@/components/ui/icons/Share";
+import { Person } from "@/components/ui/icons/Person";
 import {
   getRelationship,
   followUser,
@@ -77,7 +78,10 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
   }
 
   async function handleFollow() {
-    if (!user) { router.push("/signin"); return; }
+    if (!user) {
+      router.push("/signin");
+      return;
+    }
     if (!relationship) return;
     if (relationship.following) {
       await unfollowUser(user.id, profile.id);
@@ -142,6 +146,13 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
       ]
     : [
         ...(canShare ? [shareItem] : []),
+        {
+          label: "Remove follower [TODO]",
+          onClick: () => {
+            /* TODO */
+          },
+          icon: <Person />,
+        },
         { label: "Copy profile URL", onClick: copyProfileUrl, icon: <Link /> },
         relationship?.blocking
           ? {
@@ -216,10 +227,14 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
             : handleFollow
         }
         onFollowersClick={() =>
-          user ? setFollowsModal({ open: true, tab: "followers" }) : router.push("/signin")
+          user
+            ? setFollowsModal({ open: true, tab: "followers" })
+            : router.push("/signin")
         }
         onFollowingClick={() =>
-          user ? setFollowsModal({ open: true, tab: "following" }) : router.push("/signin")
+          user
+            ? setFollowsModal({ open: true, tab: "following" })
+            : router.push("/signin")
         }
       />
 

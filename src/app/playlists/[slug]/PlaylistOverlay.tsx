@@ -48,6 +48,7 @@ export default function PlaylistOverlay({ playlist, isOwner, fromNew }: Props) {
       } else if (fromNew) {
         router.push(`/${playlist.profiles.username}`);
       } else {
+        router.refresh();
         router.back();
       }
     }, 250);
@@ -55,7 +56,7 @@ export default function PlaylistOverlay({ playlist, isOwner, fromNew }: Props) {
 
   return (
     <main
-      className="fixed inset-0 z-50 bg-white overflow-y-auto p-[var(--space-page-sm)] lg:pb-0 max-w-[var(--app-max-width)] mx-auto"
+      className={`fixed inset-0 z-50 bg-white overflow-y-auto p-[var(--space-page-sm)] lg:pb-0 max-w-[var(--app-max-width)] mx-auto ${closing ? "pointer-events-none" : ""}`}
       style={{
         animation: `${closing ? "fadeOut" : "fadeIn"} 250ms ease forwards`,
       }}

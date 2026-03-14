@@ -26,6 +26,7 @@ export interface Playlist {
   cover_photo_url?: string | null;
   created_at: string;
   updated_at: string;
+  spot_count?: number;
 }
 
 export interface Profile {

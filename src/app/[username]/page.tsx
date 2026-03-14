@@ -1,11 +1,11 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ProfileHeader from "./ProfileHeader";
 import { getUserByUsername } from "@/lib/services/users";
-import { getPlaylistsByUser } from "@/lib/services/playlists";
 import { createClient } from "@/lib/supabase/server";
-import { Block } from "../../components/ui/icons/Block";
-import ProfileTabs from "./ProfileTabs";
+import PlaylistSection from "./PlaylistSection";
+import PlaylistSkeleton from "./PlaylistSkeleton";
 
 export async function generateMetadata({
   params,
@@ -40,49 +40,19 @@ export default async function UserProfilePage({
   }
 
   const isOwnProfile = user?.id === profile.id;
-  const [rawPlaylists, blockRow] = await Promise.all([
-    getPlaylistsByUser(profile.id, !isOwnProfile),
-    user && !isOwnProfile
-      ? supabase
-          .from("blocks")
-          .select("id")
-          .eq("blocker_id", user.id)
-          .eq("blocked_id", profile.id)
-          .maybeSingle()
-      : null,
-  ]);
-  const isBlocked = !!blockRow?.data;
-  const playlists = rawPlaylists.filter((p) => p.id !== pendingDelete);
 
   return (
     <main className="flex flex-col items-center">
-      <div className="w-full pt-10 lg:pt-0">
+      <div className="w-full">
         <ProfileHeader profile={profile} />
-
-        {isBlocked ? (
-          <div className="text-center flex flex-col items-center mt-16">
-            <div className="size-12 rounded-full bg-black/5 flex items-center justify-center mb-4">
-              <Block className="size-9" />
-            </div>
-            <div className="max-w-sm">
-              <h1 className="text-header-radio-1 mb-2">
-                You have blocked this account
-              </h1>
-
-              <div className="text-body-sm text-secondary mb-6">
-                <p className="mb-2">
-                  Unblock this account to see their playlists and saves.
-                </p>
-                <p>
-                  When you unblock them, they’ll also be able to find your
-                  profile and see your content.
-                </p>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <ProfileTabs playlists={playlists} isOwnProfile={isOwnProfile} />
-        )}
+        <Suspense fallback={<PlaylistSkeleton />}>
+          <PlaylistSection
+            profileId={profile.id}
+            isOwnProfile={isOwnProfile}
+            userId={user?.id}
+            pendingDelete={pendingDelete}
+          />
+        </Suspense>
       </div>
     </main>
   );

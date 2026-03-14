@@ -56,13 +56,17 @@ export async function getPlaylistsByUser(
   const supabase = createClient();
   let query = supabase
     .from("playlists")
-    .select("*")
+    .select("*, playlist_spots(count)")
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
   if (onlyPublic) query = query.eq("is_public", true);
   const { data, error } = await query;
   if (error) return [];
-  return data;
+  return data.map((p: any) => ({
+    ...p,
+    spot_count: p.playlist_spots?.[0]?.count ?? 0,
+    playlist_spots: undefined,
+  }));
 }
 
 export async function upsertSpot(spot: {
@@ -141,6 +145,18 @@ export async function createPlaylist(params: {
     is_public: params.is_public,
   });
   return data;
+}
+
+export async function updatePlaylistName(
+  playlistId: string,
+  name: string
+) {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("playlists")
+    .update({ name })
+    .eq("id", playlistId);
+  if (error) throw error;
 }
 
 export async function updatePlaylistDescription(

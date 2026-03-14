@@ -207,11 +207,14 @@
 
   /* Page margin */
   --space-page-sm: 0.75rem; /* 12px */
-  /* --space-page: clamp(0.75rem, 3vw, 2rem); */
-  --space-page: var(--space-page-sm);
+  --space-page-md: 2rem; /* 32px */
+  --space-page-dynamic: var(--space-page-sm);
 
   /* Sidebar */
   --sidebar-width: 16.875rem /* 270px */;
+
+  /* BottomNav */
+  --bottomnav-height: 3.75rem /* 60px */;
 
   /* App max-width */
   --app-max-width: 1720px;
@@ -250,7 +253,7 @@
     --radius-md: 1rem; /* 16px */
     --radius-lg: 1.5rem; /* 24px */
     --radius-xl: 2rem; /* 32px */
-    --space-page: 2rem; /* 32px */
+    --space-page-dynamic: var(--space-page-md);
   }
 }
 
@@ -336,22 +339,46 @@
   font-weight: 400;
 }
 
+/* Display — card-relative (cqw) */
+@utility text-display-crimson-card {
+  font-family: var(--font-crimson);
+  font-size: 9cqw;
+  line-height: 1.15;
+  letter-spacing: -0.06em;
+  font-style: italic;
+  font-weight: 400;
+}
+@utility text-display-golos-card {
+  font-family: var(--font-golos);
+  font-size: 10cqw;
+  line-height: 1;
+  letter-spacing: -0.06em;
+  font-weight: 600;
+}
+
 /* Display — Golos Text (semibold) */
 @utility text-display-golos-1 {
+  font-family: var(--font-golos);
+  font-size: 3.75rem; /* 60px */
+  line-height: 3.75rem; /* 60px */
+  letter-spacing: -0.06em;
+  font-weight: 600;
+}
+@utility text-display-golos-2 {
   font-family: var(--font-golos);
   font-size: 2.5rem; /* 40px */
   line-height: 2.5rem; /* 40px */
   letter-spacing: -0.06em;
   font-weight: 600;
 }
-@utility text-display-golos-2 {
+@utility text-display-golos-3 {
   font-family: var(--font-golos);
   font-size: 1.75rem; /* 28px */
   line-height: 2rem; /* 32px */
   letter-spacing: -0.06em;
   font-weight: 600;
 }
-@utility text-display-golos-3 {
+@utility text-display-golos-4 {
   font-family: var(--font-golos);
   font-size: 1.125rem; /* 18px */
   line-height: 1.25rem; /* 20px */
@@ -471,6 +498,28 @@ label,
   to {
     opacity: 1;
   }
+}
+
+@keyframes bookmark-pop {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.35);
+  }
+  60% {
+    transform: scale(0.9);
+  }
+  80% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-bookmark-pop {
+  animation: bookmark-pop 400ms cubic-bezier(0.36, 0.07, 0.19, 0.97);
 }
 
 @keyframes fadeOut {

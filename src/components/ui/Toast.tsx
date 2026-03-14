@@ -71,7 +71,7 @@ export function Toaster() {
   if (!mounted) return null;
 
   return createPortal(
-    <div className="fixed inset-x-0 top-0 z-[70] flex flex-col gap-2 items-center px-[var(--space-page)] pt-[var(--space-page)] pointer-events-none">
+    <div className="fixed inset-x-0 top-0 z-[70] flex flex-col gap-2 items-center px-[var(--space-page-dynamic)] pt-[var(--space-page-dynamic)] pointer-events-none">
       {toasts.map((t) => (
         <ToastItem
           key={t.id}

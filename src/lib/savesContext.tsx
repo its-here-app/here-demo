@@ -15,6 +15,8 @@ interface SavesContextType {
   savedSpots: Spot[];
   isSaved: (googlePlaceId: string) => boolean;
   toggle: (spot: DraftSpot) => Promise<void>;
+  optimisticRemove: (googlePlaceId: string) => void;
+  restoreSpot: (spot: Spot) => void;
   loading: boolean;
   error: string | null;
 }
@@ -23,6 +25,8 @@ const SavesContext = createContext<SavesContextType>({
   savedSpots: [],
   isSaved: () => false,
   toggle: async () => {},
+  optimisticRemove: () => {},
+  restoreSpot: () => {},
   loading: true,
   error: null,
 });
@@ -90,8 +94,16 @@ export function SavesProvider({ children }: { children: React.ReactNode }) {
     [user, savedSpots]
   );
 
+  const optimisticRemove = useCallback((googlePlaceId: string) => {
+    setSavedSpots((prev) => prev.filter((s) => s.google_place_id !== googlePlaceId));
+  }, []);
+
+  const restoreSpot = useCallback((spot: Spot) => {
+    setSavedSpots((prev) => [spot, ...prev.filter((s) => s.id !== spot.id)]);
+  }, []);
+
   return (
-    <SavesContext.Provider value={{ savedSpots, isSaved, toggle, loading, error }}>
+    <SavesContext.Provider value={{ savedSpots, isSaved, toggle, optimisticRemove, restoreSpot, loading, error }}>
       {children}
     </SavesContext.Provider>
   );

@@ -10,9 +10,11 @@ export default function AppBar() {
   }
 
   return (
-    <div className="flex items-center px-[var(--space-page-sm)] lg:px-[var(--space-page)] lg:pt-12 h-14">
+    <div className="flex items-center mx-[var(--space-page-sm)] lg:mx-[var(--space-page-dynamic)] mt-[var(--space-page-sm)] lg:mt-[var(--space-page-dynamic)] h-9">
       <div className="flex-1 flex items-center justify-start">{state.left}</div>
-      <div className="flex-1 flex items-center justify-center">{state.center}</div>
+      <div className="flex-1 flex items-center justify-center">
+        {state.center}
+      </div>
       <div className="flex-1 flex items-center justify-end">{state.right}</div>
     </div>
   );

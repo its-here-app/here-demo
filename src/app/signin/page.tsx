@@ -263,11 +263,8 @@ export default function LoginPage() {
     <main className="relative flex h-dvh flex-row dark overflow-hidden max-w-[var(--app-max-width)] mx-auto">
       {/* Left column */}
       <div className="relative flex flex-col h-full overflow-hidden flex-1 min-w-0 min-h-[40rem]">
-        <div className="p-[var(--space-page)] flex flex-row items-center justify-between">
-          <FullLogo
-            className="w-[58.5px] lg:w-20 transition-width duration-200 ease-out"
-            color="white"
-          />
+        <div className="p-[var(--space-page-dynamic)] flex flex-row items-center justify-between">
+          <FullLogo className="mt-1" color="white" />
           {step === "profile" ? (
             <button
               type="button"
@@ -282,7 +279,7 @@ export default function LoginPage() {
         <div className="relative flex-1 overflow-hidden">
           {/* ── Auth panel ── */}
           <div
-            className={`absolute inset-0 flex flex-col justify-end gap-9 p-[var(--space-page)] pb-30 z-10 transition-transform duration-600 ease-in-out ${
+            className={`absolute inset-0 flex flex-col justify-end gap-9 p-[var(--space-page-dynamic)] pb-30 z-10 transition-transform duration-600 ease-in-out ${
               step === "auth" ? "translate-x-0" : "-translate-x-full"
             }`}
           >
@@ -378,13 +375,13 @@ export default function LoginPage() {
 
           {/* ── Profile panel ── */}
           <div
-            className={`absolute inset-0 min-h-[48rem] flex flex-col items-center lg:items-start justify-center gap-12 -mt-24 px-[var(--space-page)] transition-transform duration-600 ease-in-out ${
+            className={`absolute inset-0 min-h-[48rem] flex flex-col items-center lg:items-start justify-center gap-12 -mt-24 px-[var(--space-page-dynamic)] transition-transform duration-600 ease-in-out ${
               step === "profile" ? "translate-x-0" : "translate-x-full"
             }`}
           >
             <div className="text-center lg:text-left text-primary">
               <h1 className="text-display-radio-2 lg:text-display-radio-1 mb-2 max-w-[18rem]">
-                Welcome <span className="hidden lg:inline">Here*</span>
+                Welcome Here*!
               </h1>
               <p className="text-body-sm">Let’s start with some basics</p>
             </div>
@@ -502,7 +499,7 @@ export default function LoginPage() {
             </form>
 
             {/* Done button — pinned to bottom on all sizes */}
-            <div className="absolute bottom-8 left-0 right-0 flex justify-center px-[var(--space-page)]">
+            <div className="absolute bottom-8 left-0 right-0 flex justify-center px-[var(--space-page-dynamic)]">
               <Button
                 type="submit"
                 form="profile-form"

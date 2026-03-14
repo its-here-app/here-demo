@@ -10,9 +10,11 @@ const AUTH_PATHS = ["/signin"];
 export default function AppShell({
   nav,
   children,
+  initialLoggedIn,
 }: {
   nav: React.ReactNode;
   children: React.ReactNode;
+  initialLoggedIn?: boolean;
 }) {
   const pathname = usePathname();
   const { user } = useAuth();
@@ -20,17 +22,17 @@ export default function AppShell({
 
   if (isAuth) return <div className="bg-black min-h-screen">{children}</div>;
 
+  const showSidebar = initialLoggedIn || !!user;
+
   return (
     <div
-      className={`flex min-h-screen transition-margin duration-400 max-w-[var(--app-max-width)] mx-auto${user ? " lg:pl-[var(--sidebar-width)]" : ""}`}
+      className={`flex min-h-screen transition-margin duration-400 max-w-[var(--app-max-width)] mx-auto${showSidebar ? " lg:pl-[var(--sidebar-width)]" : ""}`}
     >
       {user && nav}
       <div className="flex-1 flex flex-col">
         <AppBarProvider>
           <AppBar />
-          <div className="p-[var(--space-page-sm)] lg:p-[var(--space-page)] pb-15">
-            {children}
-          </div>
+          <div className="px-[var(--space-page-dynamic)] pb-[var(--space-page-dynamic)] pt-[var(--space-page-md)]">{children}</div>
         </AppBarProvider>
       </div>
     </div>

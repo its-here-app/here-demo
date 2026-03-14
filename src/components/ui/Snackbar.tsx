@@ -95,7 +95,7 @@ export function Snackbar() {
   if (!mounted) return null;
 
   return createPortal(
-    <div className="fixed inset-x-0 bottom-0 z-[70] flex flex-col gap-2 items-center px-[var(--space-page)] pb-[var(--space-page)] pointer-events-none">
+    <div className="fixed inset-x-0 bottom-0 z-[70] flex flex-col gap-2 items-center px-[var(--space-page-dynamic)] pb-[var(--space-page-dynamic)] pointer-events-none">
       {snackbars.map((s) => (
         <SnackbarItem
           key={s.id}

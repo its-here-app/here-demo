@@ -3,6 +3,7 @@ import { SavesProvider } from "@/lib/savesContext";
 import Sidebar from "@/components/layout/Sidebar";
 import BottomNav from "@/components/layout/BottomNav";
 import AppShell from "@/components/layout/AppShell";
+import { createClient } from "@/lib/supabase/server";
 import { Toaster } from "@/components/ui/Toast";
 import { Snackbar } from "@/components/ui/Snackbar";
 import { CreatePlaylistFlow } from "@/components/modals/CreatePlaylistFlow";
@@ -36,19 +37,24 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
   modal,
 }: Readonly<{
   children: React.ReactNode;
   modal: React.ReactNode;
 }>) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const initialLoggedIn = !!user;
+
   return (
     <html lang="en">
       <body className="antialiased">
         <AuthProvider>
           <SavesProvider>
             <AppShell
+              initialLoggedIn={initialLoggedIn}
               nav={
                 <>
                   <Sidebar />

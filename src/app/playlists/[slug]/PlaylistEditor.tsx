@@ -10,6 +10,7 @@ import {
   addSpotToPlaylist,
   removeSpotFromPlaylist,
   reorderPlaylistSpots,
+  updatePlaylistName,
   updatePlaylistDescription,
   updateSpotNotes,
   uploadPlaylistCover,
@@ -181,6 +182,7 @@ export default function PlaylistEditor({
     playlist.cover_photo_url ?? getDefaultCover(playlist.city),
   );
   const [uploadingCover, setUploadingCover] = useState(false);
+  const [name, setName] = useState<string>(playlist.name ?? "");
   const [description, setDescription] = useState<string>(
     playlist.description ?? "",
   );
@@ -336,7 +338,11 @@ export default function PlaylistEditor({
           size="hero"
           image={coverUrl}
           city={playlist.city}
-          name={playlist.name}
+          name={name}
+          onNameChange={isOwner ? setName : undefined}
+          onNameBlur={isOwner ? (v) => updatePlaylistName(playlist.id, v).catch(() => {}) : undefined}
+          readOnlyName={!editMode}
+          autoFocusName={fromNew}
           topLeft={
             editMode ? (
               <button

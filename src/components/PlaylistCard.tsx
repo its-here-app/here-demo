@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState, useRef, useLayoutEffect, type ReactNode } from "react";
+import Link from "next/link";
 
 // ─── TextScrim ────────────────────────────────────────────────────────────────
 // Gradient overlay for text legibility on card images.
@@ -36,7 +37,7 @@ export function TextScrim({
         className="absolute inset-0 mix-blend-soft-light pointer-events-none"
         style={{
           backgroundImage:
-            "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0) 80%, rgba(0,0,0,0.6) 100%)",
+            "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 20%, rgba(0,0,0,0.45) 40%, rgba(0,0,0,0.45) 65%, rgba(0,0,0,0.2) 80%, rgba(0,0,0,0.05) 88%, rgba(0,0,0,0.25) 94%, rgba(0,0,0,0.45) 100%)",
         }}
       />
     </div>
@@ -61,8 +62,10 @@ interface PlaylistCardProps {
   bottomLeft?: ReactNode;
   bottomCenter?: ReactNode;
   bottomRight?: ReactNode;
-  /** When provided, renders the name as an editable inline input */
+  /** When provided, renders the name as an editable inline textarea */
   onNameChange?: (name: string) => void;
+  onNameBlur?: (name: string) => void;
+  readOnlyName?: boolean;
   autoFocusName?: boolean;
   href?: string;
   onClick?: () => void;
@@ -115,28 +118,55 @@ function BottomActions({
   );
 }
 
-const imageHeight: Record<PlaylistCardSize, string> = {
-  hero: "h-[30rem] lg:h-full",
-  lg: "aspect-square",
-  md: "aspect-square",
-  sm: "aspect-square",
-  empty: "aspect-square",
+const defaultScrim =
+  "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.12) 10%, rgba(0,0,0,0.3) 25%, rgba(0,0,0,0.45) 40%, rgba(0,0,0,0.45) 63%, rgba(0,0,0,0.28) 74%, rgba(0,0,0,0.1) 82%, rgba(0,0,0,0.03) 87%, rgba(0,0,0,0.12) 92%, rgba(0,0,0,0.3) 96%, rgba(0,0,0,0.45) 100%)";
+
+const heroScrim =
+  "linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.3) 4%, rgba(0,0,0,0.12) 8%, rgba(0,0,0,0.03) 13%, rgba(0,0,0,0.1) 18%, rgba(0,0,0,0.28) 25%, rgba(0,0,0,0.45) 40%, rgba(0,0,0,0.45) 63%, rgba(0,0,0,0.28) 74%, rgba(0,0,0,0.1) 82%, rgba(0,0,0,0.03) 87%, rgba(0,0,0,0.12) 92%, rgba(0,0,0,0.3) 96%, rgba(0,0,0,0.45) 100%)";
+
+interface SizeConfig {
+  height: string;
+  radius: string;
+  scrim: string;
+  cityText: string;
+  nameText: string;
+  nameOffset: string;
+  namePadding: string;
+  actionPadding: string;
+}
+
+const cardDefaults: Omit<SizeConfig, "height" | "radius" | "nameOffset"> = {
+  scrim: defaultScrim,
+  cityText: "text-display-crimson-card",
+  nameText: "text-display-golos-card",
+  namePadding: "px-[8cqw]",
+  actionPadding: "p-[4cqw]",
 };
 
-const imageRadius: Record<PlaylistCardSize, string> = {
-  hero: "rounded-lg",
-  lg: "rounded-md",
-  md: "rounded-sm",
-  sm: "rounded-sm",
-  empty: "rounded-sm",
-};
-
-const actionPadding: Record<PlaylistCardSize, string> = {
-  hero: "py-4 px-4 lg:p-6",
-  lg: "p-4",
-  md: "p-2",
-  sm: "p-2",
-  empty: "p-2",
+const sizeConfig: Record<PlaylistCardSize, SizeConfig> = {
+  hero: {
+    height: "h-[30rem] lg:h-full",
+    radius: "rounded-lg",
+    scrim: heroScrim,
+    cityText: "text-display-crimson-1",
+    nameText: "text-display-golos-1",
+    nameOffset: "-mt-1",
+    namePadding: "px-8",
+    actionPadding: "py-4 px-4 lg:p-6",
+  },
+  lg:    { ...cardDefaults, height: "aspect-square", radius: "rounded-md", nameOffset: "" },
+  md:    { ...cardDefaults, height: "aspect-square", radius: "rounded-sm", nameOffset: "" },
+  sm:    { ...cardDefaults, height: "aspect-square", radius: "rounded-sm", nameOffset: "-mt-1" },
+  empty: {
+    height: "aspect-square",
+    radius: "rounded-sm",
+    scrim: "",
+    cityText: "text-display-crimson-2",
+    nameText: "text-display-golos-2",
+    nameOffset: "",
+    namePadding: "px-8",
+    actionPadding: "p-2",
+  },
 };
 
 export function PlaylistCard({
@@ -153,6 +183,8 @@ export function PlaylistCard({
   bottomCenter,
   bottomRight,
   onNameChange,
+  onNameBlur,
+  readOnlyName,
   autoFocusName,
   href,
   onClick,
@@ -172,7 +204,7 @@ export function PlaylistCard({
         </div>
         {(title || subtitle) && (
           <div className="flex flex-col gap-0.5 mt-3">
-            {title && <p className="text-display-golos-3">{title}</p>}
+            {title && <p className="text-display-golos-4">{title}</p>}
             {subtitle && (
               <p className="text-body-sm text-secondary">{subtitle}</p>
             )}
@@ -182,12 +214,20 @@ export function PlaylistCard({
     );
   }
 
-  const Wrapper = href ? "a" : "div";
+  const Wrapper = (href ? Link : "div") as React.ElementType;
   const wrapperProps = href
     ? { href }
     : onClick
       ? { onClick, role: "button" }
       : {};
+
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  useLayoutEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "1px";
+    el.style.height = `${el.scrollHeight}px`;
+  });
 
   return (
     <Wrapper
@@ -195,7 +235,7 @@ export function PlaylistCard({
       className={`flex flex-col gap-3 w-full ${href || onClick ? "cursor-pointer group" : ""} ${className ?? ""}`}
     >
       <div
-        className={`relative overflow-hidden w-full ${imageLoaded ? "bg-transparent" : "bg-black"} ${imageHeight[size]} ${imageRadius[size]}`}
+        className={`relative overflow-hidden w-full ${size !== "hero" ? "@container" : ""} ${imageLoaded ? "bg-transparent" : "bg-black"} ${sizeConfig[size].height} ${sizeConfig[size].radius}`}
       >
         {image && (
           <img
@@ -208,25 +248,26 @@ export function PlaylistCard({
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage:
-              "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0) 80%, rgba(0,0,0,0.6) 100%)",
+            backgroundImage: sizeConfig[size].scrim,
           }}
         />
         {city && (
-          <div className="absolute inset-x-0 bottom-1/3 top-1/3 flex flex-col items-center justify-center px-8 text-center text-brand">
-            <p className="text-display-crimson-2">{city}</p>
+          <div className={`absolute inset-x-0 bottom-1/3 top-1/3 flex flex-col items-center justify-center ${sizeConfig[size].namePadding} text-center text-brand overflow-visible`}>
+            <p className={sizeConfig[size].cityText}>{city}</p>
             {onNameChange ? (
-              <input
-                type="text"
+              <textarea
+                ref={textareaRef}
                 value={name ?? ""}
-                onChange={(e) => onNameChange(e.target.value)}
+                readOnly={readOnlyName}
+                onChange={(e) => !readOnlyName && onNameChange(e.target.value)}
                 placeholder="Playlist name"
-                autoFocus={autoFocusName}
-                className="text-display-golos-1 text-center bg-transparent border-none outline-none w-full cursor-text placeholder:opacity-40"
+                autoFocus={autoFocusName && !readOnlyName}
+                onBlur={(e) => !readOnlyName && onNameBlur?.(e.target.value)}
+                className={`${sizeConfig[size].nameText} ${sizeConfig[size].nameOffset} text-center bg-transparent border-none outline-none w-full resize-none overflow-hidden p-0 ${readOnlyName ? "cursor-default pointer-events-none" : "cursor-text"} placeholder:opacity-40`}
                 onClick={(e) => e.stopPropagation()}
               />
             ) : (
-              name && <p className="text-display-golos-1">{name}</p>
+              name && <p className={`${sizeConfig[size].nameText} ${sizeConfig[size].nameOffset} w-full break-words`}>{name}</p>
             )}
           </div>
         )}
@@ -234,18 +275,18 @@ export function PlaylistCard({
           left={topLeft}
           center={topCenter}
           right={topRight}
-          padding={actionPadding[size]}
+          padding={sizeConfig[size].actionPadding}
         />
         <BottomActions
           left={bottomLeft}
           center={bottomCenter}
           right={bottomRight}
-          padding={actionPadding[size]}
+          padding={sizeConfig[size].actionPadding}
         />
       </div>
       {(title || subtitle) && (
         <div className="flex flex-col gap-0.5">
-          {title && <p className="text-display-golos-3">{title}</p>}
+          {title && <p className="text-display-golos-4">{title}</p>}
           {subtitle && (
             <p className="text-body-sm text-secondary">{subtitle}</p>
           )}

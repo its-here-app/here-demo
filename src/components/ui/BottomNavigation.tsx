@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import { Avatar } from "./Avatar";
 import { Bookmark } from "./icons/Bookmark";
 import { Home } from "./icons/Home";
-import { Search } from "./icons/Search";
 import { Plus } from "./icons/Plus";
 import { IconButton } from "./IconButton";
 
@@ -25,7 +24,6 @@ interface BottomNavigationProps {
   avatarUrl?: string;
   className?: string;
 }
-
 
 function NavButton({
   active = false,
@@ -116,14 +114,6 @@ export function BottomNavigation({
         label="Home"
       >
         <Home focus={activeTab === "home"} />
-      </NavButton>
-
-      <NavButton
-        active={activeTab === "search"}
-        onClick={() => onTabChange?.("search")}
-        label="Search"
-      >
-        <Search active={activeTab === "search"} />
       </NavButton>
 
       {addButton}

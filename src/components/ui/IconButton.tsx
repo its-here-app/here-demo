@@ -1,7 +1,7 @@
 import { forwardRef } from "react";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
-export type IconButtonVariant = "primary" | "secondary" | "tertiary" | "brand" | "hero" | "overlay";
+export type IconButtonVariant = "primary" | "secondary" | "tertiary" | "brand" | "hero" | "overlay" | "ghost";
 export type IconButtonSize = "default" | "lg";
 
 interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -19,6 +19,7 @@ function variantClasses(variant: IconButtonVariant): string {
     case "brand":     return "bg-neon text-black";
     case "hero":      return "bg-black text-white";
     case "overlay":   return "backdrop-blur-sm bg-white/20 text-white";
+    case "ghost":     return "text-black";
   }
 }
 

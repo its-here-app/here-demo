@@ -105,7 +105,7 @@ export function BottomPanel({
         <div
           className={`fixed inset-0 z-[60] bg-black dark hidden lg:flex flex-col transition-opacity duration-300 ${fadeIn}`}
         >
-          <div className="relative z-10 flex items-center justify-between p-[var(--space-page)] shrink-0">
+          <div className="relative z-10 flex items-center justify-between p-[var(--space-page-dynamic)] shrink-0">
             {logo ? <FullLogo color="white" className="w-20" /> : <div />}
             {closeBtn}
           </div>

@@ -35,11 +35,11 @@ export default function Sidebar() {
   const profileHref = username ? `/${username}` : "/";
 
   return (
-    <aside className="flex flex-col w-[var(--sidebar-width)] p-[var(--space-page)] bg-white h-screen fixed top-0 left-[max(0px,calc((100vw-var(--app-max-width))/2))] -ml-[var(--sidebar-width)] lg:ml-0 transition-[margin] duration-400">
+    <aside className="flex flex-col w-[var(--sidebar-width)] p-[var(--space-page-dynamic)] bg-white h-screen fixed top-0 left-[max(0px,calc((100vw-var(--app-max-width))/2))] -ml-[var(--sidebar-width)] lg:ml-0 transition-[margin] duration-400">
       {/* Logo */}
-      <div className="">
-        <FullLogo className="w-20" />
-      </div>
+      <Link href="/" className="cursor-pointer">
+        <FullLogo className="mt-1" />
+      </Link>
 
       {/* Nav */}
       <nav className="-ml-2 flex flex-col gap-8 mt-[5rem]">
@@ -75,7 +75,7 @@ export default function Sidebar() {
       {/* Log out */}
       <button
         onClick={handleSignOut}
-        className="-ml-2 absolute bottom-[var(--space-page)] left-[var(--space-page)] flex items-center gap-5 cursor-pointer"
+        className="-ml-2 absolute bottom-[var(--space-page-dynamic)] left-[var(--space-page-dynamic)] flex items-center gap-5 cursor-pointer"
       >
         <Logout className="size-8 shrink-0 text-secondary" />
         <span className="text-header-radio-3 text-secondary">Log out</span>
