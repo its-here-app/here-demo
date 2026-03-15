@@ -13,6 +13,18 @@ interface Props {
 export default function PlaylistOverlay({ playlist, isOwner, fromNew }: Props) {
   const router = useRouter();
   const [closing, setClosing] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  useEffect(() => {
+    let raf2: number;
+    const raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => setIsAnimating(true));
+    });
+    return () => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+    };
+  }, []);
 
   useEffect(() => {
     const prev = document.title;
@@ -48,18 +60,14 @@ export default function PlaylistOverlay({ playlist, isOwner, fromNew }: Props) {
       } else if (fromNew) {
         router.push(`/${playlist.profiles.username}`);
       } else {
-        router.refresh();
         router.back();
       }
-    }, 250);
+    }, 400);
   }
 
   return (
     <main
-      className={`fixed inset-0 z-50 bg-white overflow-y-auto p-[var(--space-page-sm)] lg:pb-0 max-w-[var(--app-max-width)] mx-auto ${closing ? "pointer-events-none" : ""}`}
-      style={{
-        animation: `${closing ? "fadeOut" : "fadeIn"} 250ms ease forwards`,
-      }}
+      className={`fixed inset-0 z-50 bg-white overflow-y-auto p-[var(--space-page-sm)] lg:pb-0 max-w-[var(--app-max-width)] mx-auto transition-transform ease-in-out duration-400 ${closing || !isAnimating ? "translate-x-full" : "translate-x-0"} ${closing ? "pointer-events-none" : ""}`}
     >
       <PlaylistEditor
         playlist={playlist}

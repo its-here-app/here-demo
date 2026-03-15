@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useShare } from "@/lib/useShare";
+import { playlistDocTitle } from "@/lib/playlistDocTitle";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
@@ -15,6 +16,7 @@ import {
   updateSpotNotes,
   uploadPlaylistCover,
   deletePlaylist,
+  touchPlaylist,
 } from "@/lib/services/playlists";
 import { getDefaultCover } from "@/lib/playlist-covers";
 import type { PlaylistSpot, SearchResult } from "@/types";
@@ -26,10 +28,13 @@ import { Close } from "@/components/ui/icons/Close";
 import { Edit } from "@/components/ui/icons/Edit";
 import { Overflow } from "@/components/ui/icons/Overflow";
 import { Photo } from "@/components/ui/icons/Photo";
+import { Spinner } from "@/components/ui/Spinner";
 import { Share } from "@/components/ui/icons/Share";
 import { Trash } from "@/components/ui/icons/Trash";
 import { Sheet, ConfirmSheet } from "@/components/ui/Sheet";
 import { snackbar } from "@/components/ui/Snackbar";
+import { toast } from "@/components/ui/Toast";
+import { Error as ErrorIcon } from "@/components/ui/icons/Error";
 import type { SheetItem } from "@/components/ui/Sheet";
 import SpotCard from "@/components/SpotCard";
 import { TextInput } from "@/components/ui/inputs";
@@ -90,17 +95,13 @@ function GripIcon() {
 function SortableSpotCard({
   ps,
   editMode,
-  removingId,
   onRemove,
   onNotesChange,
-  onNotesBlur,
 }: {
   ps: PlaylistSpot;
   editMode: boolean;
-  removingId: string | null;
   onRemove: (id: string) => void;
   onNotesChange: (id: string, notes: string) => void;
-  onNotesBlur: (id: string, notes: string) => void;
 }) {
   const {
     attributes,
@@ -139,10 +140,9 @@ function SortableSpotCard({
             editMode ? (
               <button
                 onClick={() => onRemove(ps.id)}
-                disabled={removingId === ps.id}
-                className="text-sm text-red-500 hover:text-red-700 disabled:opacity-40"
+                className="text-sm text-red-500 hover:text-red-700"
               >
-                {removingId === ps.id ? "Removing…" : "Remove"}
+                Remove
               </button>
             ) : undefined
           }
@@ -153,7 +153,6 @@ function SortableSpotCard({
         <textarea
           value={ps.notes ?? ""}
           onChange={(e) => onNotesChange(ps.id, e.target.value)}
-          onBlur={(e) => onNotesBlur(ps.id, e.target.value)}
           placeholder="Add a note…"
           rows={2}
           className="mt-3 w-full text-sm text-gray-600 border border-gray-200 rounded-lg px-3 py-2 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -170,7 +169,6 @@ function SortableSpotCard({
 export default function PlaylistEditor({
   playlist,
   isOwner,
-  fromNew,
   onClose,
 }: Props) {
   const { user } = useAuth();
@@ -181,8 +179,8 @@ export default function PlaylistEditor({
   const [coverUrl, setCoverUrl] = useState<string>(
     playlist.cover_photo_url ?? getDefaultCover(playlist.city),
   );
-  const [uploadingCover, setUploadingCover] = useState(false);
   const [name, setName] = useState<string>(playlist.name ?? "");
+  const lastNameRef = useRef<string>(playlist.name ?? "");
   const [description, setDescription] = useState<string>(
     playlist.description ?? "",
   );
@@ -192,13 +190,25 @@ export default function PlaylistEditor({
         (a.position ?? 0) - (b.position ?? 0),
     ),
   );
-  const [removingId, setRemovingId] = useState<string | null>(null);
-  const [addingId, setAddingId] = useState<string | null>(null);
-  const [error, setError] = useState("");
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const overflowRef = useRef<HTMLButtonElement>(null);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
+  const [isConfirmCancelOpen, setIsConfirmCancelOpen] = useState(false);
   const { canShare, share } = useShare();
+
+  // Edit mode staging
+  const editStartRef = useRef<{
+    name: string;
+    description: string;
+    coverUrl: string;
+    spots: PlaylistSpot[];
+  } | null>(null);
+  const [stagedCoverFile, setStagedCoverFile] = useState<File | null>(null);
+  const [pendingAdds, setPendingAdds] = useState<SearchResult[]>([]);
+  const [pendingRemoveIds, setPendingRemoveIds] = useState<Set<string>>(new Set());
+  const [saving, setSaving] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [savedAt, setSavedAt] = useState<number | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -207,79 +217,187 @@ export default function PlaylistEditor({
     }),
   );
 
-  const existingPlaceIds = new Set(spots.map((s) => s.spots.google_place_id));
+  const existingPlaceIds = new Set([
+    ...spots.map((s) => s.spots.google_place_id),
+    ...pendingAdds.map((p) => p.spot_id),
+  ]);
 
-  async function handleDragEnd(event: DragEndEvent) {
+  const hasEditChanges =
+    editMode &&
+    (name !== (editStartRef.current?.name ?? "") ||
+      description !== (editStartRef.current?.description ?? "") ||
+      stagedCoverFile !== null ||
+      pendingAdds.length > 0 ||
+      pendingRemoveIds.size > 0 ||
+      !spots.every((s, i) => s.id === editStartRef.current?.spots[i]?.id) ||
+      spots.some((s) => {
+        const orig = editStartRef.current?.spots.find((o) => o.id === s.id);
+        return (s.notes ?? "") !== (orig?.notes ?? "");
+      }));
+
+  function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
-
     const oldIndex = spots.findIndex((s) => s.id === active.id);
     const newIndex = spots.findIndex((s) => s.id === over.id);
-    const reordered = arrayMove(spots, oldIndex, newIndex);
-    setSpots(reordered);
-
-    await reorderPlaylistSpots(
-      reordered.map((s, i) => ({ id: s.id, position: i })),
-    );
+    setSpots(arrayMove(spots, oldIndex, newIndex));
   }
 
-  async function handleAddSpot(place: SearchResult) {
-    setAddingId(place.spot_id);
-    setError("");
-    try {
-      const spot = await upsertSpot({
-        google_place_id: place.spot_id,
-        name: place.name,
-        address: place.address,
-        photo_url: place.photo_url,
-        rating: place.rating,
-        types: place.types,
-      });
-      const ps = await addSpotToPlaylist(
-        playlist.id,
-        spot.id,
-        spots.length,
-        user?.id ?? "",
-      );
-      setSpots([...spots, { ...ps, spots: spot }]);
-    } catch {
-      setError("Failed to add spot.");
-    } finally {
-      setAddingId(null);
-    }
+  function handleAddSpot(place: SearchResult) {
+    if (pendingAdds.some((p) => p.spot_id === place.spot_id)) return;
+    setPendingAdds((prev) => [...prev, place]);
   }
 
-  async function handleDescriptionBlur(value: string) {
-    try {
-      await updatePlaylistDescription(playlist.id, value);
-    } catch {
-      setError("Failed to save description.");
-    }
+  function handleRemovePendingAdd(spotId: string) {
+    setPendingAdds((prev) => prev.filter((p) => p.spot_id !== spotId));
+  }
+
+  function handleRemoveSpot(playlistSpotId: string) {
+    setPendingRemoveIds((prev) => new Set([...prev, playlistSpotId]));
+    setSpots((prev) => prev.filter((s) => s.id !== playlistSpotId));
   }
 
   function handleNotesChange(spotId: string, notes: string) {
-    setSpots(spots.map((s) => (s.id === spotId ? { ...s, notes } : s)));
+    setSpots((prev) => prev.map((s) => (s.id === spotId ? { ...s, notes } : s)));
   }
 
-  async function handleNotesBlur(spotId: string, notes: string) {
-    try {
-      await updateSpotNotes(spotId, notes);
-    } catch {
-      setError("Failed to save notes.");
+  function handleEnterEdit() {
+    editStartRef.current = { name, description, coverUrl, spots: [...spots] };
+    setPendingAdds([]);
+    setPendingRemoveIds(new Set());
+    setStagedCoverFile(null);
+    setEditMode(true);
+  }
+
+  function discardEdits() {
+    if (editStartRef.current) {
+      setName(editStartRef.current.name);
+      setDescription(editStartRef.current.description);
+      setCoverUrl(editStartRef.current.coverUrl);
+      setSpots(editStartRef.current.spots);
+    }
+    setStagedCoverFile(null);
+    setPendingAdds([]);
+    setPendingRemoveIds(new Set());
+    setEditMode(false);
+    editStartRef.current = null;
+  }
+
+  function handleCancelEdit() {
+    if (hasEditChanges) {
+      setIsConfirmCancelOpen(true);
+    } else {
+      discardEdits();
     }
   }
 
-  async function handleRemoveSpot(playlistSpotId: string) {
-    setRemovingId(playlistSpotId);
-    setError("");
+  async function handleDone() {
+    setSaving(true);
     try {
-      await removeSpotFromPlaylist(playlistSpotId);
-      setSpots(spots.filter((s) => s.id !== playlistSpotId));
+      // Cover
+      if (stagedCoverFile) {
+        setUploadingCover(true);
+        try {
+          const url = await uploadPlaylistCover(
+            playlist.id,
+            user?.id ?? "",
+            stagedCoverFile,
+            editStartRef.current?.coverUrl ?? "",
+          );
+          setCoverUrl(url);
+        } catch {
+          toast({ icon: <ErrorIcon />, message: "Failed to upload cover photo" });
+          setStagedCoverFile(null);
+          if (editStartRef.current) setCoverUrl(editStartRef.current.coverUrl);
+        } finally {
+          setUploadingCover(false);
+        }
+      }
+
+      // Name
+      const trimmedName = name.trim();
+      if (!trimmedName) {
+        setName(editStartRef.current?.name ?? "");
+      } else {
+        if (trimmedName !== name) setName(trimmedName);
+        lastNameRef.current = trimmedName;
+        if (trimmedName !== editStartRef.current?.name) {
+          await updatePlaylistName(playlist.id, trimmedName);
+        }
+      }
+
+      // Description
+      if (description !== editStartRef.current?.description) {
+        await updatePlaylistDescription(playlist.id, description);
+      }
+
+      // Remove spots
+      for (const id of pendingRemoveIds) {
+        await removeSpotFromPlaylist(id);
+      }
+
+      // Add new spots
+      let finalSpots = [...spots];
+      for (const place of pendingAdds) {
+        const spot = await upsertSpot({
+          google_place_id: place.spot_id,
+          name: place.name,
+          address: place.address,
+          photo_url: place.photo_url,
+          rating: place.rating,
+          types: place.types,
+        });
+        const ps = await addSpotToPlaylist(
+          playlist.id,
+          spot.id,
+          finalSpots.length,
+          user?.id ?? "",
+        );
+        finalSpots = [...finalSpots, { ...ps, spots: spot }];
+      }
+
+      // Reorder if anything changed
+      const originalSpots = editStartRef.current?.spots ?? [];
+      const reorderNeeded =
+        pendingRemoveIds.size > 0 ||
+        pendingAdds.length > 0 ||
+        !finalSpots.every((s, i) => s.id === originalSpots[i]?.id);
+      if (reorderNeeded) {
+        await reorderPlaylistSpots(
+          finalSpots.map((s, i) => ({ id: s.id, position: i })),
+        );
+      }
+      setSpots(finalSpots);
+
+      // Notes
+      for (const s of finalSpots) {
+        const orig = originalSpots.find((o) => o.id === s.id);
+        if ((s.notes ?? "") !== (orig?.notes ?? "")) {
+          await updateSpotNotes(s.id, s.notes ?? "");
+        }
+      }
+
+      await touchPlaylist(playlist.id);
+      window.dispatchEvent(new Event("playlist-saved"));
+      setSavedAt(Date.now());
+      setEditMode(false);
+      setPendingAdds([]);
+      setPendingRemoveIds(new Set());
+      setStagedCoverFile(null);
+      editStartRef.current = null;
+      router.refresh();
     } catch {
-      setError("Failed to remove spot.");
+      toast({ icon: <ErrorIcon />, message: "Failed to save changes" });
     } finally {
-      setRemovingId(null);
+      setSaving(false);
     }
+  }
+
+  function handleCoverSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setStagedCoverFile(file);
+    setCoverUrl(URL.createObjectURL(file));
   }
 
   function handleDeletePlaylist() {
@@ -305,30 +423,6 @@ export default function PlaylistEditor({
     onClose?.(`/${username}?pendingDelete=${id}`);
   }
 
-  function handleExitEdit() {
-    setEditMode(false);
-    setError("");
-  }
-
-  async function handleCoverUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploadingCover(true);
-    try {
-      const url = await uploadPlaylistCover(
-        playlist.id,
-        user?.id ?? "",
-        file,
-        coverUrl,
-      );
-      setCoverUrl(url);
-    } catch {
-      setError("Failed to upload cover photo.");
-    } finally {
-      setUploadingCover(false);
-    }
-  }
-
   return (
     <div className="w-full lg:grid lg:grid-cols-2 lg:gap-6 lg:items-start">
       {/* Cover photo */}
@@ -339,14 +433,18 @@ export default function PlaylistEditor({
           image={coverUrl}
           city={playlist.city}
           name={name}
-          onNameChange={isOwner ? setName : undefined}
-          onNameBlur={isOwner ? (v) => updatePlaylistName(playlist.id, v).catch(() => {}) : undefined}
+          onNameChange={isOwner ? (v) => { setName(v); if (v.trim()) lastNameRef.current = v; } : undefined}
+          onNameBlur={isOwner ? (v) => {
+            const trimmed = v.trim();
+            if (!trimmed) { setName(lastNameRef.current); return; }
+            if (trimmed !== v) setName(trimmed);
+            lastNameRef.current = trimmed;
+          } : undefined}
           readOnlyName={!editMode}
-          autoFocusName={fromNew}
           topLeft={
             editMode ? (
               <button
-                onClick={handleExitEdit}
+                onClick={handleCancelEdit}
                 className="text-body-xs text-white cursor-pointer"
               >
                 Cancel
@@ -359,9 +457,7 @@ export default function PlaylistEditor({
                 onClick={() =>
                   onClose
                     ? onClose()
-                    : fromNew
-                      ? router.push(`/${playlist.profiles.username}`)
-                      : router.back()
+                    : router.push(`/${playlist.profiles.username}`)
                 }
               />
             )
@@ -374,10 +470,11 @@ export default function PlaylistEditor({
           topRight={
             editMode ? (
               <button
-                onClick={handleExitEdit}
-                className="text-body-xs text-white cursor-pointer"
+                onClick={handleDone}
+                disabled={saving}
+                className="text-body-xs text-white cursor-pointer disabled:opacity-50"
               >
-                Done
+                {saving ? "Saving…" : "Done"}
               </button>
             ) : isOwner ? (
               <IconButton
@@ -395,7 +492,7 @@ export default function PlaylistEditor({
                     variant="overlay"
                     icon={<Share />}
                     label="Share"
-                    onClick={() => share(`${window.location.origin}/playlists/${playlist.slug}`)}
+                    onClick={() => share(`${window.location.origin}/playlists/${playlist.slug}`, playlistDocTitle(playlist.city, name, playlist.profiles.username))}
                   />
                 )}
               </div>
@@ -416,21 +513,24 @@ export default function PlaylistEditor({
           }
           bottomCenter={
             editMode ? (
-              <Button
-                variant="overlay"
-                size="sm"
-                leftIcon={<Photo />}
-                onClick={() => coverInputRef.current?.click()}
-                disabled={uploadingCover}
-              >
-                {uploadingCover ? "Uploading…" : "Change cover photo"}
-              </Button>
+              uploadingCover ? (
+                <div className="py-1.5"><Spinner /></div>
+              ) : (
+                <Button
+                  variant="overlay"
+                  size="sm"
+                  leftIcon={<Photo />}
+                  onClick={() => coverInputRef.current?.click()}
+                >
+                  Change cover photo
+                </Button>
+              )
             ) : undefined
           }
           bottomRight={
             editMode ? undefined : (
               <p className="text-brand text-body-xs">
-                Last updated {timeAgo(playlist.updated_at)}
+                Last updated {savedAt !== null ? "now" : timeAgo(playlist.updated_at)}
               </p>
             )
           }
@@ -440,7 +540,7 @@ export default function PlaylistEditor({
           type="file"
           accept="image/*"
           className="sr-only"
-          onChange={handleCoverUpload}
+          onChange={handleCoverSelect}
         />
       </div>
 
@@ -456,7 +556,6 @@ export default function PlaylistEditor({
                   lightMode
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  onBlur={(e) => handleDescriptionBlur(e.target.value)}
                   placeholder="Add a description…"
                   className="mb-4"
                 />
@@ -466,7 +565,7 @@ export default function PlaylistEditor({
                 )
               )}
               <div className="flex items-center gap-4 text-sm text-gray-500">
-                <p>{spots.length} spots</p>
+                <p>{spots.length + pendingAdds.length} spots</p>
                 <p>•</p>
                 <p>{playlist.is_public ? "Public" : "Private"}</p>
               </div>
@@ -474,11 +573,6 @@ export default function PlaylistEditor({
           </div>
         </div>
 
-        {error && (
-          <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm mb-4">
-            {error}
-          </div>
-        )}
 
         {/* Spots */}
         <DndContext
@@ -491,7 +585,7 @@ export default function PlaylistEditor({
             strategy={verticalListSortingStrategy}
           >
             <div className="space-y-3 mb-6">
-              {spots.length === 0 && (
+              {spots.length === 0 && pendingAdds.length === 0 && (
                 <p className="text-gray-500 text-sm">No spots yet.</p>
               )}
               {spots.map((ps) => (
@@ -499,11 +593,33 @@ export default function PlaylistEditor({
                   key={ps.id}
                   ps={ps}
                   editMode={editMode}
-                  removingId={removingId}
                   onRemove={handleRemoveSpot}
                   onNotesChange={handleNotesChange}
-                  onNotesBlur={handleNotesBlur}
                 />
+              ))}
+              {/* Pending adds (not yet persisted) */}
+              {pendingAdds.map((place) => (
+                <div key={place.spot_id} className="flex items-start gap-3">
+                  <SpotCard
+                    spot={{
+                      google_place_id: place.spot_id,
+                      name: place.name,
+                      address: place.address,
+                      photo_url: place.photo_url,
+                      rating: place.rating,
+                      types: place.types,
+                    }}
+                    className="flex-1"
+                    action={
+                      <button
+                        onClick={() => handleRemovePendingAdd(place.spot_id)}
+                        className="text-sm text-red-500 hover:text-red-700"
+                      >
+                        Remove
+                      </button>
+                    }
+                  />
+                </div>
               ))}
             </div>
           </SortableContext>
@@ -518,10 +634,9 @@ export default function PlaylistEditor({
             renderAction={(place) => (
               <button
                 onClick={() => handleAddSpot(place)}
-                disabled={addingId === place.spot_id}
-                className="flex-shrink-0 text-sm text-blue-500 hover:text-blue-700 disabled:opacity-40"
+                className="flex-shrink-0 text-sm text-blue-500 hover:text-blue-700"
               >
-                {addingId === place.spot_id ? "Adding…" : "Add"}
+                Add
               </button>
             )}
           />
@@ -538,12 +653,12 @@ export default function PlaylistEditor({
           title="Options"
           items={
             [
-              ...(canShare ? [{ label: "Share", onClick: () => share(`${window.location.origin}/playlists/${playlist.slug}`), icon: <Share /> }] : []),
+              ...(canShare ? [{ label: "Share", onClick: () => share(`${window.location.origin}/playlists/${playlist.slug}`, playlistDocTitle(playlist.city, name, playlist.profiles.username)), icon: <Share /> }] : []),
               {
                 label: "Edit",
                 onClick: () => {
                   setIsSheetOpen(false);
-                  setEditMode(true);
+                  handleEnterEdit();
                 },
                 icon: <Edit />,
               },
@@ -566,6 +681,22 @@ export default function PlaylistEditor({
           {
             label: "Yes, delete",
             onClick: handleDeletePlaylist,
+            variant: "danger",
+          },
+        ]}
+      />
+
+      <ConfirmSheet
+        isOpen={isConfirmCancelOpen}
+        onClose={() => setIsConfirmCancelOpen(false)}
+        items={[
+          { label: "Keep editing", onClick: () => {} },
+          {
+            label: "Discard changes",
+            onClick: () => {
+              setIsConfirmCancelOpen(false);
+              discardEdits();
+            },
             variant: "danger",
           },
         ]}

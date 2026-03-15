@@ -264,7 +264,7 @@ export default function LoginPage() {
       {/* Left column */}
       <div className="relative flex flex-col h-full overflow-hidden flex-1 min-w-0 min-h-[40rem]">
         <div className="p-[var(--space-page-dynamic)] flex flex-row items-center justify-between">
-          <FullLogo className="mt-1" color="white" />
+          <FullLogo className="mt-2" color="white" />
           {step === "profile" ? (
             <button
               type="button"

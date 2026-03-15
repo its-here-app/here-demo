@@ -10,6 +10,7 @@ interface SnackbarData {
   duration?: number;
   actionLabel?: string;
   onAction?: () => void;
+  onDismiss?: () => void;
 }
 
 type Listener = (s: SnackbarData) => void;
@@ -21,10 +22,11 @@ export function snackbar({
   duration,
   actionLabel,
   onAction,
+  onDismiss,
 }: Omit<SnackbarData, "id">) {
   const id = Math.random().toString(36).slice(2);
   listeners.forEach((fn) =>
-    fn({ id, icon, message, duration, actionLabel, onAction }),
+    fn({ id, icon, message, duration, actionLabel, onAction, onDismiss }),
   );
 }
 
@@ -41,7 +43,7 @@ function SnackbarItem({
   useEffect(() => {
     const dur = data.duration ?? 6000;
     const t1 = setTimeout(() => setExiting(true), dur);
-    const t2 = setTimeout(onRemove, dur + 200);
+    const t2 = setTimeout(() => { data.onDismiss?.(); onRemove(); }, dur + 200);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);

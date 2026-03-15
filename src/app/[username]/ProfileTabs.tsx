@@ -1,14 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Tabs, Tab } from "@/components/ui/Tabs";
+import { Tabs, Tab, TabPanels } from "@/components/ui/Tabs";
 import { Button } from "@/components/ui/Button";
 import { List } from "@/components/ui/icons/List";
 import { Map } from "@/components/ui/icons/Map";
 import { Spots } from "@/components/ui/icons/Spots";
 import { IconButton } from "@/components/ui/IconButton";
 import { Share } from "@/components/ui/icons/Share";
+import { Lock } from "@/components/ui/icons/Lock";
+import { Asterisk } from "@/components/ui/icons/Asterisk";
 import BookmarkButton from "@/components/BookmarkButton";
 import { useAuth } from "@/lib/authContext";
 import { useShare } from "@/lib/useShare";
@@ -16,21 +19,46 @@ import { useShare } from "@/lib/useShare";
 import { PlaylistCard } from "@/components/PlaylistCard";
 import ProfileMessage from "./ProfileMessage";
 import type { Playlist } from "@/types";
+import { getPlaylistsByUser } from "@/lib/services/playlists";
+import { playlistDocTitle } from "@/lib/playlistDocTitle";
 
 interface ProfileTabsProps {
   playlists: Playlist[];
-  isOwnProfile: boolean;
+  profileId: string;
+  username: string;
 }
 
 export default function ProfileTabs({
-  playlists,
-  isOwnProfile,
+  playlists: initialPlaylists,
+  profileId,
+  username,
 }: ProfileTabsProps) {
   const [activeTab, setActiveTab] = useState<"playlists" | "cities" | "spots">(
     "playlists",
   );
+  const [playlists, setPlaylists] = useState<Playlist[]>(initialPlaylists);
+  const [isActualOwner, setIsActualOwner] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { user } = useAuth();
   const { share } = useShare();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const owns = !!user && user.id === profileId;
+    setIsActualOwner(owns);
+    setIsLoggedIn(!!user);
+    if (!owns) return;
+    getPlaylistsByUser(profileId, false).then(setPlaylists);
+  }, [user, profileId, pathname]);
+
+  useEffect(() => {
+    function handlePlaylistSaved() {
+      if (!isActualOwner) return;
+      getPlaylistsByUser(profileId, false).then(setPlaylists);
+    }
+    window.addEventListener("playlist-saved", handlePlaylistSaved);
+    return () => window.removeEventListener("playlist-saved", handlePlaylistSaved);
+  }, [isActualOwner, profileId]);
 
   const tabIndex = { playlists: 0, cities: 1, spots: 2 }[activeTab];
 
@@ -40,7 +68,7 @@ export default function ProfileTabs({
 
   return (
     <div className="mt-4 lg:mt-16">
-      <Tabs className="mb-6">
+      <Tabs className="mb-[var(--space-page-sm)]">
         <Tab
           title={`${playlistCount} ${playlistCount === 1 ? "playlist" : "playlists"}`}
           active={activeTab === "playlists"}
@@ -61,81 +89,111 @@ export default function ProfileTabs({
         />
       </Tabs>
 
-      <div className="overflow-hidden">
-        <div
-          className="flex w-[300%] transition-transform duration-400 ease-in-out"
-          style={{ transform: `translateX(${-(tabIndex * 100) / 3}%)` }}
-        >
-          {/* Playlists */}
-          <div className="w-1/3 min-w-0">
-            {playlists.length > 0 ? (
-              <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-                {playlists.map((playlist: Playlist) => (
-                  <PlaylistCard
-                    key={playlist.id}
-                    size="lg"
-                    image={playlist.cover_photo_url ?? undefined}
-                    city={playlist.city}
-                    name={playlist.name}
-                    href={`/playlists/${playlist.slug}`}
-                    className="w-full"
-                    bottomCenter={
-                      <p className="text-body-sm text-neon">* {playlist.spot_count ?? 0}</p>
-                    }
-                    topRight={
-                      !isOwnProfile && user ? (
-                        <div className="flex flex-row gap-2">
-                          <span onClick={(e) => e.preventDefault()}>
-                            <BookmarkButton playlistId={playlist.id} variant="overlay" />
-                          </span>
-                          <IconButton
+      <TabPanels activeIndex={tabIndex}>
+        {/* Playlists */}
+        <div>
+          {playlists.length > 0 ? (
+            <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+              {playlists.map((playlist: Playlist) => (
+                <PlaylistCard
+                  key={playlist.id}
+                  size="lg"
+                  image={playlist.cover_photo_url ?? undefined}
+                  city={playlist.city}
+                  name={playlist.name}
+                  href={`/playlists/${playlist.slug}`}
+                  className="w-full"
+                  bottomCenter={
+                    <span className="flex items-center gap-1 text-body-sm text-neon">
+                      <Asterisk />
+                      {playlist.spot_count ?? 0}
+                    </span>
+                  }
+                  topLeft={
+                    isActualOwner && !playlist.is_public ? (
+                      <Lock active className="size-5 text-white" />
+                    ) : undefined
+                  }
+                  topRight={
+                    isActualOwner ? (
+                      <IconButton
+                        variant="overlay"
+                        icon={<Share />}
+                        label="Share playlist"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          share(
+                            `${window.location.origin}/playlists/${playlist.slug}`,
+                            playlistDocTitle(
+                              playlist.city,
+                              playlist.name,
+                              username,
+                            ),
+                          );
+                        }}
+                      />
+                    ) : isLoggedIn ? (
+                      <div className="flex flex-row gap-2">
+                        <span onClick={(e) => e.preventDefault()}>
+                          <BookmarkButton
+                            playlistId={playlist.id}
                             variant="overlay"
-                            icon={<Share />}
-                            label="Share playlist"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              share(`${window.location.origin}/playlists/${playlist.slug}`);
-                            }}
                           />
-                        </div>
-                      ) : undefined
-                    }
-                  />
-                ))}
-              </div>
-            ) : (
-              <ProfileMessage header={isOwnProfile ? "Get started" : undefined}>
-                <p>
-                  {isOwnProfile
-                    ? "You don't have any lists yet. Create your first to organize your favorite places and share them with friends"
-                    : "No public lists found"}
-                </p>
-                {isOwnProfile && (
-                  <Link href="/playlists/new">
-                    <Button size="lg" variant="tonal" className="bg-neon mt-6">
-                      Create a list
-                    </Button>
-                  </Link>
-                )}
-              </ProfileMessage>
-            )}
-          </div>
-
-          {/* Cities */}
-          <div className="w-1/3 min-w-0">
-            <div className="text-center mt-16">
-              <p className="text-body-sm text-secondary">No cities yet</p>
+                        </span>
+                        <IconButton
+                          variant="overlay"
+                          icon={<Share />}
+                          label="Share playlist"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            share(
+                              `${window.location.origin}/playlists/${playlist.slug}`,
+                              playlistDocTitle(
+                                playlist.city,
+                                playlist.name,
+                                username,
+                              ),
+                            );
+                          }}
+                        />
+                      </div>
+                    ) : undefined
+                  }
+                />
+              ))}
             </div>
-          </div>
+          ) : (
+            <ProfileMessage header={isActualOwner ? "Get started" : undefined}>
+              <p>
+                {isActualOwner
+                  ? "You don't have any lists yet. Create your first to organize your favorite places and share them with friends"
+                  : "No public lists found"}
+              </p>
+              {isActualOwner && (
+                <Link href="/playlists/new">
+                  <Button size="lg" variant="tonal" className="bg-neon mt-6">
+                    Create a list
+                  </Button>
+                </Link>
+              )}
+            </ProfileMessage>
+          )}
+        </div>
 
-          {/* Spots */}
-          <div className="w-1/3 min-w-0">
-            <div className="text-center mt-16">
-              <p className="text-body-sm text-secondary">No spots yet</p>
-            </div>
+        {/* Cities */}
+        <div>
+          <div className="text-center mt-16">
+            <p className="text-body-sm text-secondary">No cities yet</p>
           </div>
         </div>
-      </div>
+
+        {/* Spots */}
+        <div>
+          <div className="text-center mt-16">
+            <p className="text-body-sm text-secondary">No spots yet</p>
+          </div>
+        </div>
+      </TabPanels>
     </div>
   );
 }

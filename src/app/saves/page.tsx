@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
 import { useSaves } from "@/lib/savesContext";
@@ -23,12 +23,6 @@ import { DropdownList } from "@/components/DropdownList";
 import { DropdownListItem } from "@/components/DropdownListItem";
 import { Spots } from "@/components/ui/icons/Spots";
 import { List } from "@/components/ui/icons/List";
-import { unsaveSpot, unsavePlaylist } from "@/lib/services/saves";
-import { snackbar } from "@/components/ui/Snackbar";
-import { Info } from "@/components/ui/icons/Info";
-import { Bookmark } from "@/components/ui/icons/Bookmark";
-import { IconButton } from "@/components/ui/IconButton";
-import type { Spot } from "@/types";
 
 export default function SavesPage() {
   const { user, loading: authLoading } = useAuth();
@@ -61,47 +55,6 @@ export default function SavesPage() {
       setPlaylistsLoading(false);
     });
   }, [user, tab, savedPlaylists]);
-
-  const pendingRemovals = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
-  const pendingPlaylistRemovals = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
-
-  function handleRemovePlaylist(saved: SavedPlaylist) {
-    setSavedPlaylists((prev) => prev?.filter((p) => p.playlist_id !== saved.playlist_id) ?? null);
-    const timer = setTimeout(() => {
-      if (user) unsavePlaylist(user.id, saved.playlist_id);
-      pendingPlaylistRemovals.current.delete(saved.playlist_id);
-    }, 6000);
-    pendingPlaylistRemovals.current.set(saved.playlist_id, timer);
-    snackbar({
-      icon: <Info />,
-      message: "Playlist removed from saves",
-      actionLabel: "Undo",
-      onAction: () => {
-        clearTimeout(pendingPlaylistRemovals.current.get(saved.playlist_id));
-        pendingPlaylistRemovals.current.delete(saved.playlist_id);
-        setSavedPlaylists((prev) => prev ? [saved, ...prev] : [saved]);
-      },
-    });
-  }
-
-  function handleRemove(spot: Spot) {
-    optimisticRemove(spot.google_place_id);
-    const timer = setTimeout(() => {
-      if (user) unsaveSpot(user.id, spot.id);
-      pendingRemovals.current.delete(spot.id);
-    }, 6000);
-    pendingRemovals.current.set(spot.id, timer);
-    snackbar({
-      icon: <Info />,
-      message: "Spot removed from saves",
-      actionLabel: "Undo",
-      onAction: () => {
-        clearTimeout(pendingRemovals.current.get(spot.id));
-        pendingRemovals.current.delete(spot.id);
-        restoreSpot(spot);
-      },
-    });
-  }
 
   const savedPlaceIds = new Set(savedSpots.map((s) => s.google_place_id));
 
@@ -235,7 +188,7 @@ export default function SavesPage() {
                     <SpotCard
                       className="flex-1"
                       spot={spot}
-                      bookmark={<BookmarkButton spot={spot} onRemove={() => handleRemove(spot)} />}
+                      bookmark={<BookmarkButton spot={spot} onRemove={() => optimisticRemove(spot.google_place_id)} onRestore={() => restoreSpot(spot)} />}
                     />
                   </div>
                 ))}
@@ -274,12 +227,12 @@ export default function SavesPage() {
                     className="w-full"
                     topRight={
                       <span onClick={(e) => e.preventDefault()}>
-                        <IconButton
+                        <BookmarkButton
+                          playlistId={playlist.id}
                           variant="ghost"
-                          icon={<Bookmark active />}
-                          label="Remove from saves"
                           className="text-white"
-                          onClick={() => handleRemovePlaylist({ id, playlist_id: playlist.id, playlist })}
+                          onRemove={() => setSavedPlaylists((prev) => prev?.filter((p) => p.playlist_id !== playlist.id) ?? null)}
+                          onRestore={() => setSavedPlaylists((prev) => prev ? [{ id, playlist_id: playlist.id, playlist }, ...prev] : null)}
                         />
                       </span>
                     }

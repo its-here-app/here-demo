@@ -227,6 +227,7 @@ export function PlaylistCard({
     if (!el) return;
     el.style.height = "1px";
     el.style.height = `${el.scrollHeight}px`;
+    el.scrollTop = 0;
   });
 
   return (
@@ -257,13 +258,15 @@ export function PlaylistCard({
             {onNameChange ? (
               <textarea
                 ref={textareaRef}
+                rows={1}
                 value={name ?? ""}
                 readOnly={readOnlyName}
-                onChange={(e) => !readOnlyName && onNameChange(e.target.value)}
+                onChange={(e) => !readOnlyName && onNameChange(e.target.value.replace(/\n/g, ""))}
                 placeholder="Playlist name"
                 autoFocus={autoFocusName && !readOnlyName}
                 onBlur={(e) => !readOnlyName && onNameBlur?.(e.target.value)}
                 className={`${sizeConfig[size].nameText} ${sizeConfig[size].nameOffset} text-center bg-transparent border-none outline-none w-full resize-none overflow-hidden p-0 ${readOnlyName ? "cursor-default pointer-events-none" : "cursor-text"} placeholder:opacity-40`}
+                onKeyDown={(e) => e.key === "Enter" && e.preventDefault()}
                 onClick={(e) => e.stopPropagation()}
               />
             ) : (

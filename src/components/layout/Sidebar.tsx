@@ -38,7 +38,7 @@ export default function Sidebar() {
     <aside className="flex flex-col w-[var(--sidebar-width)] p-[var(--space-page-dynamic)] bg-white h-screen fixed top-0 left-[max(0px,calc((100vw-var(--app-max-width))/2))] -ml-[var(--sidebar-width)] lg:ml-0 transition-[margin] duration-400">
       {/* Logo */}
       <Link href="/" className="cursor-pointer">
-        <FullLogo className="mt-1" />
+        <FullLogo className="mt-2" />
       </Link>
 
       {/* Nav */}
@@ -64,7 +64,10 @@ export default function Sidebar() {
 
         <div className="border-t border-subtle w-full" />
 
-        <button onClick={openCreatePlaylist} className="flex items-center gap-5 cursor-pointer">
+        <button
+          onClick={openCreatePlaylist}
+          className="flex items-center gap-5 cursor-pointer"
+        >
           <Add className="size-8 shrink-0" />
           <span className="text-header-radio-3 text-primary">
             Start a new playlist

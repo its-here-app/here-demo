@@ -64,6 +64,8 @@ export function CreatePlaylistFlow() {
   // Form state
   const [city, setCity] = useState("");
   const [draftName, setDraftName] = useState("");
+  const defaultNameRef = useRef("");
+  const lastNameRef = useRef("");
   const [description, setDescription] = useState("");
   const [isPublic, setIsPublic] = useState(false);
   const [spotsInput, setSpotsInput] = useState("");
@@ -146,6 +148,8 @@ export function CreatePlaylistFlow() {
   function handleCreate() {
     const name =
       PLAYLIST_NAMES[Math.floor(Math.random() * PLAYLIST_NAMES.length)];
+    defaultNameRef.current = name;
+    lastNameRef.current = name;
     setDraftName(name);
     setPanelOpen(false);
     setOverlayOpen(true);
@@ -217,7 +221,7 @@ export function CreatePlaylistFlow() {
 
       const playlist = await createPlaylist({
         user_id: user.id,
-        name: draftName,
+        name: draftName.trim(),
         city,
         slug,
         description,
@@ -324,7 +328,8 @@ export function CreatePlaylistFlow() {
                 image={coverPreview || getDefaultCover(city)}
                 city={city}
                 name={draftName}
-                onNameChange={setDraftName}
+                onNameChange={(v) => { setDraftName(v); if (v.trim()) lastNameRef.current = v; }}
+                onNameBlur={(v) => { if (!v.trim()) setDraftName(lastNameRef.current); }}
                 autoFocusName
                 topLeft={
                   <button

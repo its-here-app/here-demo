@@ -105,7 +105,7 @@ export default function EditProfileModal({
     } else if (usernameStatus === "taken") {
       toast({
         icon: <Error />,
-        message: "Username already taken, please try another",
+        message: "Username unavailable",
       });
     }
   }, [usernameStatus]);

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import PlaylistOverlay from "./PlaylistOverlay";
 import { getPlaylist } from "./getPlaylist";
+import { playlistDocTitle } from "@/lib/playlistDocTitle";
 
 export async function generateMetadata({
   params,
@@ -15,7 +16,7 @@ export async function generateMetadata({
 
   const username = playlist.profiles?.username;
   return {
-    title: `${playlist.city} — ${playlist.description} @${username} • Here*`,
+    title: playlistDocTitle(playlist.city, playlist.name, username),
   };
 }
 

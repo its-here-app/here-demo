@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Close } from "./icons/Close";
 import { FullLogo } from "./Logo";
 import { Scrim } from "./Scrim";
@@ -29,6 +29,8 @@ interface BottomPanelProps {
   mobileHeight?: "tall" | string;
   /** Vertically centers the body/children within the available space */
   centerBody?: boolean;
+  /** Mobile only. Shows a drag handle pill above the header and enables drag-to-dismiss at 90vh height. */
+  handle?: boolean;
   children: ReactNode;
 }
 
@@ -46,10 +48,31 @@ export function BottomPanel({
   centerHeader = false,
   mobileHeight,
   centerBody = false,
+  handle = false,
   children,
 }: BottomPanelProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [dragY, setDragY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const touchStartY = useRef(0);
+
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStartY.current = e.touches[0].clientY;
+    setIsDragging(true);
+  }
+  function handleTouchMove(e: React.TouchEvent) {
+    const delta = e.touches[0].clientY - touchStartY.current;
+    if (delta > 0) setDragY(delta);
+  }
+  function handleTouchEnd() {
+    setIsDragging(false);
+    if (dragY > 100) {
+      onClose();
+    }
+    setDragY(0);
+  }
 
   useEffect(() => {
     if (isOpen) {
@@ -65,6 +88,7 @@ export function BottomPanel({
       };
     } else {
       setIsAnimating(false);
+      setIsExpanded(false);
       const t = setTimeout(() => setIsVisible(false), 300);
       return () => clearTimeout(t);
     }
@@ -173,9 +197,34 @@ export function BottomPanel({
       <div className="fixed inset-0 z-[60] lg:hidden flex flex-col justify-end">
         <Scrim visible={isAnimating} onClick={onClose} />
         <div
-          className={`relative bg-black dark rounded-t-[1.5rem] flex flex-col gap-5 px-6 pt-6 pb-9 overflow-x-hidden transition-transform duration-300 ${isAnimating ? "translate-y-0" : "translate-y-full"}`}
-          style={{ height: mobileHeight === "tall" ? "90vh" : mobileHeight }}
+          className={`relative bg-black dark rounded-t-[1.5rem] flex flex-col gap-5 px-6 pt-6 pb-9 overflow-x-hidden ${handle && isDragging ? "" : "transition-[transform,height]"} duration-300 ${handle ? "" : isAnimating ? "translate-y-0" : "translate-y-full"}`}
+          style={{
+            height:
+              isExpanded || mobileHeight === "tall" ? "90vh" : mobileHeight,
+            ...(handle
+              ? {
+                  transform: isAnimating
+                    ? `translateY(${dragY}px)`
+                    : "translateY(100%)",
+                }
+              : {}),
+          }}
+          {...(handle
+            ? {
+                onTouchStart: handleTouchStart,
+                onTouchMove: handleTouchMove,
+                onTouchEnd: handleTouchEnd,
+              }
+            : {})}
         >
+          {handle && (
+            <div
+              className="flex justify-center cursor-pointer py-4 -mt-7 -mb-4"
+              onClick={() => setIsExpanded((prev) => !prev)}
+            >
+              <div className="w-12 h-1 rounded-full bg-white/30" />
+            </div>
+          )}
           <div className="relative">
             <div
               className={`flex flex-col ${centerHeader ? "items-center px-8" : "pr-8"}`}

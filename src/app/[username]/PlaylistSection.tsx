@@ -10,6 +10,7 @@ interface Props {
   isOwnProfile: boolean;
   userId?: string;
   pendingDelete?: string;
+  username: string;
 }
 
 export default async function PlaylistSection({
@@ -17,6 +18,7 @@ export default async function PlaylistSection({
   isOwnProfile,
   userId,
   pendingDelete,
+  username,
 }: Props) {
   const supabase = await createClient();
   const [rawPlaylists, blockRow] = await Promise.all([
@@ -45,5 +47,5 @@ export default async function PlaylistSection({
     );
   }
 
-  return <ProfileTabs playlists={playlists} isOwnProfile={isOwnProfile} />;
+  return <ProfileTabs playlists={playlists} profileId={profileId} username={username} />;
 }

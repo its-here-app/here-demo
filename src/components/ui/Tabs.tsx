@@ -2,6 +2,34 @@
 
 import { Children, isValidElement, type ReactNode } from "react";
 
+interface TabPanelsProps {
+  activeIndex: number;
+  children: ReactNode;
+  className?: string;
+}
+
+export function TabPanels({ activeIndex, children, className }: TabPanelsProps) {
+  const panels = Children.toArray(children);
+  const count = panels.length;
+  return (
+    <div className={`overflow-hidden ${className ?? ""}`}>
+      <div
+        className="flex transition-transform duration-400 ease-in-out"
+        style={{
+          width: `${count * 100}%`,
+          transform: `translateX(${-(activeIndex * 100) / count}%)`,
+        }}
+      >
+        {panels.map((panel, i) => (
+          <div key={i} style={{ width: `${100 / count}%` }} className="min-w-0">
+            {panel}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 interface TabProps {
   title: string;
   icon?: ReactNode;

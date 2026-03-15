@@ -100,12 +100,12 @@ export function Profile({
                 Edit profile
               </Button>
             )}
-            {isOthers && (
+            {isOthers && onFollow && (
               <Button variant="outline" className="flex-1" onClick={onFollow}>
                 Follow
               </Button>
             )}
-            {isFriend && (
+            {isFriend && onFollow && (
               <Button variant="filled" className="flex-1" onClick={onFollow}>
                 Following
               </Button>

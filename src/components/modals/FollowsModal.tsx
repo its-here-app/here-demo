@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Avatar } from "../ui/Avatar";
 import { BottomPanel } from "../ui/BottomPanel";
-import { Tab, Tabs } from "../ui/Tabs";
-import { getFollowers, getFollowing } from "@/lib/services/users";
+import { Tab, Tabs, TabPanels } from "../ui/Tabs";
+import { Button } from "../ui/Button";
+import { getFollowers, getFollowing, followUser } from "@/lib/services/users";
 import type { FollowUser } from "@/lib/services/users";
 
 interface FollowsModalProps {
@@ -17,6 +18,7 @@ interface FollowsModalProps {
   currentUserId?: string;
   followerCount?: number;
   followingCount?: number;
+  onFollowBack?: () => void;
 }
 
 export default function FollowsModal({
@@ -28,15 +30,23 @@ export default function FollowsModal({
   currentUserId,
   followerCount,
   followingCount,
+  onFollowBack,
 }: FollowsModalProps) {
   const [tab, setTab] = useState<"followers" | "following">(initialTab);
   const [followers, setFollowers] = useState<FollowUser[] | null>(null);
   const [following, setFollowing] = useState<FollowUser[] | null>(null);
+  const [followedBack, setFollowedBack] = useState<Set<string>>(new Set());
+  const [localFollowingCount, setLocalFollowingCount] =
+    useState(followingCount);
+
+  const isOwnProfile = !!currentUserId && currentUserId === profileId;
 
   useEffect(() => {
     setTab(initialTab);
     setFollowers(null);
     setFollowing(null);
+    setFollowedBack(new Set());
+    setLocalFollowingCount(followingCount);
   }, [isOpen, initialTab]);
 
   useEffect(() => {
@@ -48,7 +58,11 @@ export default function FollowsModal({
     }
   }, [isOpen, tab, profileId, currentUserId, followers, following]);
 
-  function renderList(list: FollowUser[] | null, emptyMsg: string) {
+  function renderList(
+    list: FollowUser[] | null,
+    emptyMsg: string,
+    showFollowBack = false,
+  ) {
     if (list === null)
       return (
         <p className="text-center text-white/40 py-8 text-body-xs">
@@ -68,7 +82,7 @@ export default function FollowsModal({
             <Link
               href={`/${u.username}`}
               onClick={onClose}
-              className="flex items-center gap-2 hover:bg-white/10 rounded-lg p-2 -mx-2 transition-colors"
+              className="flex items-center gap-2 p-2 -mx-2"
             >
               <Avatar size="lg" src={u.avatar_url ?? undefined} />
               <div className="flex-1 min-w-0">
@@ -84,6 +98,36 @@ export default function FollowsModal({
                 </div>
                 <p className="text-body-xs text-grey truncate">@{u.username}</p>
               </div>
+              {showFollowBack && !u.mutual && !followedBack.has(u.id) && (
+                <Button
+                  variant="tonal"
+                  size="sm"
+                  className="flex-shrink-0"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    followUser(currentUserId!, u.id).then(() => {
+                      setFollowedBack((prev) => new Set([...prev, u.id]));
+                      setLocalFollowingCount((c) => (c ?? 0) + 1);
+                      onFollowBack?.();
+                      setFollowing((prev) =>
+                        prev
+                          ? [{ ...u, mutual: true }, ...prev]
+                          : [{ ...u, mutual: true }],
+                      );
+                      setFollowers((prev) =>
+                        prev
+                          ? prev.map((f) =>
+                              f.id === u.id ? { ...f, mutual: true } : f,
+                            )
+                          : prev,
+                      );
+                    });
+                  }}
+                >
+                  Follow back
+                </Button>
+              )}
             </Link>
           </li>
         ))}
@@ -97,6 +141,7 @@ export default function FollowsModal({
       onClose={onClose}
       header={`@${profileName}`}
       centerHeader
+      handle
       mobileHeight="30rem"
       desktopVariant="floating"
       desktopWidth="43rem"
@@ -106,33 +151,27 @@ export default function FollowsModal({
       <Tabs className="">
         <Tab
           title={
-            followingCount != null ? `${followingCount} Following` : "Following"
-          }
-          active={tab === "following"}
-          onClick={() => setTab("following")}
-        />
-        <Tab
-          title={
-            followerCount != null ? `${followerCount} Followers` : "Followers"
+            followerCount != null ? `${followerCount} followers` : "followers"
           }
           active={tab === "followers"}
           onClick={() => setTab("followers")}
         />
+        <Tab
+          title={
+            localFollowingCount != null
+              ? `${localFollowingCount} following`
+              : "following"
+          }
+          active={tab === "following"}
+          onClick={() => setTab("following")}
+        />
       </Tabs>
 
       {/* Sliding user lists */}
-      <div
-        className={`flex w-[210%] transition-transform duration-400 ease-in-out ${
-          tab === "following" ? "translate-x-0" : "-translate-x-1/2"
-        }`}
-      >
-        <div className="w-1/2">
-          {renderList(following, "Not following anyone yet.")}
-        </div>
-        <div className="w-1/2">
-          {renderList(followers, "No followers yet.")}
-        </div>
-      </div>
+      <TabPanels activeIndex={tab === "followers" ? 0 : 1}>
+        {renderList(followers, "No followers yet.", isOwnProfile)}
+        {renderList(following, "Not following anyone yet.")}
+      </TabPanels>
     </BottomPanel>
   );
 }

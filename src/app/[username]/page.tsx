@@ -51,6 +51,7 @@ export default async function UserProfilePage({
             isOwnProfile={isOwnProfile}
             userId={user?.id}
             pendingDelete={pendingDelete}
+            username={profile.username}
           />
         </Suspense>
       </div>

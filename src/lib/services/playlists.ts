@@ -147,6 +147,15 @@ export async function createPlaylist(params: {
   return data;
 }
 
+export async function touchPlaylist(playlistId: string) {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("playlists")
+    .update({ updated_at: new Date().toISOString() })
+    .eq("id", playlistId);
+  if (error) throw error;
+}
+
 export async function updatePlaylistName(
   playlistId: string,
   name: string

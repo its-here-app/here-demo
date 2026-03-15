@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useShare } from "@/lib/useShare";
+import { useShare, copyToClipboard } from "@/lib/useShare";
 import { useAuth } from "../../lib/authContext";
 import { useRouter } from "next/navigation";
 import NextLink from "next/link";
@@ -26,6 +26,7 @@ import {
   signOut,
 } from "@/lib/services/users";
 import { Profile } from "../../components/Profile";
+import { FullLogo } from "@/components/ui/Logo";
 import EditProfileModal from "../../components/modals/EditProfileModal";
 import FollowsModal from "../../components/modals/FollowsModal";
 import { Sheet, ConfirmSheet } from "../../components/ui/Sheet";
@@ -41,6 +42,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
   const router = useRouter();
   const isOwnProfile = user?.id === profile.id;
 
+  const [canGoBack, setCanGoBack] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isConfirmBlockOpen, setIsConfirmBlockOpen] = useState(false);
@@ -67,6 +69,10 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
       getFollowingCount(profile.id),
     ]).then(([followers, following]) => setCounts({ followers, following }));
   }, [profile.id]);
+
+  useEffect(() => {
+    setCanGoBack(window.history.length > 1);
+  }, []);
 
   useEffect(() => {
     if (!user || isOwnProfile) return;
@@ -111,9 +117,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
   }
 
   function copyProfileUrl() {
-    navigator.clipboard.writeText(
-      `${window.location.origin}/${profile.username}`,
-    );
+    copyToClipboard(`${window.location.origin}/${profile.username}`);
   }
 
   async function handleSignOut() {
@@ -181,7 +185,11 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
     <>
       <AppBarConfig
         left={
-          !isOwnProfile && !!user ? (
+          !user ? (
+            <NextLink href="/" className="cursor-pointer">
+              <FullLogo />
+            </NextLink>
+          ) : !isOwnProfile || canGoBack ? (
             <IconButton
               variant="secondary"
               icon={<ArrowLeft />}
@@ -222,9 +230,11 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
         followingCount={counts?.following ?? 0}
         onEditProfile={() => setIsEditModalOpen(true)}
         onFollow={
-          relationship?.blocking
-            ? () => setIsConfirmUnblockOpen(true)
-            : handleFollow
+          !user
+            ? undefined
+            : relationship?.blocking
+              ? () => setIsConfirmUnblockOpen(true)
+              : handleFollow
         }
         onFollowersClick={() =>
           user
@@ -253,6 +263,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
         currentUserId={user?.id}
         followerCount={counts?.followers}
         followingCount={counts?.following}
+        onFollowBack={() => setCounts((c) => c && { ...c, following: c.following + 1 })}
       />
 
       <Sheet
