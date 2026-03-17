@@ -20,8 +20,10 @@ import {
   addSpotToPlaylist,
   createPlaylist,
   uploadPlaylistCover,
+  resolveUniqueSlug,
 } from "@/lib/services/playlists";
 import { getUserUsername } from "@/lib/services/users";
+import { randomPlaylistName } from "@/lib/playlistNames";
 import type { DraftSpot } from "@/types";
 
 // ─── Imperative trigger ───────────────────────────────────────────────────────
@@ -32,20 +34,6 @@ const listeners: OpenListener[] = [];
 export function openCreatePlaylist() {
   listeners.forEach((fn) => fn());
 }
-
-// ─── Random name list ─────────────────────────────────────────────────────────
-
-const PLAYLIST_NAMES = [
-  "All time faves",
-  "Best of the city",
-  "Hidden gems",
-  "On repeat",
-  "Neighborhood classics",
-  "City staples",
-  "Forever faves",
-  "Must tries",
-  "Tried & true",
-];
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -146,8 +134,7 @@ export function CreatePlaylistFlow() {
   // ── Step 1: Create ─────────────────────────────────────────────────────────
 
   function handleCreate() {
-    const name =
-      PLAYLIST_NAMES[Math.floor(Math.random() * PLAYLIST_NAMES.length)];
+    const name = randomPlaylistName();
     defaultNameRef.current = name;
     lastNameRef.current = name;
     setDraftName(name);
@@ -211,13 +198,7 @@ export function CreatePlaylistFlow() {
     setSaving(true);
 
     try {
-      const slug =
-        city
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/^-|-$/g, "") +
-        "-" +
-        Math.random().toString(36).slice(2, 7);
+      const slug = await resolveUniqueSlug(user.id, draftName.trim());
 
       const playlist = await createPlaylist({
         user_id: user.id,

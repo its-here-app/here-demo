@@ -1,6 +1,7 @@
 import { createClient } from "../supabase/client";
 import { track } from "../analytics";
 import { getDefaultCover } from "../playlist-covers";
+import { toSlug } from "../playlistUrl";
 import type { Playlist, SearchResult } from "@/types";
 
 export async function searchSpots(
@@ -47,6 +48,24 @@ export async function resolveSpot(
 ): Promise<SearchResult | null> {
   const results = await searchSpots(name, city);
   return results.find((r) => isGoodMatch(name, r.name, r.address, city)) ?? null;
+}
+
+// Returns a slug unique to this user, appending -2, -3, etc. if needed.
+export async function resolveUniqueSlug(userId: string, name: string): Promise<string> {
+  const baseSlug = toSlug(name);
+  const supabase = createClient();
+  const { data } = await supabase
+    .from("playlists")
+    .select("slug")
+    .eq("user_id", userId)
+    .like("slug", `${baseSlug}%`);
+
+  const existing = new Set((data ?? []).map((p: any) => p.slug));
+  if (!existing.has(baseSlug)) return baseSlug;
+
+  let n = 2;
+  while (existing.has(`${baseSlug}-${n}`)) n++;
+  return `${baseSlug}-${n}`;
 }
 
 export async function getPlaylistsByUser(

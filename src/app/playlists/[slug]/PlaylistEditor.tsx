@@ -19,6 +19,7 @@ import {
   touchPlaylist,
 } from "@/lib/services/playlists";
 import { getDefaultCover } from "@/lib/playlist-covers";
+import { playlistUrl } from "@/lib/playlistUrl";
 import type { PlaylistSpot, SearchResult } from "@/types";
 import { Avatar } from "@/components/ui/Avatar";
 import { PlaylistCard } from "@/components/PlaylistCard";
@@ -492,7 +493,7 @@ export default function PlaylistEditor({
                     variant="overlay"
                     icon={<Share />}
                     label="Share"
-                    onClick={() => share(`${window.location.origin}/playlists/${playlist.slug}`, playlistDocTitle(playlist.city, name, playlist.profiles.username))}
+                    onClick={() => share(`${window.location.origin}${playlistUrl(playlist.profiles.username, playlist.city, name)}`, playlistDocTitle(playlist.city, name, playlist.profiles.username))}
                   />
                 )}
               </div>
@@ -653,7 +654,7 @@ export default function PlaylistEditor({
           title="Options"
           items={
             [
-              ...(canShare ? [{ label: "Share", onClick: () => share(`${window.location.origin}/playlists/${playlist.slug}`, playlistDocTitle(playlist.city, name, playlist.profiles.username)), icon: <Share /> }] : []),
+              ...(canShare ? [{ label: "Share", onClick: () => share(`${window.location.origin}${playlistUrl(playlist.profiles.username, playlist.city, name)}`, playlistDocTitle(playlist.city, name, playlist.profiles.username)), icon: <Share /> }] : []),
               {
                 label: "Edit",
                 onClick: () => {

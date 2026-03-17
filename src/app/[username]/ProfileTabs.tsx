@@ -18,6 +18,7 @@ import { useShare } from "@/lib/useShare";
 
 import { PlaylistCard } from "@/components/PlaylistCard";
 import ProfileMessage from "./ProfileMessage";
+import { playlistUrl } from "@/lib/playlistUrl";
 import type { Playlist } from "@/types";
 import { getPlaylistsByUser } from "@/lib/services/playlists";
 import { playlistDocTitle } from "@/lib/playlistDocTitle";
@@ -101,7 +102,7 @@ export default function ProfileTabs({
                   image={playlist.cover_photo_url ?? undefined}
                   city={playlist.city}
                   name={playlist.name}
-                  href={`/playlists/${playlist.slug}`}
+                  href={playlistUrl(username, playlist.city, playlist.name)}
                   className="w-full"
                   bottomCenter={
                     <span className="flex items-center gap-1 text-body-sm text-neon">
@@ -123,7 +124,7 @@ export default function ProfileTabs({
                         onClick={(e) => {
                           e.preventDefault();
                           share(
-                            `${window.location.origin}/playlists/${playlist.slug}`,
+                            `${window.location.origin}${playlistUrl(username, playlist.city, playlist.name)}`,
                             playlistDocTitle(
                               playlist.city,
                               playlist.name,
@@ -147,7 +148,7 @@ export default function ProfileTabs({
                           onClick={(e) => {
                             e.preventDefault();
                             share(
-                              `${window.location.origin}/playlists/${playlist.slug}`,
+                              `${window.location.origin}${playlistUrl(username, playlist.city, playlist.name)}`,
                               playlistDocTitle(
                                 playlist.city,
                                 playlist.name,

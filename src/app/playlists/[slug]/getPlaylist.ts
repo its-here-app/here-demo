@@ -1,37 +1,47 @@
 import { createClient } from "@/lib/supabase/server";
+import { toSlug } from "@/lib/playlistUrl";
 
-export async function getPlaylist(slug: string) {
+const PLAYLIST_SELECT = `
+  *,
+  profiles!playlists_user_id_fkey (
+    username,
+    full_name,
+    avatar_url
+  ),
+  playlist_spots (
+    id,
+    notes,
+    created_at,
+    spots (
+      id,
+      google_place_id,
+      name,
+      address,
+      photo_url,
+      rating,
+      types
+    )
+  )
+`;
+
+// Looks up a playlist by the owner's username and the slugified playlist name.
+export async function getPlaylistByUsernameAndName(username: string, nameSlug: string) {
   const supabase = await createClient();
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("username", username)
+    .single();
+
+  if (!profile) return null;
 
   const { data, error } = await supabase
     .from("playlists")
-    .select(
-      `
-      *,
-      profiles!playlists_user_id_fkey (
-        username,
-        full_name,
-        avatar_url
-      ),
-      playlist_spots (
-        id,
-        notes,
-        created_at,
-        spots (
-          id,
-          google_place_id,
-          name,
-          address,
-          photo_url,
-          rating,
-          types
-        )
-      )
-    `,
-    )
-    .eq("slug", slug)
-    .single();
+    .select(PLAYLIST_SELECT)
+    .eq("user_id", profile.id);
 
   if (error || !data) return null;
-  return data;
+
+  return data.find((p: any) => toSlug(p.name) === nameSlug) ?? null;
 }

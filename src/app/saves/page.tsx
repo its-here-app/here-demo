@@ -9,6 +9,7 @@ import type { SavedPlaylist } from "@/lib/services/saves";
 import SpotCard from "@/components/SpotCard";
 import BookmarkButton from "@/components/BookmarkButton";
 import { getDefaultCover } from "@/lib/playlist-covers";
+import { playlistUrl } from "@/lib/playlistUrl";
 import { PlaylistCard } from "@/components/PlaylistCard";
 import {
   SearchInput,
@@ -223,7 +224,7 @@ export default function SavesPage() {
                     }
                     city={playlist.city}
                     name={playlist.name}
-                    href={`/playlists/${playlist.slug}`}
+                    href={playlistUrl(playlist.profiles.username, playlist.city, playlist.name)}
                     className="w-full"
                     topRight={
                       <span onClick={(e) => e.preventDefault()}>

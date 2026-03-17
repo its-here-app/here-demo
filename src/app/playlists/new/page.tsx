@@ -9,7 +9,10 @@ import {
   upsertSpot,
   addSpotToPlaylist,
   createPlaylist,
+  resolveUniqueSlug,
 } from "@/lib/services/playlists";
+import { playlistUrl } from "@/lib/playlistUrl";
+import { randomPlaylistName } from "@/lib/playlistNames";
 import Modal from "@/components/modals/Modal";
 import type { DraftSpot } from "@/types";
 
@@ -114,17 +117,12 @@ export default function NewPlaylistPage() {
     setError("");
 
     try {
-      const slug =
-        city
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/^-|-$/g, "") +
-        "-" +
-        Math.random().toString(36).slice(2, 7);
+      const name = randomPlaylistName();
+      const slug = await resolveUniqueSlug(user.id, name);
 
       const playlist = await createPlaylist({
         user_id: user.id,
-        name: city,
+        name,
         city,
         slug,
         description,
@@ -144,7 +142,7 @@ export default function NewPlaylistPage() {
         await addSpotToPlaylist(playlist.id, upsertedSpot.id, i, user.id);
       }
 
-      router.push(`/playlists/${playlist.slug}?from=new`);
+      router.push(playlistUrl(username, city, name) + "?from=new");
     } catch (err: any) {
       console.error("Error creating playlist:", err);
       setError(err.message);
