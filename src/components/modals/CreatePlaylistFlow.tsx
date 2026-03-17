@@ -229,6 +229,7 @@ export function CreatePlaylistFlow() {
       dismissOverlay(() => {
         resetState();
         router.push(`/${username}`);
+        router.refresh();
       });
     } catch (err) {
       console.error("Error creating playlist:", err);

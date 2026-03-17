@@ -167,7 +167,9 @@ export default function EditProfileModal({
 
       if (username !== initialUsername) {
         router.push(`/${username}`);
+        router.refresh();
       } else {
+        router.refresh();
         onSuccess();
         onClose();
       }

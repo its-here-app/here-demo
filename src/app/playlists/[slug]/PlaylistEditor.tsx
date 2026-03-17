@@ -409,6 +409,7 @@ export default function PlaylistEditor({
     const timer = setTimeout(async () => {
       await deletePlaylist(id, userId);
       router.replace(`/${username}`);
+      router.refresh();
     }, 6000);
 
     snackbar({
