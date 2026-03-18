@@ -14,9 +14,9 @@ import { Button } from "../ui/Button";
 import {
   getProfile,
   getUserByUsername,
-  updateProfile,
   uploadProfilePhoto,
 } from "@/lib/services/users";
+import { updateProfileAction } from "@/lib/actions/users";
 
 type UsernameStatus = "idle" | "too-short" | "checking" | "valid" | "taken";
 
@@ -158,16 +158,16 @@ export default function EditProfileModal({
         );
       }
 
-      await updateProfile(user.id, {
+      await updateProfileAction({
         full_name: name,
         username,
         bio,
         avatar_url: photoUrl,
+        previousUsername: initialUsername,
       });
 
       if (username !== initialUsername) {
         router.push(`/${username}`);
-        router.refresh();
       } else {
         router.refresh();
         onSuccess();

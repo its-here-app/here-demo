@@ -2,7 +2,7 @@ import { createClient } from "../supabase/client";
 import { track } from "../analytics";
 import { getDefaultCover } from "../playlist-covers";
 import { toSlug } from "../playlistUrl";
-import type { Playlist, SearchResult } from "@/types";
+import type { SearchResult } from "@/types";
 
 export async function searchSpots(
   query: string,
@@ -66,26 +66,6 @@ export async function resolveUniqueSlug(userId: string, name: string): Promise<s
   let n = 2;
   while (existing.has(`${baseSlug}-${n}`)) n++;
   return `${baseSlug}-${n}`;
-}
-
-export async function getPlaylistsByUser(
-  userId: string,
-  onlyPublic = false
-): Promise<Playlist[]> {
-  const supabase = createClient();
-  let query = supabase
-    .from("playlists")
-    .select("*, playlist_spots(count)")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false });
-  if (onlyPublic) query = query.eq("is_public", true);
-  const { data, error } = await query;
-  if (error) return [];
-  return data.map((p: any) => ({
-    ...p,
-    spot_count: p.playlist_spots?.[0]?.count ?? 0,
-    playlist_spots: undefined,
-  }));
 }
 
 export async function upsertSpot(spot: {
@@ -244,16 +224,4 @@ export async function uploadPlaylistCover(
     .eq("id", playlistId);
 
   return publicUrl;
-}
-
-export async function deletePlaylist(playlistId: string, userId: string) {
-  const supabase = createClient();
-  // Remove spots first in case cascade isn't configured
-  await supabase.from("playlist_spots").delete().eq("playlist_id", playlistId);
-  const { error } = await supabase
-    .from("playlists")
-    .delete()
-    .eq("id", playlistId);
-  if (error) throw error;
-  track(userId, "playlist.deleted", { playlist_id: playlistId });
 }

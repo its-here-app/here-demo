@@ -10,6 +10,7 @@ import {
   addSpotToPlaylist,
   createPlaylist,
   resolveUniqueSlug,
+  updateSpotNotes,
 } from "@/lib/services/playlists";
 import { playlistUrl } from "@/lib/playlistUrl";
 import { randomPlaylistName } from "@/lib/playlistNames";
@@ -74,9 +75,13 @@ export default function NewPlaylistPage() {
       const foundSpotsTemp: DraftSpot[] = [];
       const unfoundTemp: string[] = [];
 
-      for (const spot of spots) {
+      for (const line of spots) {
+        const commaIdx = line.indexOf(",");
+        const spotName = commaIdx === -1 ? line.trim() : line.slice(0, commaIdx).trim();
+        const notes = commaIdx === -1 ? undefined : line.slice(commaIdx + 1).trim() || undefined;
+
         try {
-          const match = await resolveSpot(spot, city);
+          const match = await resolveSpot(spotName, city);
           if (match) {
             foundSpotsTemp.push({
               google_place_id: match.spot_id,
@@ -85,13 +90,14 @@ export default function NewPlaylistPage() {
               photo_url: match.photo_url,
               rating: match.rating,
               types: match.types,
+              notes,
             });
           } else {
-            unfoundTemp.push(spot);
+            unfoundTemp.push(spotName);
           }
         } catch (err) {
-          console.error(`Error finding spot: ${spot}`, err);
-          unfoundTemp.push(spot);
+          console.error(`Error finding spot: ${spotName}`, err);
+          unfoundTemp.push(spotName);
         }
       }
 
@@ -139,7 +145,8 @@ export default function NewPlaylistPage() {
           rating: spot.rating,
           types: spot.types,
         });
-        await addSpotToPlaylist(playlist.id, upsertedSpot.id, i, user.id);
+        const added = await addSpotToPlaylist(playlist.id, upsertedSpot.id, i, user.id);
+        if (spot.notes) await updateSpotNotes(added.id, spot.notes);
       }
 
       router.push(playlistUrl(username, city, name) + "?from=new");

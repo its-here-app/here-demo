@@ -14,16 +14,9 @@ import { Photo } from "@/components/ui/icons/Photo";
 import { PlaylistCard } from "@/components/PlaylistCard";
 import SpotCard from "@/components/SpotCard";
 import { getDefaultCover } from "@/lib/playlist-covers";
-import {
-  resolveSpot,
-  upsertSpot,
-  addSpotToPlaylist,
-  createPlaylist,
-  uploadPlaylistCover,
-  resolveUniqueSlug,
-} from "@/lib/services/playlists";
-import { getUserUsername } from "@/lib/services/users";
+import { resolveSpot, uploadPlaylistCover } from "@/lib/services/playlists";
 import { randomPlaylistName } from "@/lib/playlistNames";
+import { createPlaylistAction } from "@/lib/actions/playlists";
 import type { DraftSpot } from "@/types";
 
 // ─── Imperative trigger ───────────────────────────────────────────────────────
@@ -40,7 +33,6 @@ export function openCreatePlaylist() {
 export function CreatePlaylistFlow() {
   const { user } = useAuth();
   const router = useRouter();
-  const [username, setUsername] = useState("");
 
   // UI state
   const [panelOpen, setPanelOpen] = useState(false);
@@ -66,14 +58,6 @@ export function CreatePlaylistFlow() {
   const coverInputRef = useRef<HTMLInputElement>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState("");
-
-  // Load username
-  useEffect(() => {
-    if (!user) return;
-    getUserUsername(user.id).then((name) => {
-      if (name) setUsername(name);
-    });
-  }, [user?.id]);
 
   // Listen for imperative open calls
   useEffect(() => {
@@ -158,8 +142,12 @@ export function CreatePlaylistFlow() {
     const unfoundTemp: string[] = [];
 
     for (const line of lines) {
+      const commaIdx = line.indexOf(",");
+      const spotName = commaIdx === -1 ? line.trim() : line.slice(0, commaIdx).trim();
+      const notes = commaIdx === -1 ? undefined : line.slice(commaIdx + 1).trim() || undefined;
+
       try {
-        const match = await resolveSpot(line, city);
+        const match = await resolveSpot(spotName, city);
         if (match) {
           foundTemp.push({
             google_place_id: match.spot_id,
@@ -168,12 +156,13 @@ export function CreatePlaylistFlow() {
             photo_url: match.photo_url,
             rating: match.rating,
             types: match.types,
+            notes,
           });
         } else {
-          unfoundTemp.push(line);
+          unfoundTemp.push(spotName);
         }
       } catch {
-        unfoundTemp.push(line);
+        unfoundTemp.push(spotName);
       }
     }
 
@@ -198,37 +187,20 @@ export function CreatePlaylistFlow() {
     setSaving(true);
 
     try {
-      const slug = await resolveUniqueSlug(user.id, draftName.trim());
-
-      const playlist = await createPlaylist({
-        user_id: user.id,
+      const result = await createPlaylistAction({
         name: draftName.trim(),
         city,
-        slug,
         description,
         is_public: isPublic,
+        spots: foundSpots,
       });
 
-      for (let i = 0; i < foundSpots.length; i++) {
-        const spot = foundSpots[i];
-        const upserted = await upsertSpot({
-          google_place_id: spot.google_place_id,
-          name: spot.name,
-          address: spot.address,
-          photo_url: spot.photo_url,
-          rating: spot.rating,
-          types: spot.types,
-        });
-        await addSpotToPlaylist(playlist.id, upserted.id, i, user.id);
-      }
-
       if (coverFile) {
-        await uploadPlaylistCover(playlist.id, user.id, coverFile);
+        await uploadPlaylistCover(result.id, user.id, coverFile);
       }
 
       dismissOverlay(() => {
         resetState();
-        router.push(`/${username}`);
         router.refresh();
       });
     } catch (err) {

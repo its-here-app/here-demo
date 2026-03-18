@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getPlaylistByUsernameAndName } from "@/app/playlists/[slug]/getPlaylist";
+import { getPlaylistByUsernameAndName } from "@/lib/queries/playlists";
 import PlaylistOverlay from "@/app/playlists/[slug]/PlaylistOverlay";
 import { playlistDocTitle } from "@/lib/playlistDocTitle";
 

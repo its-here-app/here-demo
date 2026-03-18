@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { useState } from "react";
 import Link from "next/link";
 import { Tabs, Tab, TabPanels } from "@/components/ui/Tabs";
 import { Button } from "@/components/ui/Button";
@@ -20,7 +19,6 @@ import { PlaylistCard } from "@/components/PlaylistCard";
 import ProfileMessage from "./ProfileMessage";
 import { playlistUrl } from "@/lib/playlistUrl";
 import type { Playlist } from "@/types";
-import { getPlaylistsByUser } from "@/lib/services/playlists";
 import { playlistDocTitle } from "@/lib/playlistDocTitle";
 
 interface ProfileTabsProps {
@@ -37,29 +35,12 @@ export default function ProfileTabs({
   const [activeTab, setActiveTab] = useState<"playlists" | "cities" | "spots">(
     "playlists",
   );
-  const [playlists, setPlaylists] = useState<Playlist[]>(initialPlaylists);
-  const [isActualOwner, setIsActualOwner] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const playlists = initialPlaylists;
   const { user } = useAuth();
   const { share } = useShare();
-  const pathname = usePathname();
 
-  useEffect(() => {
-    const owns = !!user && user.id === profileId;
-    setIsActualOwner(owns);
-    setIsLoggedIn(!!user);
-    if (!owns) return;
-    getPlaylistsByUser(profileId, false).then(setPlaylists);
-  }, [user, profileId, pathname]);
-
-  useEffect(() => {
-    function handlePlaylistSaved() {
-      if (!isActualOwner) return;
-      getPlaylistsByUser(profileId, false).then(setPlaylists);
-    }
-    window.addEventListener("playlist-saved", handlePlaylistSaved);
-    return () => window.removeEventListener("playlist-saved", handlePlaylistSaved);
-  }, [isActualOwner, profileId]);
+  const isActualOwner = !!user && user.id === profileId;
+  const isLoggedIn = !!user;
 
   const tabIndex = { playlists: 0, cities: 1, spots: 2 }[activeTab];
 

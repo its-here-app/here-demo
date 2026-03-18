@@ -1,5 +1,26 @@
 import { createClient } from "@/lib/supabase/server";
 import { toSlug } from "@/lib/playlistUrl";
+import type { Playlist } from "@/types";
+
+export async function getPlaylistsByUser(
+  userId: string,
+  onlyPublic = false
+): Promise<Playlist[]> {
+  const supabase = await createClient();
+  let query = supabase
+    .from("playlists")
+    .select("*, playlist_spots(count)")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+  if (onlyPublic) query = query.eq("is_public", true);
+  const { data, error } = await query;
+  if (error) return [];
+  return data.map((p: any) => ({
+    ...p,
+    spot_count: p.playlist_spots?.[0]?.count ?? 0,
+    playlist_spots: undefined,
+  }));
+}
 
 const PLAYLIST_SELECT = `
   *,
@@ -24,8 +45,10 @@ const PLAYLIST_SELECT = `
   )
 `;
 
-// Looks up a playlist by the owner's username and the slugified playlist name.
-export async function getPlaylistByUsernameAndName(username: string, nameSlug: string) {
+export async function getPlaylistByUsernameAndName(
+  username: string,
+  nameSlug: string
+) {
   const supabase = await createClient();
 
   const { data: profile } = await supabase

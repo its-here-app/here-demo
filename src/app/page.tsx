@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getUserUsername } from "@/lib/services/users";
+import { getUserUsername } from "@/lib/queries/users";
 
 export default async function HomePage() {
   const supabase = await createClient();

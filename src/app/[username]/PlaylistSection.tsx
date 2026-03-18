@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { getPlaylistsByUser } from "@/lib/services/playlists";
+import { getPlaylistsByUser } from "@/lib/queries/playlists";
 import { Block } from "@/components/ui/icons/Block";
 import ProfileTabs from "./ProfileTabs";
 import ProfileMessage from "./ProfileMessage";
@@ -9,7 +9,6 @@ interface Props {
   profileId: string;
   isOwnProfile: boolean;
   userId?: string;
-  pendingDelete?: string;
   username: string;
 }
 
@@ -17,10 +16,10 @@ export default async function PlaylistSection({
   profileId,
   isOwnProfile,
   userId,
-  pendingDelete,
   username,
 }: Props) {
   const supabase = await createClient();
+
   const [rawPlaylists, blockRow] = await Promise.all([
     getPlaylistsByUser(profileId, !isOwnProfile),
     userId && !isOwnProfile
@@ -34,7 +33,7 @@ export default async function PlaylistSection({
   ]);
 
   const isBlocked = !!blockRow?.data;
-  const playlists = rawPlaylists.filter((p) => p.id !== pendingDelete);
+  const playlists = rawPlaylists;
 
   if (isBlocked) {
     return (

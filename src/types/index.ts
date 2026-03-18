@@ -53,4 +53,4 @@ export interface SearchResult {
 export type DraftSpot = Pick<
   Spot,
   "google_place_id" | "name" | "address" | "photo_url" | "rating" | "types"
->;
+> & { notes?: string };

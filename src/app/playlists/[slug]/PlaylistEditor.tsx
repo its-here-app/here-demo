@@ -15,9 +15,9 @@ import {
   updatePlaylistDescription,
   updateSpotNotes,
   uploadPlaylistCover,
-  deletePlaylist,
   touchPlaylist,
 } from "@/lib/services/playlists";
+import { deletePlaylistAction, revalidateProfileAction } from "@/lib/actions/playlists";
 import { getDefaultCover } from "@/lib/playlist-covers";
 import { playlistUrl } from "@/lib/playlistUrl";
 import type { PlaylistSpot, SearchResult } from "@/types";
@@ -379,6 +379,7 @@ export default function PlaylistEditor({
       }
 
       await touchPlaylist(playlist.id);
+      await revalidateProfileAction(playlist.profiles.username);
       window.dispatchEvent(new Event("playlist-saved"));
       setSavedAt(Date.now());
       setEditMode(false);
@@ -401,28 +402,17 @@ export default function PlaylistEditor({
     setCoverUrl(URL.createObjectURL(file));
   }
 
-  function handleDeletePlaylist() {
-    const id = playlist.id;
+  async function handleDeletePlaylist() {
     const username = playlist.profiles.username;
-    const userId = user?.id ?? "";
 
-    const timer = setTimeout(async () => {
-      await deletePlaylist(id, userId);
-      router.replace(`/${username}`);
-      router.refresh();
-    }, 6000);
+    await deletePlaylistAction(playlist.id, username);
 
     snackbar({
       icon: <Trash />,
       message: `${playlist.city} ${playlist.name} deleted`,
-      actionLabel: "Undo",
-      onAction: () => {
-        clearTimeout(timer);
-        router.replace(`/${username}`);
-      },
     });
 
-    onClose?.(`/${username}?pendingDelete=${id}`);
+    onClose?.(`/${username}`);
   }
 
   return (
