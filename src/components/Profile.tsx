@@ -67,11 +67,9 @@ export function Profile({
           </div>
 
           <div className="flex flex-col items-center gap-4 w-full lg:items-start lg:gap-3 lg:mt-3">
-            {bio && (
-              <p className="text-body-sm text-secondary text-center max-w-sm lg:text-left lg:w-full">
-                {bio}
-              </p>
-            )}
+            <p className="text-body-sm text-secondary text-center max-w-sm lg:text-left lg:w-full">
+              {bio}
+            </p>
             <div className="flex gap-2 justify-center lg:justify-start">
               <button
                 onClick={onFollowersClick}
