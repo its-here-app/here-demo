@@ -9,6 +9,8 @@ import { FullLogo } from "../ui/Logo";
 import { Add } from "../ui/icons/Add";
 import { openCreatePlaylist } from "@/components/modals/CreatePlaylistFlow";
 import { Bookmark } from "../ui/icons/Bookmark";
+import { Home } from "../ui/icons/Home";
+import { Search } from "../ui/icons/Search";
 import { Logout } from "../ui/icons/Logout";
 import { Avatar } from "../ui/Avatar";
 
@@ -43,6 +45,16 @@ export default function Sidebar() {
 
       {/* Nav */}
       <nav className="-ml-2 flex flex-col gap-8 mt-[5rem]">
+        <Link href="/" className="flex items-center gap-5">
+          <Home focus={pathname === "/"} className="size-8 shrink-0 text-primary" />
+          <span className="text-header-radio-3 text-primary">Home</span>
+        </Link>
+
+        <Link href="/search" className="flex items-center gap-5">
+          <Search focus={pathname.startsWith("/search")} className="size-8 shrink-0 text-primary" />
+          <span className="text-header-radio-3 text-primary">Search</span>
+        </Link>
+
         <Link href="/saves" className="flex items-center gap-5">
           <Bookmark
             active={pathname === "/saves"}

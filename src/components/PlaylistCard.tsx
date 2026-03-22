@@ -2,6 +2,8 @@
 
 import { useState, useRef, useLayoutEffect, useEffect, type ReactNode } from "react";
 import Link from "next/link";
+import { ArrowRight } from "./ui/icons/ArrowRight";
+import { IconButton } from "./ui/IconButton";
 
 // ─── TextScrim ────────────────────────────────────────────────────────────────
 // Gradient overlay for text legibility on card images.
@@ -46,7 +48,7 @@ export function TextScrim({
 
 // ─── PlaylistCard ─────────────────────────────────────────────────────────────
 
-export type PlaylistCardSize = "hero" | "lg" | "md" | "sm" | "empty";
+export type PlaylistCardSize = "hero" | "lg" | "md" | "sm" | "xs" | "empty";
 
 interface PlaylistCardProps {
   size?: PlaylistCardSize;
@@ -157,6 +159,7 @@ const sizeConfig: Record<PlaylistCardSize, SizeConfig> = {
   lg:    { ...cardDefaults, height: "aspect-square", radius: "rounded-md", nameOffset: "" },
   md:    { ...cardDefaults, height: "aspect-square", radius: "rounded-sm", nameOffset: "" },
   sm:    { ...cardDefaults, height: "aspect-square", radius: "rounded-sm", nameOffset: "-mt-1" },
+  xs:    { ...cardDefaults, height: "", radius: "", nameOffset: "" },
   empty: {
     height: "aspect-square",
     radius: "rounded-sm",
@@ -211,6 +214,30 @@ export function PlaylistCard({
           </div>
         )}
       </div>
+    );
+  }
+
+  // ── XS ────────────────────────────────────────────────────────────────────
+  if (size === "xs") {
+    const XsWrapper = (href ? Link : onClick ? "button" : "div") as React.ElementType;
+    const xsProps = href ? { href } : onClick ? { onClick } : {};
+    return (
+      <XsWrapper
+        {...(xsProps as Record<string, unknown>)}
+        className={`flex items-center gap-2 bg-surface-subtle rounded-sm p-2 w-full overflow-hidden ${href || onClick ? "cursor-pointer" : ""} ${className ?? ""}`}
+      >
+        <div className="shrink-0 size-[3.125rem] rounded-xs overflow-hidden bg-black/10">
+          {image && (
+            <img src={image} alt={city ?? name ?? ""} className="size-full object-cover" />
+          )}
+        </div>
+        <div className="flex-1 min-w-0 flex flex-col">
+          {city && <p className="text-body-xs text-secondary truncate">{city}</p>}
+          {name && <p className="text-header-radio-2 text-primary truncate">{name}</p>}
+          {subtitle && <p className="text-body-xs text-secondary truncate">{subtitle}</p>}
+        </div>
+        <IconButton variant="ghost" icon={<ArrowRight className="size-6" />} aria-hidden tabIndex={-1} />
+      </XsWrapper>
     );
   }
 

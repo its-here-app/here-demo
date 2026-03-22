@@ -4,6 +4,21 @@ import { getDefaultCover } from "../playlist-covers";
 import { toSlug } from "../playlistUrl";
 import type { SearchResult } from "@/types";
 
+export async function getPlaylistsByUser(userId: string): Promise<import("@/types").Playlist[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("playlists")
+    .select("*, playlist_spots(count)")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+  if (error) return [];
+  return data.map((p: any) => ({
+    ...p,
+    spot_count: p.playlist_spots?.[0]?.count ?? 0,
+    playlist_spots: undefined,
+  }));
+}
+
 export async function searchSpots(
   query: string,
   city?: string

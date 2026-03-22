@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useShare, copyToClipboard } from "@/lib/useShare";
 import { useAuth } from "../../lib/authContext";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import NextLink from "next/link";
 import { AppBarConfig } from "@/lib/appBarContext";
 import { IconButton } from "@/components/ui/IconButton";
@@ -40,9 +40,10 @@ interface ProfileHeaderProps {
 export default function ProfileHeader({ profile }: ProfileHeaderProps) {
   const { user } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const isOwnProfile = user?.id === profile.id;
 
-  const [canGoBack, setCanGoBack] = useState(false);
+  const canGoBack = searchParams.get("back") === "1";
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isConfirmBlockOpen, setIsConfirmBlockOpen] = useState(false);
@@ -69,10 +70,6 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
       getFollowingCount(profile.id),
     ]).then(([followers, following]) => setCounts({ followers, following }));
   }, [profile.id]);
-
-  useEffect(() => {
-    setCanGoBack(window.history.length > 1);
-  }, []);
 
   useEffect(() => {
     if (!user || isOwnProfile) return;
@@ -189,7 +186,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
             <NextLink href="/" className="cursor-pointer">
               <FullLogo />
             </NextLink>
-          ) : !isOwnProfile || canGoBack ? (
+          ) : canGoBack ? (
             <IconButton
               variant="secondary"
               mobileTransparent

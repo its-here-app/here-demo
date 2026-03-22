@@ -80,23 +80,19 @@ export default function FollowsModal({
         {list.map((u) => (
           <li key={u.id}>
             <Link
-              href={`/${u.username}`}
+              href={`/${u.username}?back=1`}
               onClick={onClose}
               className="flex items-center gap-2 p-2 -mx-2"
             >
               <Avatar size="lg" src={u.avatar_url ?? undefined} />
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className="text-body-xs text-white truncate">
-                    {u.full_name}
-                  </p>
+                <p className="text-body-xs text-white truncate">{u.full_name}</p>
+                <div className="flex items-center gap-1">
+                  <p className="text-body-xs text-grey-500 truncate">@{u.username}</p>
                   {u.mutual && (
-                    <span className="text-body-xs text-grey-500 flex-shrink-0">
-                      Mutual
-                    </span>
+                    <span className="text-body-xs text-grey-500 flex-shrink-0">· mutual</span>
                   )}
                 </div>
-                <p className="text-body-xs text-grey-500 truncate">@{u.username}</p>
               </div>
               {showFollowBack && !u.mutual && !followedBack.has(u.id) && (
                 <Button

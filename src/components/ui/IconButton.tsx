@@ -1,5 +1,6 @@
 import { forwardRef } from "react";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
+import Link from "next/link";
 
 export type IconButtonVariant = "primary" | "secondary" | "tertiary" | "brand" | "hero" | "overlay" | "ghost";
 export type IconButtonSize = "default" | "lg";
@@ -9,6 +10,7 @@ interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   size?: IconButtonSize;
   icon: ReactNode;
   label?: string;
+  href?: string;
   mobileTransparent?: boolean;
 }
 
@@ -25,7 +27,7 @@ function variantClasses(variant: IconButtonVariant, mobileTransparent?: boolean)
 }
 
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
-  function IconButton({ variant = "primary", size = "default", icon, label, mobileTransparent, className, ...rest }, ref) {
+  function IconButton({ variant = "primary", size = "default", icon, label, href, mobileTransparent, className, ...rest }, ref) {
     const isHero = variant === "hero";
 
     const shapeClasses = isHero
@@ -34,14 +36,25 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
       ? "size-[3.375rem] rounded-[1.875rem]"
       : "size-9 rounded-[1.875rem]";
 
+    const classes = `inline-flex items-center justify-center shrink-0 cursor-pointer transition-opacity hover:opacity-80 active:opacity-70 disabled:opacity-40 disabled:cursor-not-allowed ${shapeClasses} ${variantClasses(variant, mobileTransparent)} ${className ?? ""}`;
+    const content = <span className="size-6 flex items-center justify-center">{icon}</span>;
+
+    if (href) {
+      return (
+        <Link href={href} aria-label={label} className={classes}>
+          {content}
+        </Link>
+      );
+    }
+
     return (
       <button
         ref={ref}
         aria-label={label}
-        className={`inline-flex items-center justify-center shrink-0 cursor-pointer transition-opacity hover:opacity-80 active:opacity-70 disabled:opacity-40 disabled:cursor-not-allowed ${shapeClasses} ${variantClasses(variant, mobileTransparent)} ${className ?? ""}`}
+        className={classes}
         {...rest}
       >
-        <span className="size-6 flex items-center justify-center">{icon}</span>
+        {content}
       </button>
     );
   }

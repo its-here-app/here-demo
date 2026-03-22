@@ -3,6 +3,7 @@ import { Avatar } from "./Avatar";
 import { Bookmark } from "./icons/Bookmark";
 import { Home } from "./icons/Home";
 import { Plus } from "./icons/Plus";
+import { Search } from "./icons/Search";
 import { IconButton } from "./IconButton";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -69,24 +70,32 @@ export function BottomNavigation({
     />
   );
 
-  // Demo: bookmark + add + avatar
+  // Demo: home + bookmark + add + avatar
   if (demo) {
     return (
       <div
-        className={`bg-surface-base flex items-center justify-center gap-[4.5rem] px-10 py-2 shadow-[0px_-4px_14px_0px_rgba(0,0,0,0.05)] ${className ?? ""}`}
+        className={`bg-surface-base py-2 shadow-[0px_-4px_14px_0px_rgba(0,0,0,0.05)] ${className ?? ""}`}
       >
-        <NavButton label="Saved" onClick={() => onTabChange?.("saved")}>
-          <Bookmark active={activeTab === "saved"} />
-        </NavButton>
-        {addButton}
-        <button
-          type="button"
-          onClick={() => onTabChange?.("profile")}
-          aria-label="Profile"
-          className="transition-opacity hover:opacity-70"
-        >
-          <Avatar src={avatarUrl} focus={activeTab === "profile"} size="md" />
-        </button>
+        <div className="flex items-center justify-evenly max-w-sm mx-auto">
+          <NavButton label="Home" onClick={() => onTabChange?.("home")}>
+            <Home focus={activeTab === "home"} className="size-8" />
+          </NavButton>
+          <NavButton label="Search" onClick={() => onTabChange?.("search")}>
+            <Search focus={activeTab === "search"} className="size-8" />
+          </NavButton>
+          {addButton}
+          <NavButton label="Saved" onClick={() => onTabChange?.("saved")}>
+            <Bookmark active={activeTab === "saved"} className="size-8" />
+          </NavButton>
+          <button
+            type="button"
+            onClick={() => onTabChange?.("profile")}
+            aria-label="Profile"
+            className="transition-opacity hover:opacity-70"
+          >
+            <Avatar src={avatarUrl} focus={activeTab === "profile"} size="sm" className="mt-2" />
+</button>
+        </div>
       </div>
     );
   }

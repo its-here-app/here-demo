@@ -215,8 +215,11 @@ export function BottomPanel({
         >
           {handle && (
             <div
-              className="flex justify-center cursor-pointer py-4 -mt-7 -mb-4"
+              className="flex justify-center cursor-pointer py-4 -mt-7 -mb-4 touch-none"
               onClick={() => setIsExpanded((prev) => !prev)}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
             >
               <div className="w-12 h-1 rounded-full bg-white/20" />
             </div>

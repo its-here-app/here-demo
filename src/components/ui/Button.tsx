@@ -20,21 +20,21 @@ const sizeClasses: Record<ButtonSize, string> = {
   lg: "h-[3.125rem] px-5 py-[1.125rem] gap-1.5 rounded-[1rem] text-body-sm",
 };
 
-function variantClasses(variant: ButtonVariant, darkTheme: boolean, size: ButtonSize): string {
+function variantClasses(variant: ButtonVariant, darkTheme: boolean): string {
   if (variant === "overlay") {
     return "backdrop-blur-sm bg-white/20 text-white rounded-full px-3 py-1.5 text-body-xs gap-1";
   }
-  if (!darkTheme && size !== "sm") {
+  if (!darkTheme) {
     switch (variant) {
       case "filled":  return "bg-black text-white";
-      case "tonal":   return "bg-grey-300 text-primary";
+      case "tonal":   return "bg-surface-subtle text-primary";
       case "outline": return "border border-subtle text-primary";
       case "text":    return "text-primary";
     }
   } else {
     switch (variant) {
       case "filled":  return "bg-white text-black";
-      case "tonal":   return "bg-white/15 text-primary";
+      case "tonal":   return "bg-surface-subtle text-primary";
       case "outline": return "border border-subtle text-primary";
       case "text":    return "text-primary";
     }
@@ -59,8 +59,8 @@ export function Button({
   return (
     <button
       className={`inline-flex items-center justify-center cursor-pointer transition-[filter] hover:brightness-95 active:brightness-90 ${disabledClasses} ${
-        isOverlay ? variantClasses(variant, darkTheme, size) : `${sizeClasses[size]} ${variantClasses(variant, darkTheme, size)}`
-      } ${className ?? ""}`}
+        isOverlay ? variantClasses(variant, darkTheme) : `${sizeClasses[size]} ${variantClasses(variant, darkTheme)}`
+      } ${(leftIcon || rightIcon) && !isOverlay ? "rounded-full" : ""} ${className ?? ""}`}
       {...rest}
     >
       {leftIcon && <span className="shrink-0 size-6 flex items-center justify-center">{leftIcon}</span>}
