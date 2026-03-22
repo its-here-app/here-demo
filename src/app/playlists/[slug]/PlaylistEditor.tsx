@@ -13,11 +13,15 @@ import {
   reorderPlaylistSpots,
   updatePlaylistName,
   updatePlaylistDescription,
+  updatePlaylistVisibility,
   updateSpotNotes,
   uploadPlaylistCover,
   touchPlaylist,
 } from "@/lib/services/playlists";
-import { deletePlaylistAction, revalidateProfileAction } from "@/lib/actions/playlists";
+import {
+  deletePlaylistAction,
+  revalidateProfileAction,
+} from "@/lib/actions/playlists";
 import { getDefaultCover } from "@/lib/playlist-covers";
 import { playlistUrl } from "@/lib/playlistUrl";
 import type { PlaylistSpot, SearchResult } from "@/types";
@@ -26,12 +30,14 @@ import { PlaylistCard } from "@/components/PlaylistCard";
 import { Button } from "@/components/ui/Button";
 import { IconButton } from "@/components/ui/IconButton";
 import { Close } from "@/components/ui/icons/Close";
+import { Lock } from "@/components/ui/icons/Lock";
 import { Edit } from "@/components/ui/icons/Edit";
 import { Overflow } from "@/components/ui/icons/Overflow";
 import { Photo } from "@/components/ui/icons/Photo";
 import { Spinner } from "@/components/ui/Spinner";
 import { Share } from "@/components/ui/icons/Share";
 import { Trash } from "@/components/ui/icons/Trash";
+import { World } from "@/components/ui/icons/World";
 import { Sheet, ConfirmSheet } from "@/components/ui/Sheet";
 import { snackbar } from "@/components/ui/Snackbar";
 import { toast } from "@/components/ui/Toast";
@@ -58,6 +64,7 @@ import {
   arrayMove,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { Asterisk } from "@/components/ui/icons/Asterisk";
 
 interface Props {
   playlist: any;
@@ -135,6 +142,7 @@ function SortableSpotCard({
         )}
         <SpotCard
           spot={ps.spots}
+          subtitleText={ps.notes ?? ""}
           className="flex-1"
           bookmark={<BookmarkButton spot={ps.spots} />}
           action={
@@ -158,20 +166,12 @@ function SortableSpotCard({
           rows={2}
           className="mt-3 w-full text-sm text-gray-600 border border-gray-200 rounded-lg px-3 py-2 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
-      ) : (
-        ps.notes && (
-          <p className="text-sm text-gray-700 italic mt-2">{ps.notes}</p>
-        )
-      )}
+      ) : null}
     </div>
   );
 }
 
-export default function PlaylistEditor({
-  playlist,
-  isOwner,
-  onClose,
-}: Props) {
+export default function PlaylistEditor({ playlist, isOwner, onClose }: Props) {
   const { user } = useAuth();
   const router = useRouter();
 
@@ -191,6 +191,7 @@ export default function PlaylistEditor({
         (a.position ?? 0) - (b.position ?? 0),
     ),
   );
+  const [isPublic, setIsPublic] = useState(playlist.is_public);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const overflowRef = useRef<HTMLButtonElement>(null);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
@@ -206,7 +207,9 @@ export default function PlaylistEditor({
   } | null>(null);
   const [stagedCoverFile, setStagedCoverFile] = useState<File | null>(null);
   const [pendingAdds, setPendingAdds] = useState<SearchResult[]>([]);
-  const [pendingRemoveIds, setPendingRemoveIds] = useState<Set<string>>(new Set());
+  const [pendingRemoveIds, setPendingRemoveIds] = useState<Set<string>>(
+    new Set(),
+  );
   const [saving, setSaving] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
@@ -259,7 +262,9 @@ export default function PlaylistEditor({
   }
 
   function handleNotesChange(spotId: string, notes: string) {
-    setSpots((prev) => prev.map((s) => (s.id === spotId ? { ...s, notes } : s)));
+    setSpots((prev) =>
+      prev.map((s) => (s.id === spotId ? { ...s, notes } : s)),
+    );
   }
 
   function handleEnterEdit() {
@@ -307,7 +312,10 @@ export default function PlaylistEditor({
           );
           setCoverUrl(url);
         } catch {
-          toast({ icon: <ErrorIcon />, message: "Failed to upload cover photo" });
+          toast({
+            icon: <ErrorIcon />,
+            message: "Failed to upload cover photo",
+          });
           setStagedCoverFile(null);
           if (editStartRef.current) setCoverUrl(editStartRef.current.coverUrl);
         } finally {
@@ -430,20 +438,34 @@ export default function PlaylistEditor({
   return (
     <div className="w-full lg:grid lg:grid-cols-2 lg:gap-6 lg:items-start">
       {/* Cover photo */}
-      <div className="relative mb-6 lg:mb-0 lg:sticky lg:top-0 lg:h-[calc(100vh-2*var(--space-page-sm))]">
+      <div className="relative mb-4 lg:mb-0 lg:sticky lg:top-0 lg:h-[calc(100vh-2*var(--space-page-sm))]">
         <PlaylistCard
           className="h-[30rem] lg:h-full"
           size="hero"
           image={coverUrl}
           city={playlist.city}
           name={name}
-          onNameChange={isOwner ? (v) => { setName(v); if (v.trim()) lastNameRef.current = v; } : undefined}
-          onNameBlur={isOwner ? (v) => {
-            const trimmed = v.trim();
-            if (!trimmed) { setName(lastNameRef.current); return; }
-            if (trimmed !== v) setName(trimmed);
-            lastNameRef.current = trimmed;
-          } : undefined}
+          onNameChange={
+            isOwner
+              ? (v) => {
+                  setName(v);
+                  if (v.trim()) lastNameRef.current = v;
+                }
+              : undefined
+          }
+          onNameBlur={
+            isOwner
+              ? (v) => {
+                  const trimmed = v.trim();
+                  if (!trimmed) {
+                    setName(lastNameRef.current);
+                    return;
+                  }
+                  if (trimmed !== v) setName(trimmed);
+                  lastNameRef.current = trimmed;
+                }
+              : undefined
+          }
           readOnlyName={!editMode}
           topLeft={
             editMode ? (
@@ -476,7 +498,7 @@ export default function PlaylistEditor({
               <button
                 onClick={handleDone}
                 disabled={saving}
-                className="text-body-xs text-white cursor-pointer disabled:opacity-50"
+                className="text-body-xs text-white cursor-pointer disabled:opacity-50 min-w-[3.5rem] text-right"
               >
                 {saving ? "Saving…" : "Done"}
               </button>
@@ -486,7 +508,7 @@ export default function PlaylistEditor({
                 icon={<Overflow orientation="horizontal" />}
                 label="More options"
                 ref={overflowRef}
-                onClick={() => setIsSheetOpen(s => !s)}
+                onClick={() => setIsSheetOpen((s) => !s)}
               />
             ) : (
               <div className="text-white flex items-center gap-2">
@@ -496,7 +518,16 @@ export default function PlaylistEditor({
                     variant="overlay"
                     icon={<Share />}
                     label="Share"
-                    onClick={() => share(`${window.location.origin}${playlistUrl(playlist.profiles.username, playlist.city, name)}`, playlistDocTitle(playlist.city, name, playlist.profiles.username))}
+                    onClick={() =>
+                      share(
+                        `${window.location.origin}${playlistUrl(playlist.profiles.username, playlist.city, name)}`,
+                        playlistDocTitle(
+                          playlist.city,
+                          name,
+                          playlist.profiles.username,
+                        ),
+                      )
+                    }
                   />
                 )}
               </div>
@@ -508,7 +539,11 @@ export default function PlaylistEditor({
                 href={`/${playlist.profiles.username}`}
                 className="flex items-center gap-2 lg:gap-3 cursor-pointer"
               >
-                <Avatar size="sm" lgSize="md" src={playlist.profiles.avatar_url ?? undefined} />
+                <Avatar
+                  size="sm"
+                  lgSize="md"
+                  src={playlist.profiles.avatar_url ?? undefined}
+                />
                 <p className="text-brand text-body-xs">
                   {playlist.profiles.username}
                 </p>
@@ -518,7 +553,9 @@ export default function PlaylistEditor({
           bottomCenter={
             editMode ? (
               uploadingCover ? (
-                <div className="py-1.5"><Spinner /></div>
+                <div className="py-1.5">
+                  <Spinner />
+                </div>
               ) : (
                 <Button
                   variant="overlay"
@@ -534,7 +571,18 @@ export default function PlaylistEditor({
           bottomRight={
             editMode ? undefined : (
               <p className="text-brand text-body-xs">
-                Last updated {savedAt !== null ? "now" : timeAgo(playlist.updated_at)}
+                <span className="flex items-center justify-center gap-[0.125rem]">
+                  Last updated{" "}
+                  {savedAt !== null ? "now" : timeAgo(playlist.updated_at)}
+                  {!isPublic && (
+                    <>
+                      <span style={{ marginLeft: "2px" }}>· </span>
+                      <span className="inline-flex items-center gap-[0.125rem]">
+                        <Lock className="size-4" /> Private
+                      </span>
+                    </>
+                  )}
+                </span>
               </p>
             )
           }
@@ -565,18 +613,23 @@ export default function PlaylistEditor({
                 />
               ) : (
                 description && (
-                  <p className="text-gray-600 mb-4">{description}</p>
+                  <p className="text-body-sm text-primary mb-4">
+                    {description}
+                  </p>
                 )
               )}
               <div className="flex items-center gap-4 text-sm text-gray-500">
-                <p>{spots.length + pendingAdds.length} spots</p>
-                <p>•</p>
-                <p>{playlist.is_public ? "Public" : "Private"}</p>
+                <p className="flex items-center text-body-md text-primary">
+                  {spots.length + pendingAdds.length}{" "}
+                  {spots.length + pendingAdds.length === 1 ? "spot" : "spots"}
+                  <span className="ml-[0.25rem]">
+                    <Asterisk className="mt-1 size-[0.5rem]" />
+                  </span>
+                </p>
               </div>
             </div>
           </div>
         </div>
-
 
         {/* Spots */}
         <DndContext
@@ -657,7 +710,23 @@ export default function PlaylistEditor({
           title="Options"
           items={
             [
-              ...(canShare ? [{ label: "Share", onClick: () => share(`${window.location.origin}${playlistUrl(playlist.profiles.username, playlist.city, name)}`, playlistDocTitle(playlist.city, name, playlist.profiles.username)), icon: <Share /> }] : []),
+              ...(canShare
+                ? [
+                    {
+                      label: "Share",
+                      onClick: () =>
+                        share(
+                          `${window.location.origin}${playlistUrl(playlist.profiles.username, playlist.city, name)}`,
+                          playlistDocTitle(
+                            playlist.city,
+                            name,
+                            playlist.profiles.username,
+                          ),
+                        ),
+                      icon: <Share />,
+                    },
+                  ]
+                : []),
               {
                 label: "Edit",
                 onClick: () => {
@@ -665,6 +734,21 @@ export default function PlaylistEditor({
                   handleEnterEdit();
                 },
                 icon: <Edit />,
+              },
+              {
+                label: isPublic ? "Make playlist private" : "Make playlist public",
+                onClick: async () => {
+                  const next = !isPublic;
+                  setIsPublic(next);
+                  setIsSheetOpen(false);
+                  await updatePlaylistVisibility(playlist.id, next);
+                  revalidateProfileAction(playlist.profiles.username);
+                  toast({
+                    icon: next ? <World /> : <Lock />,
+                    message: `"${name}" made ${next ? "public" : "private"}`,
+                  });
+                },
+                icon: isPublic ? <Lock /> : <World />,
               },
               {
                 label: "Delete playlist",

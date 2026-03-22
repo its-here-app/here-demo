@@ -36,7 +36,6 @@ export const TextInput = forwardRef<
 >(function TextInput(props, ref) {
   const {
     size = "default",
-    state = "default",
     lightMode = false,
     focusBrand = false,
     label,
@@ -56,10 +55,7 @@ export const TextInput = forwardRef<
       ? textareaRest.maxLength - (textareaRest.value?.toString().length ?? 0)
       : null;
 
-  const textClass =
-    state === "default"
-      ? "text-primary/50 placeholder:text-tertiary"
-      : "text-primary placeholder:text-tertiary";
+  const textClass = "text-primary placeholder:text-tertiary";
 
   const bg = lightMode ? "bg-transparent" : "bg-black";
   const focusClass = focusBrand ? "focus-within:border-brand" : "";

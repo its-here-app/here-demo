@@ -9,12 +9,13 @@ interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   size?: IconButtonSize;
   icon: ReactNode;
   label?: string;
+  mobileTransparent?: boolean;
 }
 
-function variantClasses(variant: IconButtonVariant): string {
+function variantClasses(variant: IconButtonVariant, mobileTransparent?: boolean): string {
   switch (variant) {
     case "primary":   return "bg-black text-white";
-    case "secondary": return "bg-grey-300 text-black";
+    case "secondary": return mobileTransparent ? "bg-transparent lg:bg-grey-300 text-black" : "bg-grey-300 text-black";
     case "tertiary":  return "border border-black/10 text-black";
     case "brand":     return "bg-neon text-black";
     case "hero":      return "bg-black text-white";
@@ -24,7 +25,7 @@ function variantClasses(variant: IconButtonVariant): string {
 }
 
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
-  function IconButton({ variant = "primary", size = "default", icon, label, className, ...rest }, ref) {
+  function IconButton({ variant = "primary", size = "default", icon, label, mobileTransparent, className, ...rest }, ref) {
     const isHero = variant === "hero";
 
     const shapeClasses = isHero
@@ -37,7 +38,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
       <button
         ref={ref}
         aria-label={label}
-        className={`inline-flex items-center justify-center shrink-0 cursor-pointer transition-opacity hover:opacity-80 active:opacity-70 disabled:opacity-40 disabled:cursor-not-allowed ${shapeClasses} ${variantClasses(variant)} ${className ?? ""}`}
+        className={`inline-flex items-center justify-center shrink-0 cursor-pointer transition-opacity hover:opacity-80 active:opacity-70 disabled:opacity-40 disabled:cursor-not-allowed ${shapeClasses} ${variantClasses(variant, mobileTransparent)} ${className ?? ""}`}
         {...rest}
       >
         <span className="size-6 flex items-center justify-center">{icon}</span>

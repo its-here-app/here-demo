@@ -9,6 +9,7 @@ interface SpotCardProps {
     Spot,
     "google_place_id" | "name" | "address" | "photo_url" | "rating" | "types"
   >;
+  subtitleText?: string;
   action?: React.ReactNode;
   bookmark?: React.ReactNode;
   className?: string;
@@ -16,6 +17,7 @@ interface SpotCardProps {
 
 export default function SpotCard({
   spot,
+  subtitleText,
   action,
   bookmark,
   className,
@@ -46,7 +48,7 @@ export default function SpotCard({
         <div className="flex-1 min-w-0">
           <p className="text-header-radio-2 mb-[2px]">{spot.name}</p>
           <p className="text-body-xs text-secondary mb-1 line-clamp-1">
-            {spot.address}
+            {subtitleText ?? spot.address}
           </p>
           {(spot.rating != null || firstType) && (
             <div className="flex items-center gap-1 mt-1 flex-wrap">

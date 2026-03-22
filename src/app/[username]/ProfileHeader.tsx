@@ -192,6 +192,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
           ) : !isOwnProfile || canGoBack ? (
             <IconButton
               variant="secondary"
+              mobileTransparent
               icon={<ArrowLeft />}
               label="Back"
               onClick={() => router.back()}
@@ -211,6 +212,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
           ) : (
             <IconButton
               variant="secondary"
+              mobileTransparent
               icon={<Overflow orientation="horizontal" />}
               label="More options"
               ref={overflowRef}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useLayoutEffect, type ReactNode } from "react";
+import { useState, useRef, useLayoutEffect, useEffect, type ReactNode } from "react";
 import Link from "next/link";
 
 // ─── TextScrim ────────────────────────────────────────────────────────────────
@@ -86,7 +86,7 @@ function TopActions({
   if (!left && !center && !right) return null;
   return (
     <div
-      className={`absolute top-0 inset-x-0 flex items-center justify-between whitespace-nowrap ${padding}`}
+      className={`absolute top-0 inset-x-0 grid grid-cols-[1fr_auto_1fr] items-center whitespace-nowrap ${padding}`}
     >
       <div className="flex justify-start">{left}</div>
       <div className="flex justify-center">{center}</div>
@@ -109,7 +109,7 @@ function BottomActions({
   if (!left && !center && !right) return null;
   return (
     <div
-      className={`absolute bottom-0 inset-x-0 flex items-center justify-between whitespace-nowrap ${padding}`}
+      className={`absolute bottom-0 inset-x-0 grid grid-cols-[1fr_auto_1fr] items-center whitespace-nowrap ${padding}`}
     >
       <div className="flex justify-start">{left}</div>
       <div className="flex justify-center">{center}</div>
@@ -222,6 +222,16 @@ export function PlaylistCard({
       : {};
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  useEffect(() => {
+    if (!autoFocusName || readOnlyName) return;
+    const el = textareaRef.current;
+    if (!el) return;
+    requestAnimationFrame(() => {
+      el.focus();
+      el.select();
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   useLayoutEffect(() => {
     const el = textareaRef.current;
     if (!el) return;
@@ -263,7 +273,6 @@ export function PlaylistCard({
                 readOnly={readOnlyName}
                 onChange={(e) => !readOnlyName && onNameChange(e.target.value.replace(/\n/g, ""))}
                 placeholder="Playlist name"
-                autoFocus={autoFocusName && !readOnlyName}
                 onBlur={(e) => !readOnlyName && onNameBlur?.(e.target.value)}
                 className={`${sizeConfig[size].nameText} ${sizeConfig[size].nameOffset} text-center bg-transparent border-none outline-none w-full resize-none overflow-hidden p-0 ${readOnlyName ? "cursor-default pointer-events-none" : "cursor-text"} placeholder:opacity-40`}
                 onKeyDown={(e) => e.key === "Enter" && e.preventDefault()}

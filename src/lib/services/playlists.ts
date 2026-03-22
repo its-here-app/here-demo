@@ -179,6 +179,18 @@ export async function updatePlaylistDescription(
   if (error) throw error;
 }
 
+export async function updatePlaylistVisibility(
+  playlistId: string,
+  isPublic: boolean
+) {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("playlists")
+    .update({ is_public: isPublic })
+    .eq("id", playlistId);
+  if (error) throw error;
+}
+
 export async function updateSpotNotes(playlistSpotId: string, notes: string) {
   const supabase = createClient();
   const { error } = await supabase

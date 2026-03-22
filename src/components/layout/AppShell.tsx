@@ -33,7 +33,7 @@ export default function AppShell({
         <AppBarProvider>
           <AppBar />
           <div
-            className={`px-[var(--space-page-dynamic)] pt-[var(--space-page-md)] ${!showSidebar ? " w-full max-w-[calc(var(--app-max-width)-var(--sidebar-width))] mx-auto" : ""} ${user ? "pb-[calc(var(--space-page-sm)+var(--bottomnav-height))] lg:pb-[var(--space-page-dynamic)]" : "pb-[var(--space-page-dynamic)]"}`}
+            className={`px-[var(--space-page-dynamic)] pt-[var(--space-page-md)] ${!showSidebar ? " w-full max-w-[calc(var(--app-max-width)-var(--sidebar-width))] mx-auto" : ""} ${user ? "pb-[calc(var(--space-page-sm)+var(--bottomnav-height)+env(safe-area-inset-bottom))] lg:pb-[var(--space-page-dynamic)]" : "pb-[var(--space-page-dynamic)]"}`}
           >
             {children}
           </div>

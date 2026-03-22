@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import { Tabs, Tab, TabPanels } from "@/components/ui/Tabs";
 import { Button } from "@/components/ui/Button";
 import { List } from "@/components/ui/icons/List";
@@ -18,6 +17,7 @@ import { useShare } from "@/lib/useShare";
 import { PlaylistCard } from "@/components/PlaylistCard";
 import ProfileMessage from "./ProfileMessage";
 import { playlistUrl } from "@/lib/playlistUrl";
+import { openCreatePlaylist } from "@/components/modals/CreatePlaylistFlow";
 import type { Playlist } from "@/types";
 import { playlistDocTitle } from "@/lib/playlistDocTitle";
 
@@ -37,6 +37,10 @@ export default function ProfileTabs({
   );
   const [playlists, setPlaylists] = useState(initialPlaylists);
   const { user } = useAuth();
+
+  useEffect(() => {
+    setPlaylists(initialPlaylists);
+  }, [initialPlaylists]);
 
   useEffect(() => {
     const deletingId = sessionStorage.getItem("deletingPlaylistId");
@@ -60,19 +64,19 @@ export default function ProfileTabs({
     <div className="mt-4 lg:mt-16">
       <Tabs className="mb-[var(--space-page-sm)]">
         <Tab
-          title={`${playlistCount} ${playlistCount === 1 ? "playlist" : "playlists"}`}
+          title={isActualOwner && playlistCount === 0 ? "Playlists" : `${playlistCount} ${playlistCount === 1 ? "playlist" : "playlists"}`}
           active={activeTab === "playlists"}
           onClick={() => setActiveTab("playlists")}
           icon={<List />}
         />
         <Tab
-          title={`${cityCount} ${cityCount === 1 ? "city" : "cities"}`}
+          title={isActualOwner && playlistCount === 0 ? "Cities" : `${cityCount} ${cityCount === 1 ? "city" : "cities"}`}
           active={activeTab === "cities"}
           onClick={() => setActiveTab("cities")}
           icon={<Map />}
         />
         <Tab
-          title={`${spotCount} ${spotCount === 1 ? "spot" : "spots"}`}
+          title={isActualOwner && playlistCount === 0 ? "Spots" : `${spotCount} ${spotCount === 1 ? "spot" : "spots"}`}
           active={activeTab === "spots"}
           onClick={() => setActiveTab("spots")}
           icon={<Spots />}
@@ -94,15 +98,17 @@ export default function ProfileTabs({
                   href={playlistUrl(username, playlist.city, playlist.name)}
                   className="w-full"
                   bottomCenter={
-                    <span className="flex items-center gap-1 text-body-sm text-neon">
-                      <Asterisk />
+                    <span className="flex items-center gap-1 text-body-xs text-neon">
                       {playlist.spot_count ?? 0}
+                      {!playlist.is_public && (
+                        <>
+                          <span style={{ marginLeft: "2px" }}>·</span>
+                          <span className="inline-flex items-center gap-[0.125rem]">
+                            <Lock className="size-4" /> Private
+                          </span>
+                        </>
+                      )}
                     </span>
-                  }
-                  topLeft={
-                    isActualOwner && !playlist.is_public ? (
-                      <Lock active className="size-5 text-white" />
-                    ) : undefined
                   }
                   topRight={
                     isActualOwner ? (
@@ -160,11 +166,9 @@ export default function ProfileTabs({
                   : "No public lists found"}
               </p>
               {isActualOwner && (
-                <Link href="/playlists/new">
-                  <Button size="lg" variant="tonal" className="bg-neon mt-6">
-                    Create a list
-                  </Button>
-                </Link>
+                <Button size="lg" variant="tonal" className="bg-neon mt-6" onClick={openCreatePlaylist}>
+                  Create a list
+                </Button>
               )}
             </ProfileMessage>
           )}

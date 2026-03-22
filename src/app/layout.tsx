@@ -23,6 +23,7 @@ const geistMono = Geist_Mono({
 
 export const viewport: Viewport = {
   maximumScale: 1,
+  viewportFit: "cover",
 };
 
 export const metadata: Metadata = {
