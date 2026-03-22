@@ -35,11 +35,11 @@ export function SearchInput({
   return (
     <div
       className={`flex gap-2 items-center px-3 h-[2.75rem] rounded-[0.75rem] w-full transition-colors outline-none border
-        ${isActive ? "border-black/10" : "bg-black/5 border-transparent cursor-pointer"}
+        ${isActive ? "border-black/10" : "bg-grey-300 border-transparent cursor-pointer"}
         ${className ?? ""}`}
       onClick={!isActive ? onFocus : undefined}
     >
-      <span className={`shrink-0 ${isActive ? "text-black" : "text-grey"}`}>
+      <span className={`shrink-0 ${isActive ? "text-black" : "text-grey-500"}`}>
         {leftIcon ?? <Search focus={isActive} className="size-6" />}
       </span>
       {isActive ? (
@@ -56,14 +56,14 @@ export function SearchInput({
           <button
             type="button"
             onClick={onClear}
-            className="shrink-0 text-grey hover:text-black transition-colors cursor-pointer"
+            className="shrink-0 text-grey-500 hover:text-black transition-colors cursor-pointer"
             aria-label="Clear search"
           >
             <Close className="size-6" />
           </button>
         </>
       ) : (
-        <span className="text-body-sm text-grey">{placeholder}</span>
+        <span className="text-body-sm text-grey-500">{placeholder}</span>
       )}
     </div>
   );

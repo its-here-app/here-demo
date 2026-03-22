@@ -76,7 +76,7 @@ export function ConfirmSheet({ isOpen, onClose, title = "Are you sure?", items }
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-6">
       <Scrim visible={isAnimating} onClick={onClose} />
       <div
-        className={`relative w-full sm:max-w-xs bg-white rounded-[1rem] flex flex-col overflow-hidden transition-all duration-200 ${
+        className={`relative w-full sm:max-w-xs bg-surface-base rounded-[1rem] flex flex-col overflow-hidden transition-all duration-200 ${
           isAnimating ? "scale-100 opacity-100" : "scale-95 opacity-0"
         }`}
       >
@@ -211,7 +211,7 @@ export function Sheet({ isOpen, onClose, title, items, anchorRef, align }: Sheet
       <div
         ref={dropdownRef}
         style={dropdownPos}
-        className={`fixed z-[60] bg-white rounded-[1rem] shadow-[2px_2px_15px_rgba(0,0,0,0.1)] px-[1.125rem] py-3 flex flex-col transition-all duration-150 origin-top ${
+        className={`fixed z-[60] bg-surface-base rounded-[1rem] shadow-[2px_2px_15px_rgba(0,0,0,0.1)] px-[1.125rem] py-3 flex flex-col transition-all duration-150 origin-top ${
           isAnimating ? "opacity-100 scale-100" : "opacity-0 scale-95"
         }`}
       >
@@ -250,7 +250,7 @@ export function Sheet({ isOpen, onClose, title, items, anchorRef, align }: Sheet
         }`}
       >
         {/* Options card */}
-        <div className="bg-white backdrop-blur-[12px] rounded-[1rem] flex flex-col overflow-hidden">
+        <div className="bg-surface-base backdrop-blur-[12px] rounded-[1rem] flex flex-col overflow-hidden">
           {title && (
             <div className="py-4 px-3 flex items-center justify-center">
               <p className="text-body-sm-bold text-primary text-center">
@@ -280,7 +280,7 @@ export function Sheet({ isOpen, onClose, title, items, anchorRef, align }: Sheet
           variant="tonal"
           size="lg"
           onClick={onClose}
-          className="w-full !bg-grey-100 hover:opacity-100"
+          className="w-full"
         >
           Cancel
         </Button>

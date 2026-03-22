@@ -127,7 +127,7 @@ export function BottomPanel({
       {/* Desktop: full-page overlay */}
       {desktopVariant === "full-page" && (
         <div
-          className={`fixed inset-0 z-[60] bg-black dark hidden lg:flex flex-col transition-opacity duration-300 ${fadeIn}`}
+          className={`fixed inset-0 z-[60] bg-surface-base dark hidden lg:flex flex-col transition-opacity duration-300 ${fadeIn}`}
         >
           <div className="relative z-10 flex items-center justify-between p-[var(--space-page-dynamic)] shrink-0">
             {logo ? <FullLogo color="white" className="w-20" /> : <div />}
@@ -168,7 +168,7 @@ export function BottomPanel({
             </div>
           )}
           <div
-            className="relative bg-black dark rounded-[2rem] p-6 flex flex-col gap-5 overflow-x-hidden"
+            className="relative bg-surface-base dark rounded-[2rem] p-6 flex flex-col gap-5 overflow-x-hidden"
             style={{
               width: desktopWidth ?? "24.375rem",
               height: desktopHeight,
@@ -197,7 +197,7 @@ export function BottomPanel({
       <div className="fixed inset-0 z-[60] lg:hidden flex flex-col justify-end">
         <Scrim visible={isAnimating} onClick={onClose} />
         <div
-          className={`relative bg-black dark rounded-t-[1.5rem] flex flex-col gap-5 px-6 pt-6 pb-9 overflow-x-hidden ${handle && isDragging ? "" : "transition-[transform,height]"} duration-300 ${handle ? "" : isAnimating ? "translate-y-0" : "translate-y-full"}`}
+          className={`relative bg-surface-base dark rounded-t-[1.5rem] flex flex-col gap-5 px-6 pt-6 pb-9 overflow-x-hidden ${handle && isDragging ? "" : "transition-[transform,height]"} duration-300 ${handle ? "" : isAnimating ? "translate-y-0" : "translate-y-full"}`}
           style={{
             height:
               isExpanded || mobileHeight === "tall" ? "90vh" : mobileHeight,
@@ -222,7 +222,7 @@ export function BottomPanel({
               className="flex justify-center cursor-pointer py-4 -mt-7 -mb-4"
               onClick={() => setIsExpanded((prev) => !prev)}
             >
-              <div className="w-12 h-1 rounded-full bg-white/30" />
+              <div className="w-12 h-1 rounded-full bg-white/20" />
             </div>
           )}
           <div className="relative">

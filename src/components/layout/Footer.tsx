@@ -46,7 +46,7 @@ export function Footer({
     // ── Default footer ──────────────────────────────────────────────────────
     return (
       <footer
-        className={`bg-black dark rounded-tl-[2.25rem] rounded-tr-[2.25rem] w-full h-[8.8125rem] relative ${className ?? ""}`}
+        className={`bg-surface-base dark rounded-tl-[2.25rem] rounded-tr-[2.25rem] w-full h-[8.8125rem] relative ${className ?? ""}`}
       >
         <div className="absolute bottom-[4.5rem] left-8">
           <LogoWordmark />
@@ -61,7 +61,7 @@ export function Footer({
   // ── Logged-out footer ─────────────────────────────────────────────────────
   return (
     <footer
-      className={`bg-black dark rounded-tl-[2.25rem] rounded-tr-[2.25rem] w-full relative overflow-hidden ${className ?? ""}`}
+      className={`bg-surface-base dark rounded-tl-[2.25rem] rounded-tr-[2.25rem] w-full relative overflow-hidden ${className ?? ""}`}
     >
       {/* Email signup */}
       <div className="px-8 pt-14 pb-10 flex flex-col gap-5">

@@ -256,7 +256,7 @@ export default function LoginPage() {
   }
 
   if (authLoading) {
-    return <main className="h-dvh bg-black dark" />;
+    return <main className="h-dvh bg-surface-base dark" />;
   }
 
   return (
@@ -520,7 +520,7 @@ export default function LoginPage() {
       {/* Right column — grows in horizontally at lg */}
       <div className="overflow-hidden shrink-0 h-full w-0 lg:w-[60%] transition-[width] duration-400 ease-out">
         <div className="h-full w-[60vw] py-[var(--space-page-sm)] pr-[var(--space-page-sm)]">
-          <div className="bg-grey/20 h-full w-full rounded-sm" />
+          <div className="bg-grey-500/20 h-full w-full rounded-sm" />
         </div>
       </div>
     </main>

@@ -34,7 +34,7 @@ export default function SpotCard({
         rel="noopener noreferrer"
         className="flex items-start gap-2 flex-1 min-w-0 cursor-pointer group"
       >
-        <div className="flex-shrink-0 w-20 h-20 rounded-xs overflow-hidden bg-black/5 transition-transform duration-400 ease-out group-hover:scale-100">
+        <div className="flex-shrink-0 w-20 h-20 rounded-xs overflow-hidden bg-grey-300 transition-transform duration-400 ease-out group-hover:scale-100">
           {spot.photo_url && (
             <img
               src={spot.photo_url}

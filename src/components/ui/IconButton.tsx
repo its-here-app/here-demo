@@ -14,7 +14,7 @@ interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 function variantClasses(variant: IconButtonVariant): string {
   switch (variant) {
     case "primary":   return "bg-black text-white";
-    case "secondary": return "bg-black/5 text-black";
+    case "secondary": return "bg-grey-300 text-black";
     case "tertiary":  return "border border-black/10 text-black";
     case "brand":     return "bg-neon text-black";
     case "hero":      return "bg-black text-white";

@@ -65,13 +65,13 @@ export default function FollowsModal({
   ) {
     if (list === null)
       return (
-        <p className="text-center text-white/40 py-8 text-body-xs">
+        <p className="text-center text-tertiary py-8 text-body-xs">
           Loading...
         </p>
       );
     if (list.length === 0)
       return (
-        <p className="text-center text-white/40 py-8 text-body-xs">
+        <p className="text-center text-tertiary py-8 text-body-xs">
           {emptyMsg}
         </p>
       );
@@ -91,12 +91,12 @@ export default function FollowsModal({
                     {u.full_name}
                   </p>
                   {u.mutual && (
-                    <span className="text-body-xs text-grey flex-shrink-0">
+                    <span className="text-body-xs text-grey-500 flex-shrink-0">
                       Mutual
                     </span>
                   )}
                 </div>
-                <p className="text-body-xs text-grey truncate">@{u.username}</p>
+                <p className="text-body-xs text-grey-500 truncate">@{u.username}</p>
               </div>
               {showFollowBack && !u.mutual && !followedBack.has(u.id) && (
                 <Button

@@ -67,7 +67,7 @@ export default function PlaylistOverlay({ playlist, isOwner, fromNew }: Props) {
 
   return (
     <main
-      className={`fixed inset-0 z-50 bg-white overflow-y-auto p-[var(--space-page-sm)] lg:pb-0 max-w-[var(--app-max-width)] mx-auto transition-transform ease-in-out duration-400 ${closing || !isAnimating ? "translate-x-full" : "translate-x-0"} ${closing ? "pointer-events-none" : ""}`}
+      className={`fixed inset-0 z-50 bg-surface-base overflow-y-auto p-[var(--space-page-sm)] lg:pb-0 max-w-[var(--app-max-width)] mx-auto transition-transform ease-in-out duration-400 ${closing || !isAnimating ? "translate-x-full" : "translate-x-0"} ${closing ? "pointer-events-none" : ""}`}
     >
       <PlaylistEditor
         playlist={playlist}

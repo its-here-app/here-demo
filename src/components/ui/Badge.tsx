@@ -10,7 +10,7 @@ export function Badge({ type = "default", children, className }: BadgeProps) {
   return (
     <span
       className={`capitalize inline-flex items-start px-2 py-0.5 rounded-[0.375rem] text-body-xs ${
-        type === "brand" ? "bg-brand text-black" : "bg-black/5 text-primary"
+        type === "brand" ? "bg-brand text-black" : "bg-grey-300 text-primary"
       } ${className ?? ""}`}
     >
       {children}

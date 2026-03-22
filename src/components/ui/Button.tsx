@@ -27,7 +27,7 @@ function variantClasses(variant: ButtonVariant, darkTheme: boolean, size: Button
   if (!darkTheme && size !== "sm") {
     switch (variant) {
       case "filled":  return "bg-black text-white";
-      case "tonal":   return "bg-black/[0.06] text-primary";
+      case "tonal":   return "bg-grey-300 text-primary";
       case "outline": return "border border-subtle text-primary";
       case "text":    return "text-primary";
     }
@@ -58,7 +58,7 @@ export function Button({
     : "disabled:opacity-40 disabled:!cursor-not-allowed";
   return (
     <button
-      className={`inline-flex items-center justify-center cursor-pointer transition-opacity hover:opacity-80 active:opacity-70 ${disabledClasses} ${
+      className={`inline-flex items-center justify-center cursor-pointer transition-[filter] hover:brightness-95 active:brightness-90 ${disabledClasses} ${
         isOverlay ? variantClasses(variant, darkTheme, size) : `${sizeClasses[size]} ${variantClasses(variant, darkTheme, size)}`
       } ${className ?? ""}`}
       {...rest}

@@ -61,7 +61,7 @@ function SnackbarItem({
       style={{
         animation: `${exiting ? "snackbar-out 200ms ease" : "snackbar-in 400ms cubic-bezier(0.21,1.02,0.73,1)"} forwards`,
       }}
-      className="pointer-events-auto flex items-center gap-3 w-full max-w-sm bg-grey-900 rounded-[var(--radius-sm)] px-5 py-3.5 shadow-[0px_2px_4px_0px_rgba(64,64,64,0.14)]"
+      className="dark pointer-events-auto flex items-center gap-3 w-full max-w-sm bg-surface-subtle rounded-[var(--radius-sm)] px-5 py-3.5 shadow-[0px_2px_4px_0px_rgba(64,64,64,0.14)]"
     >
       <span className="size-6 shrink-0 text-white flex items-center justify-center">
         {data.icon}
@@ -70,7 +70,7 @@ function SnackbarItem({
       {data.actionLabel && (
         <button
           onClick={handleAction}
-          className="text-body-xs text-grey-200 shrink-0 cursor-pointer"
+          className="text-body-xs text-grey-400 shrink-0 cursor-pointer"
         >
           {data.actionLabel}
         </button>

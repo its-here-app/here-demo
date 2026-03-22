@@ -199,7 +199,7 @@ export function PlaylistCard({
         className={`flex flex-col w-full ${onClick ? "cursor-pointer" : ""} ${className ?? ""}`}
         {...(onClick ? { onClick, role: "button" } : {})}
       >
-        <div className="aspect-square rounded-sm w-full bg-black/5 flex items-center justify-center">
+        <div className="aspect-square rounded-sm w-full bg-grey-300 flex items-center justify-center">
           <p className="text-body-sm text-secondary">No image</p>
         </div>
         {(title || subtitle) && (

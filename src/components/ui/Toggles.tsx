@@ -59,7 +59,7 @@ export function Toggles({ value, onChange, className }: TogglesProps) {
             aria-pressed={isActive}
             onClick={() => onChange(option.value)}
             className={`relative z-10 flex items-center justify-center size-9 rounded-[1.875rem] cursor-pointer transition-colors ${
-              isActive ? "bg-black text-white" : "text-primary hover:bg-black/5"
+              isActive ? "bg-black text-white" : "text-primary hover:bg-grey-300"
             }`}
           >
             {option.icon}

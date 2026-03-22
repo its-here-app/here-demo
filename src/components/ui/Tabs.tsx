@@ -77,7 +77,7 @@ export function Tabs({ children, className }: TabsProps) {
       {children}
       {activeIndex >= 0 && count > 0 && (
         <div
-          className="absolute bottom-[-1px] h-[1px] bg-primary transition-transform duration-300 ease-in-out"
+          className="absolute bottom-[-1px] h-[1px] bg-black transition-transform duration-300 ease-in-out"
           style={{
             width: `${100 / count}%`,
             transform: `translateX(${activeIndex * 100}%)`,

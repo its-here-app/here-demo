@@ -277,7 +277,7 @@ export default function NewPlaylistPage() {
           Make sure everything looks good before sharing
         </p>
 
-        <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+        <div className="bg-surface-base border border-gray-200 rounded-lg p-6 mb-6">
           <div className="mb-4">
             <p className="text-sm text-gray-500">City</p>
             <p className="text-xl font-semibold">{city}</p>
@@ -318,7 +318,7 @@ export default function NewPlaylistPage() {
           </div>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+        <div className="bg-surface-base border border-gray-200 rounded-lg p-6 mb-6">
           <label className="flex items-center justify-between cursor-pointer">
             <div>
               <p className="font-medium">Make this playlist public</p>

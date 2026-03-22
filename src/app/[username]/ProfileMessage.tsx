@@ -10,7 +10,7 @@ export default function ProfileMessage({ icon, header, children }: ProfileMessag
   return (
     <div className="text-center flex flex-col items-center mt-16">
       {icon && (
-        <div className="size-12 rounded-full bg-black/5 flex items-center justify-center mb-4">
+        <div className="size-12 rounded-full bg-grey-300 flex items-center justify-center mb-4">
           {icon}
         </div>
       )}

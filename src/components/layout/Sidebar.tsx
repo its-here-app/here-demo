@@ -35,7 +35,7 @@ export default function Sidebar() {
   const profileHref = username ? `/${username}` : "/";
 
   return (
-    <aside className="flex flex-col w-[var(--sidebar-width)] p-[var(--space-page-dynamic)] bg-white h-screen fixed top-0 left-[max(0px,calc((100vw-var(--app-max-width))/2))] -ml-[var(--sidebar-width)] lg:ml-0 transition-[margin] duration-400">
+    <aside className="flex flex-col w-[var(--sidebar-width)] p-[var(--space-page-dynamic)] bg-surface-base h-screen fixed top-0 left-[max(0px,calc((100vw-var(--app-max-width))/2))] -ml-[var(--sidebar-width)] lg:ml-0 transition-[margin] duration-400">
       {/* Logo */}
       <Link href="/" className="cursor-pointer">
         <FullLogo className="mt-2" />

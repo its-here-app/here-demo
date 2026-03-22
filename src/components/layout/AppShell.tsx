@@ -20,7 +20,7 @@ export default function AppShell({
   const { user } = useAuth();
   const isAuth = AUTH_PATHS.some((p) => pathname.startsWith(p));
 
-  if (isAuth) return <div className="bg-black min-h-screen">{children}</div>;
+  if (isAuth) return <div className="bg-surface-base dark min-h-screen">{children}</div>;
 
   const showSidebar = initialLoggedIn || !!user;
 

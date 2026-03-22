@@ -168,27 +168,33 @@
 /* ─── Theme tokens ─────────────────────────────────────────────────────────── */
 
 @theme {
-  /* Colors — primary palette */
+  /* Core */
   --color-cream: #fffbf7;
   --color-neon: #daff70;
   --color-ocean: #6395df;
-  --color-black: #000000;
-
-  /* Colors — extended palette */
-  --color-white: #ffffff;
   --color-bubble: #1169ee;
-  --color-grey: #757575;
   --color-red: #f80000;
 
-  /* Colors — neutral palette */
-  --color-grey-900: #212121;
-  --color-grey-200: #e5e2de;
-  --color-grey-100: #f0f0f0;
+  /* Black */
+  --color-black: #000000;
+  --color-black-40: oklch(0% 0 0 / 40%);
+  --color-black-10: oklch(0% 0 0 / 10%);
+  --color-black-5: oklch(0% 0 0 / 5%);
 
-  /* Colors — semantic (light-mode defaults; overridden in .dark via @layer base) */
-  --color-primary: var(--color-black);
-  --color-secondary: var(--color-grey);
-  --color-tertiary: oklch(0% 0 0 / 40%);
+  /* White */
+  --color-white: #ffffff;
+  --color-white-50: oklch(100% 0 0 / 50%);
+  --color-white-20: oklch(100% 0 0 / 20%);
+  --color-white-15: oklch(100% 0 0 / 15%);
+
+  /* Grey */
+  --color-grey-700: #212121;
+  --color-grey-600: #5a5a5a;
+  --color-grey-500: #757575;
+  --color-grey-400: #e5e2de;
+  --color-grey-300: #f0f0f0;
+
+  /* Colors — semantic */
   --color-brand: var(--color-neon);
   --color-danger: var(--color-red);
 
@@ -224,16 +230,49 @@
 
 @layer base {
   :root {
+    --text-primary: var(--color-black);
+    --text-secondary: var(--color-grey-500);
+    --text-tertiary: var(--color-black-40);
+    --text-muted: var(--color-grey-600);
     --border-strong: var(--color-black);
-    --border-subtle: oklch(0% 0 0 / 10%);
+    --border-subtle: var(--color-black-10);
+    --surface-base: var(--color-white);
+    --surface-subtle: var(--color-grey-300);
   }
   .dark {
-    --color-primary: var(--color-white);
-    --color-secondary: oklch(100% 0 0 / 50%);
-    --color-tertiary: var(--color-grey);
+    --text-primary: var(--color-white);
+    --text-secondary: var(--color-white-50);
+    --text-tertiary: var(--color-grey-500);
+    --text-muted: var(--color-grey-400);
     --border-strong: var(--color-white);
-    --border-subtle: oklch(100% 0 0 / 15%);
+    --border-subtle: var(--color-white-15);
+    --surface-base: var(--color-black);
+    --surface-subtle: var(--color-grey-700);
   }
+}
+
+/* ─── Text color utilities ──────────────────────────────────────────────────── */
+
+@utility text-primary {
+  color: var(--text-primary);
+}
+@utility text-secondary {
+  color: var(--text-secondary);
+}
+@utility text-tertiary {
+  color: var(--text-tertiary);
+}
+@utility text-muted {
+  color: var(--text-muted);
+}
+
+/* ─── Surface utilities ─────────────────────────────────────────────────────── */
+
+@utility bg-surface-base {
+  background-color: var(--surface-base);
+}
+@utility bg-surface-subtle {
+  background-color: var(--surface-subtle);
 }
 
 /* ─── Border utilities ──────────────────────────────────────────────────────── */
