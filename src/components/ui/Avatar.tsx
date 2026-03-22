@@ -1,3 +1,5 @@
+import { Camera } from "./icons/Camera";
+
 export type AvatarSize = "sm" | "md" | "lg" | "xl" | "2xl";
 
 interface AvatarProps {
@@ -49,22 +51,8 @@ export function Avatar({
         </div>
 
         {editIcon && size === "xl" && (
-          <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center">
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              aria-hidden="true"
-            >
-              <path
-                d="M9 3L7.5 4.5H5A2 2 0 0 0 3 6.5V17.5A2 2 0 0 0 5 19.5H19A2 2 0 0 0 21 17.5V6.5A2 2 0 0 0 19 4.5H16.5L15 3H9Z"
-                stroke="white"
-                strokeWidth="1.5"
-                strokeLinejoin="round"
-              />
-              <circle cx="12" cy="12" r="3" stroke="white" strokeWidth="1.5" />
-            </svg>
+          <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center text-white">
+            <Camera className="size-9" />
           </div>
         )}
       </div>

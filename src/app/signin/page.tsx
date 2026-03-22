@@ -78,7 +78,7 @@ export default function LoginPage() {
       .single()
       .then(({ data: profile }) => {
         if (profile?.username) {
-          router.push(`/${profile.username}`);
+          router.push("/");
         } else {
           if (user.user_metadata?.full_name || user.user_metadata?.name) {
             setName(user.user_metadata.full_name ?? user.user_metadata.name);
@@ -161,7 +161,7 @@ export default function LoginPage() {
           return;
         }
 
-        router.push(`/${profile.username}`);
+        router.push("/");
         return;
       }
 
@@ -247,7 +247,7 @@ export default function LoginPage() {
 
       if (dbError) throw dbError;
 
-      router.push(`/${username}`);
+      router.push("/");
     } catch (err: any) {
       toast({ icon: <Error />, message: err.message });
     } finally {

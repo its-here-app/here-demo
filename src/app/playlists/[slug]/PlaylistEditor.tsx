@@ -24,6 +24,7 @@ import {
 } from "@/lib/actions/playlists";
 import { getDefaultCover } from "@/lib/playlist-covers";
 import { playlistUrl } from "@/lib/playlistUrl";
+import { playlistToText } from "@/lib/playlistText";
 import type { PlaylistSpot, SearchResult } from "@/types";
 import { Avatar } from "@/components/ui/Avatar";
 import { PlaylistCard } from "@/components/PlaylistCard";
@@ -36,6 +37,8 @@ import { Overflow } from "@/components/ui/icons/Overflow";
 import { Photo } from "@/components/ui/icons/Photo";
 import { Spinner } from "@/components/ui/Spinner";
 import { Share } from "@/components/ui/icons/Share";
+import { Copy } from "@/components/ui/icons/Copy";
+import { Check } from "@/components/ui/icons/Check";
 import { Trash } from "@/components/ui/icons/Trash";
 import { World } from "@/components/ui/icons/World";
 import { Sheet, ConfirmSheet } from "@/components/ui/Sheet";
@@ -727,6 +730,15 @@ export default function PlaylistEditor({ playlist, isOwner, onClose }: Props) {
                     },
                   ]
                 : []),
+              {
+                label: "Copy as text",
+                onClick: async () => {
+                  await navigator.clipboard.writeText(playlistToText(playlist));
+                  setIsSheetOpen(false);
+                  toast({ icon: <Check focus />, message: "Playlist copied to clipboard" });
+                },
+                icon: <Copy />,
+              },
               {
                 label: "Edit",
                 onClick: () => {

@@ -54,9 +54,7 @@ export async function GET(request: NextRequest) {
           return NextResponse.redirect(new URL("/signin", request.url));
         }
 
-        return NextResponse.redirect(
-          new URL(`/${existingProfile.username}`, request.url),
-        );
+        return NextResponse.redirect(new URL("/", request.url));
       }
     } else {
       console.error("Session exchange failed:", error);

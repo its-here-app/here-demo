@@ -5,7 +5,7 @@ import AppBar from "./AppBar";
 import { AppBarProvider } from "@/lib/appBarContext";
 import { useAuth } from "@/lib/authContext";
 
-const AUTH_PATHS = ["/signin"];
+const AUTH_PATHS = ["/signin", "/create-account", "/users/registration"];
 
 export default function AppShell({
   nav,

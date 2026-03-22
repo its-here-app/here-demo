@@ -29,7 +29,7 @@ function ToastItem({
   const displayMessage = data.message.slice(0, 48);
 
   useEffect(() => {
-    const dur = data.duration ?? 6000;
+    const dur = data.duration ?? 5000;
     const t1 = setTimeout(() => setExiting(true), dur);
     const t2 = setTimeout(onRemove, dur + 200);
     return () => {
