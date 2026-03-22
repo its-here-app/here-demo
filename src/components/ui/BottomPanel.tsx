@@ -197,7 +197,7 @@ export function BottomPanel({
       <div className="fixed inset-0 z-[60] lg:hidden flex flex-col justify-end">
         <Scrim visible={isAnimating} onClick={onClose} />
         <div
-          className={`relative bg-surface-base dark rounded-t-[1.5rem] flex flex-col gap-5 px-6 pt-6 pb-9 overflow-x-hidden ${handle && isDragging ? "" : "transition-[transform,height]"} duration-300`}
+          className={`relative bg-surface-base dark rounded-t-[1.5rem] flex flex-col gap-5 px-6 pt-6 pb-[calc(2.25rem+env(safe-area-inset-bottom))] overflow-x-hidden ${handle && isDragging ? "" : "transition-[transform,height]"} duration-300`}
           style={{
             height:
               isExpanded || mobileHeight === "tall" ? "90vh" : mobileHeight,

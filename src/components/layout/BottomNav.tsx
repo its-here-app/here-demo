@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
 import { getProfile } from "@/lib/services/users";
@@ -16,32 +16,11 @@ export default function BottomNav() {
   const router = useRouter();
   const pathname = usePathname();
   const [profile, setProfile] = useState<Profile | null>(null);
-  const navRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!user) return;
     getProfile(user.id).then(setProfile);
   }, [user]);
-
-  useEffect(() => {
-    const vv = window.visualViewport;
-    if (!vv) return;
-
-    function update() {
-      if (!navRef.current) return;
-      const bottom = Math.max(0, window.innerHeight - vv!.height - vv!.offsetTop);
-      navRef.current.style.bottom = `${bottom}px`;
-    }
-
-    vv.addEventListener("resize", update);
-    vv.addEventListener("scroll", update);
-    update();
-
-    return () => {
-      vv.removeEventListener("resize", update);
-      vv.removeEventListener("scroll", update);
-    };
-  }, []);
 
   const username = profile?.username ?? null;
 
@@ -69,7 +48,7 @@ export default function BottomNav() {
   }
 
   return (
-    <div ref={navRef} className="fixed bottom-0 left-0 right-0 z-50 lg:translate-y-[100%] transition-transform duration-400">
+    <div className="fixed bottom-0 left-0 right-0 z-50 bg-surface-base pb-[env(safe-area-inset-bottom)] lg:translate-y-[100%] transition-transform duration-400">
       <BottomNavigation
         demo
         activeTab={activeTab}
