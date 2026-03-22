@@ -46,7 +46,7 @@ export function Tab({ title, icon, active = false, onClick }: TabProps) {
       className={`flex-1 flex flex-col items-center gap-0.5 py-2 cursor-pointer transition-colors ${
         active
           ? "text-primary"
-          : "text-primary/40 hover:text-primary/70"
+          : "text-tertiary hover:text-secondary"
       }`}
     >
       {icon && (
@@ -77,7 +77,7 @@ export function Tabs({ children, className }: TabsProps) {
       {children}
       {activeIndex >= 0 && count > 0 && (
         <div
-          className="absolute bottom-[-1px] h-[1px] bg-black transition-transform duration-300 ease-in-out"
+          className="absolute bottom-[-1px] h-[1px] bg-[var(--border-strong)] transition-transform duration-300 ease-in-out"
           style={{
             width: `${100 / count}%`,
             transform: `translateX(${activeIndex * 100}%)`,

@@ -402,17 +402,29 @@ export default function PlaylistEditor({
     setCoverUrl(URL.createObjectURL(file));
   }
 
-  async function handleDeletePlaylist() {
+  function handleDeletePlaylist() {
     const username = playlist.profiles.username;
+    const playlistId = playlist.id;
+    const playlistName = playlist.name;
+    const url = playlistUrl(username, playlist.city, playlistName);
 
-    await deletePlaylistAction(playlist.id, username);
+    sessionStorage.setItem("deletingPlaylistId", playlistId);
+    onClose?.(`/${username}`);
+
+    let undone = false;
 
     snackbar({
       icon: <Trash />,
-      message: `${playlist.city} ${playlist.name} deleted`,
+      message: `"${playlistName}" deleted`,
+      actionLabel: "Undo",
+      onAction: () => {
+        undone = true;
+        window.location.href = url;
+      },
+      onDismiss: () => {
+        if (!undone) deletePlaylistAction(playlistId, username);
+      },
     });
-
-    onClose?.(`/${username}`);
   }
 
   return (

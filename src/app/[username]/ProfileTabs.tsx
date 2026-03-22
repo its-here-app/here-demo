@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Tabs, Tab, TabPanels } from "@/components/ui/Tabs";
 import { Button } from "@/components/ui/Button";
@@ -35,8 +35,16 @@ export default function ProfileTabs({
   const [activeTab, setActiveTab] = useState<"playlists" | "cities" | "spots">(
     "playlists",
   );
-  const playlists = initialPlaylists;
+  const [playlists, setPlaylists] = useState(initialPlaylists);
   const { user } = useAuth();
+
+  useEffect(() => {
+    const deletingId = sessionStorage.getItem("deletingPlaylistId");
+    if (deletingId) {
+      sessionStorage.removeItem("deletingPlaylistId");
+      setPlaylists((prev) => prev.filter((p) => p.id !== deletingId));
+    }
+  }, []);
   const { share } = useShare();
 
   const isActualOwner = !!user && user.id === profileId;
