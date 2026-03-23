@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
 import { useSaves } from "@/lib/savesContext";
 import { getSavedPlaylists } from "@/lib/services/saves";
@@ -30,7 +30,10 @@ export default function SavesPage() {
   const { savedSpots, loading: savesLoading, optimisticRemove, restoreSpot } = useSaves();
   const router = useRouter();
 
-  const [tab, setTab] = useState<"spots" | "playlists">("spots");
+  const searchParams = useSearchParams();
+  const [tab, setTab] = useState<"spots" | "playlists">(
+    searchParams.get("view") === "playlists" ? "playlists" : "spots"
+  );
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [savedPlaylists, setSavedPlaylists] = useState<SavedPlaylist[] | null>(
     null,
@@ -103,6 +106,7 @@ export default function SavesPage() {
             selected={tab === "spots"}
             onClick={() => {
               setTab("spots");
+              router.replace("/saves", { scroll: false });
               setDropdownOpen(false);
             }}
           />
@@ -112,6 +116,7 @@ export default function SavesPage() {
             selected={tab === "playlists"}
             onClick={() => {
               setTab("playlists");
+              router.replace("/saves?view=playlists", { scroll: false });
               setDropdownOpen(false);
             }}
           />

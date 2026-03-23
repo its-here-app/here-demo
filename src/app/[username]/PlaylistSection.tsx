@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { getPlaylistsByUser } from "@/lib/queries/playlists";
+import { getPlaylistsByUser, getSpotsByUser } from "@/lib/queries/playlists";
 import { Block } from "@/components/ui/icons/Block";
 import ProfileTabs from "./ProfileTabs";
 import ProfileMessage from "./ProfileMessage";
@@ -20,8 +20,9 @@ export default async function PlaylistSection({
 }: Props) {
   const supabase = await createClient();
 
-  const [rawPlaylists, blockRow] = await Promise.all([
+  const [rawPlaylists, spots, blockRow] = await Promise.all([
     getPlaylistsByUser(profileId, !isOwnProfile),
+    getSpotsByUser(profileId),
     userId && !isOwnProfile
       ? supabase
           .from("blocks")
@@ -46,5 +47,5 @@ export default async function PlaylistSection({
     );
   }
 
-  return <ProfileTabs playlists={playlists} profileId={profileId} username={username} />;
+  return <ProfileTabs playlists={playlists} spots={spots} profileId={profileId} username={username} />;
 }

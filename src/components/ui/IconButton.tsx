@@ -22,7 +22,7 @@ function variantClasses(variant: IconButtonVariant, mobileTransparent?: boolean)
     case "brand":     return "bg-neon text-black";
     case "hero":      return "bg-black text-white";
     case "overlay":   return "backdrop-blur-sm bg-white/20 text-white";
-    case "ghost":     return "text-black";
+    case "ghost":     return "text-primary";
   }
 }
 

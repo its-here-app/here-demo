@@ -72,7 +72,7 @@ export function Tabs({ children, className }: TabsProps) {
   return (
     <div
       role="tablist"
-      className={`relative flex w-full border-b border-subtle ${className ?? ""}`}
+      className={`relative flex w-full ${className ?? ""}`}
     >
       {children}
       {activeIndex >= 0 && count > 0 && (

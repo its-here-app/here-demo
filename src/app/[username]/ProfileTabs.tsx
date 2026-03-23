@@ -18,17 +18,20 @@ import { PlaylistCard } from "@/components/PlaylistCard";
 import ProfileMessage from "./ProfileMessage";
 import { playlistUrl } from "@/lib/playlistUrl";
 import { openCreatePlaylist } from "@/components/modals/CreatePlaylistFlow";
-import type { Playlist } from "@/types";
+import type { Playlist, Spot } from "@/types";
+import SpotCard from "@/components/SpotCard";
 import { playlistDocTitle } from "@/lib/playlistDocTitle";
 
 interface ProfileTabsProps {
   playlists: Playlist[];
+  spots: Spot[];
   profileId: string;
   username: string;
 }
 
 export default function ProfileTabs({
   playlists: initialPlaylists,
+  spots,
   profileId,
   username,
 }: ProfileTabsProps) {
@@ -58,7 +61,7 @@ export default function ProfileTabs({
 
   const playlistCount = playlists.length;
   const cityCount = new Set(playlists.map((p) => p.city)).size;
-  const spotCount = playlists.reduce((sum, p) => sum + (p.spot_count ?? 0), 0);
+  const spotCount = spots.length;
 
   return (
     <div className="mt-4 lg:mt-16">
@@ -176,16 +179,22 @@ export default function ProfileTabs({
 
         {/* Cities */}
         <div>
-          <div className="text-center mt-16">
-            <p className="text-body-sm text-secondary">No cities yet</p>
-          </div>
+          <ProfileMessage>
+            <p>This view is coming soon!</p>
+          </ProfileMessage>
         </div>
 
         {/* Spots */}
-        <div>
-          <div className="text-center mt-16">
-            <p className="text-body-sm text-secondary">No spots yet</p>
-          </div>
+        <div className="flex flex-col gap-2 py-2">
+          {spots.length > 0 ? (
+            spots.map((spot) => (
+              <SpotCard key={spot.id} spot={spot} subtitleText="" bookmark={<BookmarkButton spot={spot} />} />
+            ))
+          ) : (
+            <ProfileMessage>
+              <p>{isActualOwner ? "You haven't saved any spots yet" : "No saved spots found"}</p>
+            </ProfileMessage>
+          )}
         </div>
       </TabPanels>
     </div>

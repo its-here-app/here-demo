@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { toSlug } from "@/lib/playlistUrl";
-import type { Playlist } from "@/types";
+import type { Playlist, Spot } from "@/types";
 
 export async function getPlaylistsByUser(
   userId: string,
@@ -20,6 +20,27 @@ export async function getPlaylistsByUser(
     spot_count: p.playlist_spots?.[0]?.count ?? 0,
     playlist_spots: undefined,
   }));
+}
+
+export async function getSpotsByUser(userId: string): Promise<Spot[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("playlists")
+    .select("playlist_spots(spots(*))")
+    .eq("user_id", userId);
+  if (error || !data) return [];
+  const seen = new Set<string>();
+  const spots: Spot[] = [];
+  for (const playlist of data) {
+    for (const ps of (playlist as any).playlist_spots ?? []) {
+      const spot = ps.spots;
+      if (spot && !seen.has(spot.id)) {
+        seen.add(spot.id);
+        spots.push(spot);
+      }
+    }
+  }
+  return spots;
 }
 
 const PLAYLIST_SELECT = `
