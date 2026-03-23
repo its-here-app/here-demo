@@ -76,7 +76,7 @@ export function BottomNavigation({
       <div
         className={`bg-surface-base py-2 shadow-[0px_-4px_14px_0px_rgba(0,0,0,0.05)] ${className ?? ""}`}
       >
-        <div className="flex items-center justify-evenly max-w-sm mx-auto">
+        <div className="flex items-center justify-evenly max-w-md mx-auto">
           <NavButton label="Home" onClick={() => onTabChange?.("home")}>
             <Home focus={activeTab === "home"} className="size-8" />
           </NavButton>
@@ -93,8 +93,13 @@ export function BottomNavigation({
             aria-label="Profile"
             className="transition-opacity hover:opacity-70"
           >
-            <Avatar src={avatarUrl} focus={activeTab === "profile"} size="sm" className="mt-2" />
-</button>
+            <Avatar
+              src={avatarUrl}
+              focus={activeTab === "profile"}
+              size="sm"
+              className="mt-2"
+            />
+          </button>
         </div>
       </div>
     );
