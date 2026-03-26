@@ -224,7 +224,7 @@ export function PlaylistCard({
     return (
       <XsWrapper
         {...(xsProps as Record<string, unknown>)}
-        className={`flex items-center gap-2 bg-surface-subtle rounded-sm p-2 w-full overflow-hidden ${href || onClick ? "cursor-pointer" : ""} ${className ?? ""}`}
+        className={`flex items-center gap-2 bg-surface-subtle rounded-sm p-2 w-full overflow-hidden text-left ${href || onClick ? "cursor-pointer" : ""} ${className ?? ""}`}
       >
         <div className="shrink-0 size-[3.125rem] rounded-xs overflow-hidden bg-black/10">
           {image && (
@@ -236,7 +236,9 @@ export function PlaylistCard({
           {name && <p className="text-header-radio-2 text-primary truncate">{name}</p>}
           {subtitle && <p className="text-body-xs text-secondary truncate">{subtitle}</p>}
         </div>
-        <IconButton variant="ghost" icon={<ArrowRight className="size-6" />} aria-hidden tabIndex={-1} />
+        <span className="size-9 inline-flex items-center justify-center shrink-0 text-primary" aria-hidden>
+          <ArrowRight className="size-6" />
+        </span>
       </XsWrapper>
     );
   }

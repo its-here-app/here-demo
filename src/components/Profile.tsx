@@ -49,7 +49,7 @@ export function Profile({
       <div className="flex flex-col gap-4 items-center py-0  w-full lg:flex-row lg:gap-[3.75rem] lg:items-center lg:py-0 lg:w-full lg:max-w-145">
         {/* Avatar */}
         <div className="relative shrink-0">
-          <Avatar size="xl" lgSize="2xl" src={avatarSrc} username={name} />
+          <Avatar size="2xl" src={avatarSrc} username={name} />
           {decorations}
         </div>
 

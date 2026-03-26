@@ -4,6 +4,32 @@ import { getDefaultCover } from "../playlist-covers";
 import { toSlug } from "../playlistUrl";
 import type { SearchResult } from "@/types";
 
+export async function getRecentFollowingPlaylists(
+  userId: string
+): Promise<(import("@/types").Playlist & { username: string; avatar_url: string | null })[]> {
+  const supabase = createClient();
+  const { data: followData } = await supabase
+    .from("follows")
+    .select("following_id")
+    .eq("follower_id", userId);
+  const followingIds = (followData ?? []).map((f: any) => f.following_id);
+  if (!followingIds.length) return [];
+  const { data, error } = await supabase
+    .from("playlists")
+    .select("*, profiles(username, avatar_url)")
+    .in("user_id", followingIds)
+    .eq("is_public", true)
+    .order("created_at", { ascending: false })
+    .limit(9);
+  if (error) return [];
+  return data.map((p: any) => ({
+    ...p,
+    username: p.profiles?.username ?? "",
+    avatar_url: p.profiles?.avatar_url ?? null,
+    profiles: undefined,
+  }));
+}
+
 export async function getPlaylistsByUser(userId: string): Promise<import("@/types").Playlist[]> {
   const supabase = createClient();
   const { data, error } = await supabase

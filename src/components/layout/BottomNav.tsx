@@ -50,7 +50,6 @@ export default function BottomNav() {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-surface-base pb-[env(safe-area-inset-bottom)] lg:translate-y-[100%] transition-transform duration-400">
       <BottomNavigation
-        demo
         activeTab={activeTab}
         avatarUrl={profile?.avatar_url ?? undefined}
         onTabChange={handleTabChange}

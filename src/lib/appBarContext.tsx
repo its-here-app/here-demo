@@ -4,7 +4,7 @@ import {
   createContext,
   useContext,
   useState,
-  useEffect,
+  useLayoutEffect,
   type ReactNode,
 } from "react";
 
@@ -54,7 +54,7 @@ export function useAppBar() {
 
 export function AppBarConfig({ hidden, left, center, right }: AppBarState) {
   const { setState, clearState } = useAppBar();
-  useEffect(() => {
+  useLayoutEffect(() => {
     setState({ hidden, left, center, right });
     return clearState;
   }, [hidden, left, center, right]);

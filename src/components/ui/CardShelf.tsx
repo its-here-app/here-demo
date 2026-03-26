@@ -10,7 +10,7 @@ interface CardShelfProps {
 
 export function CardShelf({ title, titleRight, children, className }: CardShelfProps) {
   return (
-    <div className={className}>
+    <div className={`flex flex-col gap-3 ${className ?? ""}`}>
       <ShelfTitle title={title} right={titleRight} />
       {children}
     </div>

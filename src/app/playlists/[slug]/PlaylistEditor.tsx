@@ -3,7 +3,6 @@
 import { useState, useRef } from "react";
 import { useShare } from "@/lib/useShare";
 import { playlistDocTitle } from "@/lib/playlistDocTitle";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
 import {
@@ -538,19 +537,13 @@ export default function PlaylistEditor({ playlist, isOwner, onClose }: Props) {
           }
           bottomLeft={
             editMode ? undefined : (
-              <Link
+              <Avatar
+                size="sm"
+                lgSize="md"
+                src={playlist.profiles.avatar_url ?? undefined}
+                username={playlist.profiles.username}
                 href={`/${playlist.profiles.username}`}
-                className="flex items-center gap-2 lg:gap-3 cursor-pointer"
-              >
-                <Avatar
-                  size="sm"
-                  lgSize="md"
-                  src={playlist.profiles.avatar_url ?? undefined}
-                />
-                <p className="text-brand text-body-xs">
-                  {playlist.profiles.username}
-                </p>
-              </Link>
+              />
             )
           }
           bottomCenter={

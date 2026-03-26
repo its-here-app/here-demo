@@ -397,7 +397,7 @@ export default function LoginPage() {
                   className="relative cursor-pointer"
                   onClick={handleAvatarClick}
                 >
-                  <Avatar size="xl" editIcon src={photoPreview || undefined} />
+                  <Avatar size="2xl" editIcon src={photoPreview || undefined} />
                 </div>
                 <input
                   ref={uploadInputRef}

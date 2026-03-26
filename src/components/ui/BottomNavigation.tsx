@@ -13,10 +13,6 @@ export type BottomNavTab = "home" | "search" | "saved" | "profile";
 interface BottomNavigationProps {
   /** Active tab — controls which icon is filled */
   activeTab?: BottomNavTab;
-  /** Shows full tab bar (home, search, add, bookmark, avatar). When false, shows add + avatar only. */
-  loggedIn?: boolean;
-  /** Shows simplified demo variant: bookmark + add + avatar */
-  demo?: boolean;
   /** Called when the + add button is pressed */
   onAdd?: () => void;
   /** Called when a tab icon is pressed */
@@ -54,101 +50,45 @@ function NavButton({
 
 export function BottomNavigation({
   activeTab,
-  loggedIn = true,
-  demo = false,
   onAdd,
   onTabChange,
   avatarUrl,
   className,
 }: BottomNavigationProps) {
-  const addButton = (
-    <IconButton
-      variant="hero"
-      icon={<Plus className="size-6" />}
-      label="Add"
-      onClick={onAdd}
-    />
-  );
-
-  // Demo: home + bookmark + add + avatar
-  if (demo) {
-    return (
-      <div
-        className={`bg-surface-base py-2 shadow-[0px_-4px_14px_0px_rgba(0,0,0,0.05)] ${className ?? ""}`}
-      >
-        <div className="flex items-center justify-evenly max-w-md mx-auto">
-          <NavButton label="Home" onClick={() => onTabChange?.("home")}>
-            <Home focus={activeTab === "home"} className="size-8" />
-          </NavButton>
-          <NavButton label="Search" onClick={() => onTabChange?.("search")}>
-            <Search focus={activeTab === "search"} className="size-8" />
-          </NavButton>
-          {addButton}
-          <NavButton label="Saved" onClick={() => onTabChange?.("saved")}>
-            <Bookmark active={activeTab === "saved"} className="size-8" />
-          </NavButton>
-          <button
-            type="button"
-            onClick={() => onTabChange?.("profile")}
-            aria-label="Profile"
-            className="transition-opacity hover:opacity-70"
-          >
-            <Avatar
-              src={avatarUrl}
-              focus={activeTab === "profile"}
-              size="sm"
-              className="mt-2"
-            />
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // Minimal / logged-out: just add + avatar
-  if (!loggedIn) {
-    return (
-      <div
-        className={`bg-surface-base flex items-center justify-center gap-[4.5rem] px-10 py-2 shadow-[0px_-4px_14px_0px_rgba(0,0,0,0.05)] ${className ?? ""}`}
-      >
-        {addButton}
-        <Avatar src={avatarUrl} />
-      </div>
-    );
-  }
-
-  // Full logged-in tab bar
   return (
     <div
-      className={`bg-surface-base flex items-center justify-between px-10 py-2 shadow-[0px_-4px_14px_0px_rgba(0,0,0,0.05)] ${className ?? ""}`}
+      className={`bg-surface-base py-2 shadow-[0px_-4px_14px_0px_rgba(0,0,0,0.05)] ${className ?? ""}`}
     >
-      <NavButton
-        active={activeTab === "home"}
-        onClick={() => onTabChange?.("home")}
-        label="Home"
-      >
-        <Home focus={activeTab === "home"} />
-      </NavButton>
-
-      {addButton}
-
-      <NavButton
-        active={activeTab === "saved"}
-        onClick={() => onTabChange?.("saved")}
-        label="Saved"
-      >
-        <Bookmark active={activeTab === "saved"} />
-      </NavButton>
-
-      <button
-        type="button"
-        onClick={() => onTabChange?.("profile")}
-        aria-label="Profile"
-        aria-current={activeTab === "profile" ? "page" : undefined}
-        className="transition-opacity hover:opacity-70"
-      >
-        <Avatar src={avatarUrl} focus={activeTab === "profile"} size="md" />
-      </button>
+      <div className="flex items-center justify-evenly max-w-md mx-auto">
+        <NavButton label="Home" onClick={() => onTabChange?.("home")}>
+          <Home focus={activeTab === "home"} className="size-8" />
+        </NavButton>
+        <NavButton label="Search" onClick={() => onTabChange?.("search")}>
+          <Search focus={activeTab === "search"} className="size-8" />
+        </NavButton>
+        <IconButton
+          variant="hero"
+          icon={<Plus className="size-6" />}
+          label="Add"
+          onClick={onAdd}
+        />
+        <NavButton label="Saved" onClick={() => onTabChange?.("saved")}>
+          <Bookmark active={activeTab === "saved"} className="size-8" />
+        </NavButton>
+        <button
+          type="button"
+          onClick={() => onTabChange?.("profile")}
+          aria-label="Profile"
+          className="transition-opacity hover:opacity-70"
+        >
+          <Avatar
+            src={avatarUrl}
+            focus={activeTab === "profile"}
+            size="md"
+            className="mt-2"
+          />
+        </button>
+      </div>
     </div>
   );
 }

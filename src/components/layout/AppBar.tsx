@@ -5,9 +5,7 @@ import { useAppBar } from "@/lib/appBarContext";
 export default function AppBar() {
   const { state } = useAppBar();
 
-  if (state.hidden || (!state.left && !state.center && !state.right)) {
-    return null;
-  }
+  if (state.hidden) return null;
 
   return (
     <div className="flex items-center mx-[var(--space-page-sm)] lg:mx-[var(--space-page-dynamic)] mt-[var(--space-page-sm)] lg:mt-[var(--space-page-dynamic)] h-9">

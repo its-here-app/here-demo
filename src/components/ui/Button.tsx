@@ -58,7 +58,7 @@ export function Button({
     : "disabled:opacity-40 disabled:!cursor-not-allowed";
   return (
     <button
-      className={`inline-flex items-center justify-center cursor-pointer transition-[filter] hover:brightness-95 active:brightness-90 ${disabledClasses} ${
+      className={`inline-flex items-center justify-center whitespace-nowrap cursor-pointer transition-[filter] hover:brightness-95 active:brightness-90 ${disabledClasses} ${
         isOverlay ? variantClasses(variant, darkTheme) : `${sizeClasses[size]} ${variantClasses(variant, darkTheme)}`
       } ${(leftIcon || rightIcon) && !isOverlay ? "rounded-full" : ""} ${className ?? ""}`}
       {...rest}

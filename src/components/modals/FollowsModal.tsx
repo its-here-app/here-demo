@@ -84,7 +84,7 @@ export default function FollowsModal({
               onClick={onClose}
               className="flex items-center gap-2 p-2 -mx-2"
             >
-              <Avatar size="lg" src={u.avatar_url ?? undefined} />
+              <Avatar size="xl" src={u.avatar_url ?? undefined} />
               <div className="flex-1 min-w-0">
                 <p className="text-body-xs text-white truncate">{u.full_name}</p>
                 <div className="flex items-center gap-1">
