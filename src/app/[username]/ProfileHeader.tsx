@@ -19,7 +19,6 @@ import {
   getRelationship,
   followUser,
   unfollowUser,
-  blockUser,
   unblockUser,
   getFollowerCount,
   getFollowingCount,
@@ -31,7 +30,7 @@ import EditProfileModal from "../../components/modals/EditProfileModal";
 import FollowsModal from "../../components/modals/FollowsModal";
 import { Sheet, ConfirmSheet } from "../../components/ui/Sheet";
 import type { SheetItem } from "../../components/ui/Sheet";
-import { removeFollowerAction } from "@/lib/actions/users";
+import { removeFollowerAction, blockUserAction } from "@/lib/actions/users";
 import { snackbar } from "@/components/ui/Snackbar";
 import { Info } from "@/components/ui/icons/Info";
 import type { Profile as ProfileData } from "@/types";
@@ -109,11 +108,14 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
       router.refresh();
     } else {
       const wasFollowing = relationship.following;
-      await blockUser(user.id, profile.id);
-      setRelationship((r) => r && { ...r, blocking: true, following: false });
-      if (wasFollowing) {
-        setCounts((c) => c && { ...c, followers: c.followers - 1 });
-      }
+      const wasFollowedBy = relationship.followedBy;
+      await blockUserAction(profile.id);
+      setRelationship((r) => r && { ...r, blocking: true, following: false, followedBy: false });
+      setCounts((c) => c && {
+        ...c,
+        followers: c.followers - (wasFollowing ? 1 : 0),
+        following: c.following - (wasFollowedBy ? 1 : 0),
+      });
     }
   }
 
