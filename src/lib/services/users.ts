@@ -106,6 +106,7 @@ export async function signOut() {
 
 export interface FollowUser extends Profile {
   mutual: boolean;
+  mutualCount: number;
 }
 
 export async function getFollowerCount(userId: string): Promise<number> {
@@ -144,7 +145,7 @@ export async function getFollowers(
     .in("id", ids);
   if (!profileData) return [];
 
-  if (!currentUserId) return profileData.map((p: Profile) => ({ ...p, mutual: false }));
+  if (!currentUserId) return profileData.map((p: Profile) => ({ ...p, mutual: false, mutualCount: 0 }));
 
   const { data: following } = await supabase
     .from("follows")
@@ -152,7 +153,24 @@ export async function getFollowers(
     .eq("follower_id", currentUserId);
   const followingIds = new Set((following ?? []).map((r: { following_id: string }) => r.following_id));
 
-  return profileData.map((p: Profile) => ({ ...p, mutual: followingIds.has(p.id) }));
+  // Get who each person in the list follows, to count mutuals (people you both follow)
+  const { data: theirFollows } = await supabase
+    .from("follows")
+    .select("follower_id, following_id")
+    .in("follower_id", ids);
+
+  const mutualCounts = new Map<string, number>();
+  for (const row of theirFollows ?? []) {
+    if (followingIds.has(row.following_id)) {
+      mutualCounts.set(row.follower_id, (mutualCounts.get(row.follower_id) ?? 0) + 1);
+    }
+  }
+
+  return profileData.map((p: Profile) => ({
+    ...p,
+    mutual: followingIds.has(p.id),
+    mutualCount: p.id === currentUserId ? 0 : (mutualCounts.get(p.id) ?? 0),
+  }));
 }
 
 export async function getFollowing(
@@ -173,7 +191,7 @@ export async function getFollowing(
     .in("id", ids);
   if (!profileData) return [];
 
-  if (!currentUserId) return profileData.map((p: Profile) => ({ ...p, mutual: false }));
+  if (!currentUserId) return profileData.map((p: Profile) => ({ ...p, mutual: false, mutualCount: 0 }));
 
   const { data: myFollowing } = await supabase
     .from("follows")
@@ -181,7 +199,24 @@ export async function getFollowing(
     .eq("follower_id", currentUserId);
   const followingIds = new Set((myFollowing ?? []).map((r: { following_id: string }) => r.following_id));
 
-  return profileData.map((p: Profile) => ({ ...p, mutual: followingIds.has(p.id) }));
+  // Get who each person in the list follows, to count mutuals (people you both follow)
+  const { data: theirFollows } = await supabase
+    .from("follows")
+    .select("follower_id, following_id")
+    .in("follower_id", ids);
+
+  const mutualCounts = new Map<string, number>();
+  for (const row of theirFollows ?? []) {
+    if (followingIds.has(row.following_id)) {
+      mutualCounts.set(row.follower_id, (mutualCounts.get(row.follower_id) ?? 0) + 1);
+    }
+  }
+
+  return profileData.map((p: Profile) => ({
+    ...p,
+    mutual: followingIds.has(p.id),
+    mutualCount: p.id === currentUserId ? 0 : (mutualCounts.get(p.id) ?? 0),
+  }));
 }
 
 export async function getRelationship(

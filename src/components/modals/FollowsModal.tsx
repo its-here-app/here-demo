@@ -89,8 +89,8 @@ export default function FollowsModal({
                 <p className="text-body-xs text-white truncate">{u.full_name}</p>
                 <div className="flex items-center gap-1">
                   <p className="text-body-xs text-grey-500 truncate">@{u.username}</p>
-                  {u.mutual && (
-                    <span className="text-body-xs text-grey-500 flex-shrink-0">· mutual</span>
+                  {u.mutualCount > 0 && (
+                    <span className="text-body-xs text-grey-500 flex-shrink-0">· {u.mutualCount} mutual{u.mutualCount !== 1 ? "s" : ""}</span>
                   )}
                 </div>
               </div>
