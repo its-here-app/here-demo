@@ -1,6 +1,7 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createClient as createServerClient } from "@/lib/supabase/server";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 
 export async function updateProfileAction(params: {
@@ -10,7 +11,7 @@ export async function updateProfileAction(params: {
   avatar_url: string;
   previousUsername: string;
 }): Promise<void> {
-  const supabase = await createClient();
+  const supabase = await createServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -31,4 +32,25 @@ export async function updateProfileAction(params: {
   if (params.username !== params.previousUsername) {
     revalidatePath(`/${params.username}`);
   }
+}
+
+export async function removeFollowerAction(followerId: string): Promise<void> {
+  const supabase = await createServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  // Use admin client to bypass RLS since we're deleting another user's follow row
+  const admin = createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SECRET_KEY!,
+  );
+
+  const { error } = await admin
+    .from("follows")
+    .delete()
+    .eq("follower_id", followerId)
+    .eq("following_id", user.id);
+  if (error) throw error;
 }

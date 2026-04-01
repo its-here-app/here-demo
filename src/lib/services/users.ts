@@ -222,14 +222,20 @@ export async function getFollowing(
 export async function getRelationship(
   currentUserId: string,
   targetUserId: string
-): Promise<{ following: boolean; blocking: boolean; blockedBy: boolean }> {
+): Promise<{ following: boolean; followedBy: boolean; blocking: boolean; blockedBy: boolean }> {
   const supabase = createClient();
-  const [followingRes, blockingRes, blockedByRes] = await Promise.all([
+  const [followingRes, followedByRes, blockingRes, blockedByRes] = await Promise.all([
     supabase
       .from("follows")
       .select("id")
       .eq("follower_id", currentUserId)
       .eq("following_id", targetUserId)
+      .maybeSingle(),
+    supabase
+      .from("follows")
+      .select("id")
+      .eq("follower_id", targetUserId)
+      .eq("following_id", currentUserId)
       .maybeSingle(),
     supabase
       .from("blocks")
@@ -246,6 +252,7 @@ export async function getRelationship(
   ]);
   return {
     following: !!followingRes.data,
+    followedBy: !!followedByRes.data,
     blocking: !!blockingRes.data,
     blockedBy: !!blockedByRes.data,
   };

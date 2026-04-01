@@ -31,6 +31,9 @@ import EditProfileModal from "../../components/modals/EditProfileModal";
 import FollowsModal from "../../components/modals/FollowsModal";
 import { Sheet, ConfirmSheet } from "../../components/ui/Sheet";
 import type { SheetItem } from "../../components/ui/Sheet";
+import { removeFollowerAction } from "@/lib/actions/users";
+import { snackbar } from "@/components/ui/Snackbar";
+import { Info } from "@/components/ui/icons/Info";
 import type { Profile as ProfileData } from "@/types";
 
 interface ProfileHeaderProps {
@@ -60,6 +63,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
   } | null>(null);
   const [relationship, setRelationship] = useState<{
     following: boolean;
+    followedBy: boolean;
     blocking: boolean;
     blockedBy: boolean;
   } | null>(null);
@@ -113,6 +117,29 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
     }
   }
 
+  function handleRemoveFollower() {
+    if (!user || !relationship) return;
+    setRelationship((r) => r && { ...r, followedBy: false });
+    setCounts((c) => c && { ...c, following: c.following - 1 });
+    snackbar({
+      icon: <Info />,
+      message: "Removed from your followers",
+      actionLabel: "Undo",
+      onAction: () => {
+        setRelationship((r) => r && { ...r, followedBy: true });
+        setCounts((c) => c && { ...c, following: c.following + 1 });
+      },
+      onDismiss: async () => {
+        try {
+          await removeFollowerAction(profile.id);
+        } catch {
+          setRelationship((r) => r && { ...r, followedBy: true });
+          setCounts((c) => c && { ...c, following: c.following + 1 });
+        }
+      },
+    });
+  }
+
   function copyProfileUrl() {
     copyToClipboard(`${window.location.origin}/${profile.username}`);
   }
@@ -147,13 +174,15 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
       ]
     : [
         ...(canShare ? [shareItem] : []),
-        {
-          label: "Remove follower [TODO]",
-          onClick: () => {
-            /* TODO */
-          },
-          icon: <Person />,
-        },
+        ...(relationship?.followedBy
+          ? [
+              {
+                label: "Remove follower",
+                onClick: handleRemoveFollower,
+                icon: <Person />,
+              },
+            ]
+          : []),
         { label: "Copy profile URL", onClick: copyProfileUrl, icon: <Link /> },
         relationship?.blocking
           ? {
