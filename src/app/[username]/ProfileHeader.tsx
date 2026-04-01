@@ -109,13 +109,14 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
     } else {
       const wasFollowing = relationship.following;
       const wasFollowedBy = relationship.followedBy;
-      await blockUserAction(profile.id);
       setRelationship((r) => r && { ...r, blocking: true, following: false, followedBy: false });
       setCounts((c) => c && {
         ...c,
         followers: c.followers - (wasFollowing ? 1 : 0),
         following: c.following - (wasFollowedBy ? 1 : 0),
       });
+      await blockUserAction(profile.id);
+      router.refresh();
     }
   }
 
