@@ -13,12 +13,16 @@ import { ArrowLeft } from "@/components/ui/icons/ArrowLeft";
 import { ArrowRight } from "@/components/ui/icons/ArrowRight";
 import { useAuth } from "@/lib/authContext";
 import { getPlaylistsByUser, getRecentFollowingPlaylists } from "@/lib/services/playlists";
-import { getUserUsername } from "@/lib/services/users";
+import { getUserUsername, getProfile } from "@/lib/services/users";
+import { createClient } from "@/lib/supabase/client";
+import { upsertCityAction } from "@/lib/actions/cities";
+import { updateProfileCityAction } from "@/lib/actions/users";
 import { playlistUrl } from "@/lib/playlistUrl";
 import type { Playlist } from "@/types";
 import { useRouter } from "next/navigation";
 import useEmblaCarousel from "embla-carousel-react";
 import { openCreatePlaylist } from "@/components/modals/CreatePlaylistFlow";
+import CityPickerModal from "@/components/modals/CityPickerModal";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 export default function HomePage() {
@@ -27,6 +31,8 @@ export default function HomePage() {
   const [latestPlaylist, setLatestPlaylist] = useState<Playlist | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [followingPlaylists, setFollowingPlaylists] = useState<(Playlist & { username: string; avatar_url: string | null })[]>([]);
+  const [cityName, setCityName] = useState<string | null>(null);
+  const [cityPickerOpen, setCityPickerOpen] = useState(false);
   const [yourPlaylistsLoaded, setYourPlaylistsLoaded] = useState(false);
   const [followingLoaded, setFollowingLoaded] = useState(false);
   const [emblaRef, emblaApi] = useEmblaCarousel({ align: "start", dragFree: true });
@@ -40,6 +46,17 @@ export default function HomePage() {
   useEffect(() => {
     if (!user) return;
     getUserUsername(user.id).then(setUsername);
+    getProfile(user.id).then(async (profile) => {
+      if (profile?.city_id) {
+        const supabase = createClient();
+        const { data: city } = await supabase
+          .from("cities")
+          .select("display_name")
+          .eq("id", profile.city_id)
+          .single();
+        if (city) setCityName(city.display_name);
+      }
+    });
     getPlaylistsByUser(user.id).then((playlists) => {
       setLatestPlaylist(playlists[0] ?? null);
       setYourPlaylistsLoaded(true);
@@ -55,8 +72,13 @@ export default function HomePage() {
       <AppBarConfig
         left={<div className="lg:hidden"><FullLogo /></div>}
         right={
-          <Button variant="tonal" size="sm" leftIcon={<Map />}>
-            Los Angeles
+          <Button
+            variant="tonal"
+            size="sm"
+            leftIcon={<Map />}
+            onClick={() => setCityPickerOpen(true)}
+          >
+            {cityName ?? "Choose city"}
           </Button>
         }
       />
@@ -133,6 +155,19 @@ export default function HomePage() {
         </CardShelf>
         <CardShelf title="Today's most saved" />
       </div>
+
+      <CityPickerModal
+        isOpen={cityPickerOpen}
+        onClose={() => setCityPickerOpen(false)}
+        onSelect={async (city) => {
+          setCityName(city.display_name);
+          const cityId = await upsertCityAction({
+            google_place_id: city.google_place_id,
+            display_name: city.display_name,
+          });
+          await updateProfileCityAction(cityId);
+        }}
+      />
     </>
   );
 }

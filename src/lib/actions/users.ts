@@ -18,7 +18,13 @@ export async function updateProfileAction(params: {
   } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
 
-  const { error } = await supabase
+  // Use admin client to bypass RLS column restrictions (e.g. city_id)
+  const admin = createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SECRET_KEY!,
+  );
+
+  const { error } = await admin
     .from("profiles")
     .update({
       full_name: params.full_name,
@@ -34,6 +40,25 @@ export async function updateProfileAction(params: {
   if (params.username !== params.previousUsername) {
     revalidatePath(`/${params.username}`);
   }
+}
+
+export async function updateProfileCityAction(cityId: string): Promise<void> {
+  const supabase = await createServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const admin = createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SECRET_KEY!,
+  );
+
+  const { error } = await admin
+    .from("profiles")
+    .update({ city_id: cityId })
+    .eq("id", user.id);
+  if (error) throw error;
 }
 
 export async function removeFollowerAction(followerId: string): Promise<void> {

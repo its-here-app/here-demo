@@ -19,6 +19,7 @@ import { toast } from "../../components/ui/Toast";
 
 import { CityAutocompleteInput } from "../../components/ui/inputs/CityAutocompleteInput";
 import { upsertCityAction } from "../../lib/actions/cities";
+import { updateProfileAction } from "../../lib/actions/users";
 import { getUserByUsername } from "../../lib/services/users";
 
 type Step = "auth" | "profile";
@@ -242,14 +243,6 @@ export default function LoginPage() {
         photoUrl = publicUrl;
       }
 
-      let cityId = null;
-      if (cityPlaceId && cityDisplay) {
-        cityId = await upsertCityAction({
-          google_place_id: cityPlaceId,
-          display_name: cityDisplay,
-        });
-      }
-
       const { error: dbError } = await supabase.from("profiles").upsert({
         id: user.id,
         email: user.email,
@@ -257,10 +250,25 @@ export default function LoginPage() {
         username,
         bio,
         avatar_url: photoUrl,
-        city_id: cityId,
       });
 
       if (dbError) throw dbError;
+
+      // Save city via server action (client-side upsert can't write city_id due to RLS)
+      if (cityPlaceId && cityDisplay) {
+        const cityId = await upsertCityAction({
+          google_place_id: cityPlaceId,
+          display_name: cityDisplay,
+        });
+        await updateProfileAction({
+          full_name: name,
+          username,
+          bio,
+          avatar_url: photoUrl ?? "",
+          city_id: cityId,
+          previousUsername: username,
+        });
+      }
 
       router.push("/");
     } catch (err: any) {
