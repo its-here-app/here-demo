@@ -29,6 +29,13 @@ export interface Playlist {
   spot_count?: number;
 }
 
+export interface City {
+  id: string;
+  google_place_id: string;
+  display_name: string;
+  created_at: string;
+}
+
 export interface Profile {
   id: string;
   username: string;
@@ -36,6 +43,7 @@ export interface Profile {
   email?: string | null;
   bio?: string | null;
   avatar_url?: string | null;
+  city_id?: string | null;
   created_at: string;
 }
 

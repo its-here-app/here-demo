@@ -9,6 +9,7 @@ export async function updateProfileAction(params: {
   username: string;
   bio: string;
   avatar_url: string;
+  city_id?: string | null;
   previousUsername: string;
 }): Promise<void> {
   const supabase = await createServerClient();
@@ -24,6 +25,7 @@ export async function updateProfileAction(params: {
       username: params.username,
       bio: params.bio,
       avatar_url: params.avatar_url,
+      city_id: params.city_id ?? null,
     })
     .eq("id", user.id);
   if (error) throw error;

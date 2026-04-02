@@ -31,6 +31,7 @@ async function resolveUniqueSlug(
 export async function createPlaylistAction(params: {
   name: string;
   city: string;
+  city_id?: string;
   description: string;
   is_public: boolean;
   coverUrl?: string;
@@ -57,6 +58,7 @@ export async function createPlaylistAction(params: {
       user_id: user.id,
       name: params.name,
       city: params.city,
+      city_id: params.city_id ?? null,
       slug,
       description: params.description,
       is_public: params.is_public,

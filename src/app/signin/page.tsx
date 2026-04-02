@@ -17,6 +17,8 @@ import { Error } from "../../components/ui/icons/Error";
 import { FullLogo } from "../../components/ui/Logo";
 import { toast } from "../../components/ui/Toast";
 
+import { CityAutocompleteInput } from "../../components/ui/inputs/CityAutocompleteInput";
+import { upsertCityAction } from "../../lib/actions/cities";
 import { getUserByUsername } from "../../lib/services/users";
 
 type Step = "auth" | "profile";
@@ -42,6 +44,8 @@ export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [usernameStatus, setUsernameStatus] = useState<UsernameStatus>("idle");
   const [bio, setBio] = useState("");
+  const [cityDisplay, setCityDisplay] = useState("");
+  const [cityPlaceId, setCityPlaceId] = useState("");
   const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string>("");
   const [saving, setSaving] = useState(false);
@@ -204,6 +208,8 @@ export default function LoginPage() {
     setName("");
     setUsername("");
     setBio("");
+    setCityDisplay("");
+    setCityPlaceId("");
     setProfilePhoto(null);
     setPhotoPreview("");
     setError("");
@@ -236,6 +242,14 @@ export default function LoginPage() {
         photoUrl = publicUrl;
       }
 
+      let cityId = null;
+      if (cityPlaceId && cityDisplay) {
+        cityId = await upsertCityAction({
+          google_place_id: cityPlaceId,
+          display_name: cityDisplay,
+        });
+      }
+
       const { error: dbError } = await supabase.from("profiles").upsert({
         id: user.id,
         email: user.email,
@@ -243,6 +257,7 @@ export default function LoginPage() {
         username,
         bio,
         avatar_url: photoUrl,
+        city_id: cityId,
       });
 
       if (dbError) throw dbError;
@@ -495,6 +510,20 @@ export default function LoginPage() {
                 maxLength={110}
                 placeholder="Tell us something about yourself... (Optional bio)"
                 state={bio ? "filled" : "default"}
+              />
+
+              <CityAutocompleteInput
+                focusBrand
+                label="City"
+                value={cityDisplay}
+                placeholder="Your city"
+                onSelect={(city) => {
+                  setCityDisplay(city.display_name);
+                  setCityPlaceId(city.google_place_id);
+                }}
+                onChange={() => {
+                  setCityPlaceId("");
+                }}
               />
             </form>
 

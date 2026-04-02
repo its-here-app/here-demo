@@ -17,6 +17,8 @@ import {
   uploadProfilePhoto,
 } from "@/lib/services/users";
 import { updateProfileAction } from "@/lib/actions/users";
+import { upsertCityAction } from "@/lib/actions/cities";
+import { CityAutocompleteInput } from "../ui/inputs/CityAutocompleteInput";
 
 type UsernameStatus = "idle" | "too-short" | "checking" | "valid" | "taken";
 
@@ -42,6 +44,8 @@ export default function EditProfileModal({
   const [initialUsername, setInitialUsername] = useState("");
   const [usernameStatus, setUsernameStatus] = useState<UsernameStatus>("idle");
   const [bio, setBio] = useState("");
+  const [cityDisplay, setCityDisplay] = useState("");
+  const [cityPlaceId, setCityPlaceId] = useState("");
   const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string>("");
   const [currentPhotoUrl, setCurrentPhotoUrl] = useState<string>("");
@@ -123,6 +127,21 @@ export default function EditProfileModal({
         setBio(profile.bio || "");
         setCurrentPhotoUrl(profile.avatar_url || "");
         setPhotoPreview(profile.avatar_url || "");
+
+        if (profile.city_id) {
+          // Fetch city display name
+          const { createClient } = await import("@/lib/supabase/client");
+          const supabase = createClient();
+          const { data: city } = await supabase
+            .from("cities")
+            .select("google_place_id, display_name")
+            .eq("id", profile.city_id)
+            .single();
+          if (city) {
+            setCityDisplay(city.display_name);
+            setCityPlaceId(city.google_place_id);
+          }
+        }
       }
     } catch {
       toast({ icon: <Error />, message: "Failed to load profile" });
@@ -158,11 +177,20 @@ export default function EditProfileModal({
         );
       }
 
+      let cityId: string | null = null;
+      if (cityPlaceId && cityDisplay) {
+        cityId = await upsertCityAction({
+          google_place_id: cityPlaceId,
+          display_name: cityDisplay,
+        });
+      }
+
       await updateProfileAction({
         full_name: name,
         username,
         bio,
         avatar_url: photoUrl,
+        city_id: cityId,
         previousUsername: initialUsername,
       });
 
@@ -291,6 +319,20 @@ export default function EditProfileModal({
         maxLength={110}
         placeholder="Tell us something about yourself..."
         state={bio ? "filled" : "default"}
+      />
+
+      <CityAutocompleteInput
+        focusBrand
+        label="City"
+        value={cityDisplay}
+        placeholder="Your city"
+        onSelect={(city) => {
+          setCityDisplay(city.display_name);
+          setCityPlaceId(city.google_place_id);
+        }}
+        onChange={() => {
+          setCityPlaceId("");
+        }}
       />
 
       {/* Delete account */}

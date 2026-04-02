@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
 import { BottomPanel } from "@/components/ui/BottomPanel";
 import { TextInput } from "@/components/ui/inputs";
-import { GhostInput } from "@/components/ui/inputs/GhostInput";
+import { CityAutocompleteInput } from "@/components/ui/inputs/CityAutocompleteInput";
 import { Button } from "@/components/ui/Button";
 import { ConfirmSheet } from "@/components/ui/Sheet";
 import { snackbar } from "@/components/ui/Snackbar";
@@ -17,6 +17,7 @@ import { getDefaultCover } from "@/lib/playlist-covers";
 import { resolveSpot, uploadPlaylistCover } from "@/lib/services/playlists";
 import { randomPlaylistName } from "@/lib/playlistNames";
 import { createPlaylistAction } from "@/lib/actions/playlists";
+import { upsertCityAction } from "@/lib/actions/cities";
 import type { DraftSpot } from "@/types";
 
 // ─── Imperative trigger ───────────────────────────────────────────────────────
@@ -43,6 +44,7 @@ export function CreatePlaylistFlow() {
 
   // Form state
   const [city, setCity] = useState("");
+  const [cityPlaceId, setCityPlaceId] = useState("");
   const [draftName, setDraftName] = useState("");
   const defaultNameRef = useRef("");
   const lastNameRef = useRef("");
@@ -81,6 +83,7 @@ export function CreatePlaylistFlow() {
 
   function resetState() {
     setCity("");
+    setCityPlaceId("");
     setDraftName("");
     setDescription("");
     setIsPublic(false);
@@ -113,6 +116,7 @@ export function CreatePlaylistFlow() {
   function closePanel() {
     setPanelOpen(false);
     setCity("");
+    setCityPlaceId("");
   }
 
   // ── Step 1: Create ─────────────────────────────────────────────────────────
@@ -187,9 +191,18 @@ export function CreatePlaylistFlow() {
     setSaving(true);
 
     try {
+      let cityId: string | undefined;
+      if (cityPlaceId && city) {
+        cityId = await upsertCityAction({
+          google_place_id: cityPlaceId,
+          display_name: city,
+        });
+      }
+
       const result = await createPlaylistAction({
         name: draftName.trim(),
         city,
+        city_id: cityId,
         description,
         is_public: isPublic,
         spots: foundSpots,
@@ -235,7 +248,7 @@ export function CreatePlaylistFlow() {
             size="md"
             darkTheme
             softDisabled
-            disabled={!city.trim()}
+            disabled={!cityPlaceId}
             onClick={handleCreate}
             className="w-full"
           >
@@ -248,17 +261,24 @@ export function CreatePlaylistFlow() {
             size="lg"
             darkTheme
             softDisabled
-            disabled={!city.trim()}
+            disabled={!cityPlaceId}
             onClick={handleCreate}
           >
             Create
           </Button>
         }
       >
-        <GhostInput
+        <CityAutocompleteInput
+          variant="ghost"
           value={city}
-          onChange={(e) => setCity(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && city.trim() && handleCreate()}
+          onSelect={(c) => {
+            setCity(c.display_name);
+            setCityPlaceId(c.google_place_id);
+          }}
+          onChange={(val) => {
+            setCity(val);
+            setCityPlaceId("");
+          }}
           placeholder="New York"
           autoFocus
           className="lg:-mt-[1.5rem]"
