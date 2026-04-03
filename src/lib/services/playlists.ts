@@ -2,7 +2,7 @@ import { createClient } from "../supabase/client";
 import { track } from "../analytics";
 import { getDefaultCover } from "../playlist-covers";
 import { toSlug } from "../playlistUrl";
-import type { SearchResult } from "@/types";
+import type { SearchResult, TodaysPick, Spot } from "@/types";
 
 export async function getRecentFollowingPlaylists(
   userId: string
@@ -43,6 +43,48 @@ export async function getPlaylistsByUser(userId: string): Promise<import("@/type
     spot_count: p.playlist_spots?.[0]?.count ?? 0,
     playlist_spots: undefined,
   }));
+}
+
+export async function getTodaysPick(): Promise<TodaysPick | null> {
+  const supabase = createClient();
+
+  const { data: psData } = await supabase
+    .from("playlist_spots")
+    .select(
+      "spot_id, playlists!inner(name, city, is_public, profiles!playlists_user_id_fkey(username))"
+    )
+    .eq("playlists.is_public", true)
+    .limit(50);
+
+  if (!psData || psData.length === 0) return null;
+
+  const spotIds = [...new Set(psData.map((r: any) => r.spot_id))];
+  const { data: spots } = await supabase
+    .from("spots")
+    .select("*")
+    .in("id", spotIds)
+    .not("photo_url", "is", null);
+
+  if (!spots || spots.length === 0) return null;
+
+  // Deterministic daily pick using date as seed
+  const seed = new Date()
+    .toISOString()
+    .slice(0, 10)
+    .split("")
+    .reduce((a, c) => a + c.charCodeAt(0), 0);
+  const pick = spots[seed % spots.length] as Spot;
+
+  // Find the playlist info for this spot
+  const entry = psData.find((r: any) => r.spot_id === pick.id);
+  const playlist = (entry as any)?.playlists;
+
+  return {
+    spot: pick,
+    playlist_name: playlist?.name ?? "",
+    playlist_city: playlist?.city ?? "",
+    username: playlist?.profiles?.username ?? "",
+  };
 }
 
 export async function searchSpots(

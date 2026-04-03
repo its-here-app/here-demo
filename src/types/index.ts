@@ -57,6 +57,13 @@ export interface SearchResult {
   types?: string[] | null;
 }
 
+export interface TodaysPick {
+  spot: Spot;
+  playlist_name: string;
+  playlist_city: string;
+  username: string;
+}
+
 // A Google Places result before it's been saved to the spots table
 export type DraftSpot = Pick<
   Spot,
