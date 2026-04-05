@@ -180,7 +180,7 @@ export default function PlaylistEditor({ playlist, isOwner, onClose }: Props) {
   const [editMode, setEditMode] = useState(false);
   const coverInputRef = useRef<HTMLInputElement>(null);
   const [coverUrl, setCoverUrl] = useState<string>(
-    playlist.cover_photo_url ?? getDefaultCover(playlist.city),
+    playlist.cover_photo_url ?? getDefaultCover(playlist.city, playlist.name),
   );
   const [name, setName] = useState<string>(playlist.name ?? "");
   const lastNameRef = useRef<string>(playlist.name ?? "");

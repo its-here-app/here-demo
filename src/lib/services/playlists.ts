@@ -217,7 +217,7 @@ export async function createPlaylist(params: {
   const supabase = createClient();
   const { data, error } = await supabase
     .from("playlists")
-    .insert({ ...params, cover_photo_url: getDefaultCover(params.city) })
+    .insert({ ...params, cover_photo_url: getDefaultCover(params.city, params.name) })
     .select()
     .single();
   if (error) throw error;

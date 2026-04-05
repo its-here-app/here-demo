@@ -225,7 +225,7 @@ export default function SavesPage() {
                     key={id}
                     size="sm"
                     image={
-                      playlist.cover_photo_url ?? getDefaultCover(playlist.city)
+                      playlist.cover_photo_url ?? getDefaultCover(playlist.city, playlist.name)
                     }
                     city={playlist.city}
                     name={playlist.name}

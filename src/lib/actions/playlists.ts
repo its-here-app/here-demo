@@ -62,7 +62,7 @@ export async function createPlaylistAction(params: {
       slug,
       description: params.description,
       is_public: params.is_public,
-      cover_photo_url: params.coverUrl ?? getDefaultCover(params.city),
+      cover_photo_url: params.coverUrl ?? getDefaultCover(params.city, params.name),
     })
     .select()
     .single();

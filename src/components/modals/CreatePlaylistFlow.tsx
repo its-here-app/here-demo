@@ -60,6 +60,16 @@ export function CreatePlaylistFlow() {
   const coverInputRef = useRef<HTMLInputElement>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState("");
+  const [defaultCover, setDefaultCover] = useState("");
+
+  // Recompute the default cover only after the user pauses typing, so the
+  // image doesn't flicker on every keystroke (since getDefaultCover is random).
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDefaultCover(getDefaultCover(city, draftName));
+    }, 400);
+    return () => clearTimeout(t);
+  }, [city, draftName]);
 
   // Listen for imperative open calls
   useEffect(() => {
@@ -299,7 +309,7 @@ export function CreatePlaylistFlow() {
               <PlaylistCard
                 className="h-[30rem] lg:h-full"
                 size="hero"
-                image={coverPreview || getDefaultCover(city)}
+                image={coverPreview || defaultCover}
                 city={city}
                 name={draftName}
                 onNameChange={(v) => { setDraftName(v); if (v.trim()) lastNameRef.current = v; }}
